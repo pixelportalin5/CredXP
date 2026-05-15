@@ -11,7 +11,10 @@ const app = express();
 app.use(helmet());
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: [
+      "http://localhost:3000",
+      "https://credxp-mvp.vercel.app",
+    ],
     credentials: true,
   })
 );
