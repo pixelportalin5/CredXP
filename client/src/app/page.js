@@ -12,9 +12,21 @@ export default function HomePage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative flex min-h-[75vh] items-center justify-center overflow-hidden">
+<section className="relative flex min-h-screen items-center justify-center overflow-hidden">       <div className="absolute inset-0">
+  <img
+    src="/bg-office.jpg"
+    alt="Office Background"
+className="h-full w-full object-cover object-center opacity-75 scale-105"  />
+
+  {/* Main dark cinematic overlay */}
+<div className="absolute inset-0 bg-slate-950/45" />
+  {/* Indigo cinematic tint */}
+  <div className="absolute inset-0 bg-indigo-900/10" />
+    className="h-full w-full object-cover object-center opacity-50 scale-105"
+  {/* Soft vignette */}
+  <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/40" />
+</div>
         {/* Animated gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-indigo-950/40 to-slate-950" />
         <div className="absolute -top-32 left-1/2 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-indigo-500/15 blur-[100px] animate-pulse" />
         <div className="absolute bottom-0 right-0 h-[300px] w-[400px] rounded-full bg-purple-500/10 blur-[80px]" />
 
