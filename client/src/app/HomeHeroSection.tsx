@@ -39,8 +39,8 @@ const goalCards = [
 
 const heroBackgrounds: Record<(typeof goalCards)[number]["key"], string | typeof heroBackground> = {
   invest: heroBackground,
-  lease: "/hero2.png",
-  coworking: "/hero3.png",
+  lease: "/hero2.jpeg",
+  coworking: "/hero3.jpeg",
 };
 
 const SHOW_HERO_SEARCH = false;
