@@ -251,7 +251,7 @@ body {
 .blue-hero-bg {
   background:
     linear-gradient(90deg, rgba(5, 12, 25, 0.72), rgba(6, 18, 35, 0.48)),
-    url("/images/blue%20background.png");
+    url("/images/blue-background.png");
   background-size: cover;
   background-position: center;
 }
@@ -259,7 +259,7 @@ body {
 .black-section-bg {
   background:
     linear-gradient(135deg, rgba(2, 6, 23, 0.54), rgba(2, 6, 23, 0.68)),
-    url("/images/black%20background.jpg");
+    url("/images/black-background.jpg");
   background-size: cover;
   background-position: center;
 }
