@@ -1,4 +1,6 @@
 const Property = require("../models/Property");
+const Enquiry = require("../models/Enquiry");
+const ApiError = require("../utils/ApiError");
 
 /**
  * Build sort object from query string
@@ -23,7 +25,10 @@ const propertyService = {
    * Get all properties with pagination, filtering, and sorting
    */
   async getAll({ page = 1, limit = 10, type, status, city, minPrice, maxPrice, sort }) {
-    const query = {};
+    const query = {
+      isActive: { $ne: false },
+      listingStatus: { $in: ["published", null] },
+    };
 
     if (type) query.type = type;
     if (status) query.status = status;
@@ -59,7 +64,11 @@ const propertyService = {
    * Get properties by status (for homepage sections)
    */
   async getByStatus(status, limit = 6) {
-    return Property.find({ status })
+    return Property.find({
+      status,
+      isActive: { $ne: false },
+      listingStatus: { $in: ["published", null] },
+    })
       .sort({ createdAt: -1 })
       .limit(Number(limit));
   },
@@ -68,14 +77,21 @@ const propertyService = {
    * Get a single property by ID
    */
   async getById(id) {
-    return Property.findById(id);
+    const property = await Property.findById(id);
+    if (property) {
+      await Property.findByIdAndUpdate(id, { $inc: { views: 1 } });
+    }
+    return property;
   },
 
   /**
    * Search properties by text query
    */
   async search({ q, type, city, minPrice, maxPrice, sort, page = 1, limit = 10 }) {
-    const query = {};
+    const query = {
+      isActive: { $ne: false },
+      listingStatus: { $in: ["published", null] },
+    };
 
     if (q) {
       query.title = { $regex: q, $options: "i" };
@@ -112,8 +128,64 @@ const propertyService = {
   /**
    * Create a new property
    */
-  async create(data) {
-    return Property.create(data);
+  async create(data, user) {
+    const payload = { ...data };
+
+    if (user) {
+      if (!["seller", "admin"].includes(user.role)) {
+        throw new ApiError(403, "Seller access required");
+      }
+
+      if (!Array.isArray(payload.images) || payload.images.length !== 3) {
+        throw new ApiError(400, "Seller-created listings require exactly 3 images");
+      }
+
+      payload.seller = user._id;
+      payload.isActive = payload.isActive !== false;
+      payload.listingStatus = payload.listingStatus || "published";
+    }
+
+    return Property.create(payload);
+  },
+
+  async getSellerProperties(sellerId) {
+    return Property.find({ seller: sellerId }).sort({ createdAt: -1 });
+  },
+
+  async updateByOwner(id, data, user) {
+    const property = await Property.findById(id);
+    if (!property) {
+      throw new ApiError(404, "Property not found");
+    }
+
+    const isOwner = property.seller?.toString() === user._id.toString();
+    if (!isOwner && user.role !== "admin") {
+      throw new ApiError(403, "You can only update your own listings");
+    }
+
+    if (property.seller && data.images && data.images.length !== 3) {
+      throw new ApiError(400, "Seller-created listings require exactly 3 images");
+    }
+
+    Object.assign(property, data);
+    await property.save();
+    return property;
+  },
+
+  async deleteByOwner(id, user) {
+    const property = await Property.findById(id);
+    if (!property) {
+      throw new ApiError(404, "Property not found");
+    }
+
+    const isOwner = property.seller?.toString() === user._id.toString();
+    if (!isOwner && user.role !== "admin") {
+      throw new ApiError(403, "You can only delete your own listings");
+    }
+
+    await Enquiry.deleteMany({ propertyId: property._id });
+    await property.deleteOne();
+    return { id };
   },
 };
 

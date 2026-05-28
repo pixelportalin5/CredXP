@@ -66,8 +66,47 @@ const getPropertyById = async (req, res, next) => {
  */
 const createProperty = async (req, res, next) => {
   try {
-    const property = await propertyService.create(req.body);
+    const property = await propertyService.create(req.body, req.user);
     res.status(201).json({ success: true, data: property });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc   Get seller-owned properties
+ * @route  GET /api/properties/seller/my-properties
+ */
+const getSellerProperties = async (req, res, next) => {
+  try {
+    const properties = await propertyService.getSellerProperties(req.user._id);
+    res.json({ success: true, data: properties });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc   Update seller-owned property
+ * @route  PUT /api/properties/:id
+ */
+const updateProperty = async (req, res, next) => {
+  try {
+    const property = await propertyService.updateByOwner(req.params.id, req.body, req.user);
+    res.json({ success: true, data: property });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc   Delete seller-owned property
+ * @route  DELETE /api/properties/:id
+ */
+const deleteProperty = async (req, res, next) => {
+  try {
+    const result = await propertyService.deleteByOwner(req.params.id, req.user);
+    res.json({ success: true, data: result });
   } catch (error) {
     next(error);
   }
@@ -79,4 +118,7 @@ module.exports = {
   searchProperties,
   getPropertyById,
   createProperty,
+  getSellerProperties,
+  updateProperty,
+  deleteProperty,
 };

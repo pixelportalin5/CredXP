@@ -19,15 +19,15 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <>
-      <section className="border-b border-slate-200 bg-white py-16 lg:py-24">
+      <section className="blue-hero-bg border-b border-white/10 py-16 text-white lg:py-24">
         <Container size="lg" className="text-center">
           <Badge variant="accent" icon={<Building2 className="h-3 w-3" />} className="mb-4">
             About Us
           </Badge>
-          <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
+          <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl lg:text-5xl">
             Transforming Commercial <span className="text-accent-500">Real Estate Discovery</span>
           </h1>
-          <p className="mx-auto mt-6 max-w-3xl text-lg leading-relaxed text-slate-600">
+          <p className="mx-auto mt-6 max-w-3xl text-lg leading-relaxed text-white/72">
             CredXP is India&apos;s premium commercial real estate intelligence platform, connecting investors, occupiers, and advisors with structured property discovery and institutional market data.
           </p>
         </Container>

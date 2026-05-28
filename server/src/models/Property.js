@@ -9,8 +9,13 @@ const propertySchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["Office Space", "Shop"],
+      enum: ["Office Space", "Shop", "Coworking Space"],
       required: [true, "Property type is required"],
+    },
+    seller: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: false,
     },
     location: {
       address: { type: String, required: true },
@@ -54,7 +59,16 @@ const propertySchema = new mongoose.Schema(
       lockInPeriod: { type: String },
     },
     amenities: [{ type: String }],
-    images: [{ type: String }],
+    images: {
+      type: [{ type: String }],
+      validate: {
+        validator(value) {
+          if (!this.seller) return true;
+          return Array.isArray(value) && value.length === 3;
+        },
+        message: "Seller-created listings require exactly 3 images",
+      },
+    },
     status: {
       type: String,
       enum: ["Recently Posted", "Trending"],
@@ -77,6 +91,29 @@ const propertySchema = new mongoose.Schema(
     description: {
       type: String,
       required: [true, "Description is required"],
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+    featured: {
+      type: Boolean,
+      default: false,
+    },
+    views: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    enquiryCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    listingStatus: {
+      type: String,
+      enum: ["draft", "published", "paused", "sold"],
+      default: "published",
     },
   },
   { timestamps: true }

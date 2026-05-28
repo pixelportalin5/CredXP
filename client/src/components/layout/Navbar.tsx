@@ -1,11 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Menu, X, ArrowRight } from "lucide-react";
+import { Menu, X, ArrowRight, UserCircle, LogOut } from "lucide-react";
 import { mainNavLinks } from "@/config/navigation";
 import { Button } from "@/components/ui/Button";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { cn } from "@/utils/cn";
 
 /* ============================================================
@@ -17,6 +19,7 @@ export default function Navbar() {
   const [mobileOpenPath, setMobileOpenPath] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+  const { user, logout } = useAuth();
 
   // Track scroll for navbar background
   useEffect(() => {
@@ -38,6 +41,11 @@ export default function Navbar() {
     return pathname.startsWith(href.split("?")[0]);
   };
 
+  const sellerLinks = user ? [
+    { href: "/list-property", label: "List Property" },
+    { href: "/seller/dashboard", label: "Dashboard" },
+  ] : [];
+
   return (
     <nav
       className={cn(
@@ -51,15 +59,17 @@ export default function Navbar() {
         {/* Logo */}
         <Link
           href="/"
-          className="flex flex-col items-start leading-none text-slate-900"
+          className="flex items-center"
           id="nav-logo"
         >
-          <span className="text-[2.5rem] font-black tracking-[-0.06em] sm:text-[3rem]">
-            Cred<span className="text-accent-500">Xp</span>
-          </span>
-          <span className="mt-1 text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-slate-700">
-            Commercial Real Estate
-          </span>
+          <Image
+            src="/logos/Credxp.webp"
+            alt="CredXP"
+            width={260}
+            height={74}
+            priority
+            className="h-14 w-auto object-contain sm:h-16"
+          />
         </Link>
 
         {/* Desktop Navigation */}
@@ -81,13 +91,50 @@ export default function Navbar() {
               )}
             </Link>
           ))}
+          {sellerLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={cn(
+                "relative py-2 text-[15px] font-semibold transition-colors",
+                isActive(link.href)
+                  ? "text-slate-900"
+                  : "text-slate-700 hover:text-slate-900"
+              )}
+            >
+              {link.label}
+              {isActive(link.href) && (
+                <span className="absolute -bottom-1 left-1/2 h-0.5 w-5 -translate-x-1/2 rounded-full bg-accent-500" />
+              )}
+            </Link>
+          ))}
         </div>
 
         {/* Right Actions */}
         <div className="flex items-center gap-6">
-          <Link href="/contact" className="hidden text-[15px] font-semibold text-slate-700 hover:text-slate-900 lg:block">
-            Login / Register
-          </Link>
+          {user ? (
+            <div className="hidden items-center gap-3 lg:flex">
+              <Link href="/seller/dashboard" className="inline-flex items-center gap-2 text-[15px] font-semibold text-slate-700 hover:text-slate-900">
+                <UserCircle className="h-5 w-5" />
+                {user.name.split(" ")[0]}
+              </Link>
+              <button
+                type="button"
+                onClick={logout}
+                className="inline-flex items-center gap-1.5 text-[15px] font-semibold text-slate-500 hover:text-slate-900"
+              >
+                <LogOut className="h-4 w-4" />
+                Logout
+              </button>
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              className="hidden rounded-full bg-accent-500 px-6 py-2.5 text-[15px] font-bold text-white shadow-lg shadow-accent-500/25 transition-all hover:-translate-y-0.5 hover:bg-accent-400 hover:shadow-accent-500/35 lg:inline-flex"
+            >
+              Sell
+            </Link>
+          )}
 
           {/* Menu Button (Desktop & Mobile) */}
           <button
@@ -139,13 +186,47 @@ export default function Navbar() {
                   {link.label}
                 </Link>
               ))}
+              {sellerLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => {
+                    setMobileOpen(false);
+                    setMobileOpenPath(null);
+                  }}
+                  className={cn(
+                    "flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors",
+                    isActive(link.href)
+                      ? "border-l-2 border-accent-500 bg-accent-500/10 text-slate-900"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                  )}
+                >
+                  {link.label}
+                </Link>
+              ))}
 
               <div className="mt-6 space-y-3 border-t border-slate-200 pt-6">
-                <Link href="/contact" className="block">
-                  <Button variant="outline" size="md" fullWidth>
-                    Login / Register
+                {user ? (
+                  <Button
+                    variant="outline"
+                    size="md"
+                    fullWidth
+                    icon={<LogOut className="h-4 w-4" />}
+                    onClick={() => {
+                      logout();
+                      setMobileOpen(false);
+                      setMobileOpenPath(null);
+                    }}
+                  >
+                    Logout
                   </Button>
-                </Link>
+                ) : (
+                  <Link href="/login" className="block">
+                    <Button variant="primary" size="md" fullWidth>
+                      Sell
+                    </Button>
+                  </Link>
+                )}
                 <Link href="/properties" className="block">
                   <Button variant="primary" size="md" fullWidth iconRight={<ArrowRight className="h-4 w-4" />}>
                     Explore Properties

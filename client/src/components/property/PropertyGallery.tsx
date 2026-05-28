@@ -47,6 +47,7 @@ function PropertyImage({
       sizes={sizes}
       className={className}
       priority={priority}
+      unoptimized={src.startsWith("data:")}
       onError={() => setError(true)}
     />
   );

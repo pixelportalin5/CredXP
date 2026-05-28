@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, BarChart3, BriefcaseBusiness, Landmark, TrendingUp } from "lucide-react";
 import { Container } from "@/components/ui/Container";
@@ -8,6 +9,7 @@ import { StatsBar } from "@/components/shared/StatCard";
 import HomeHeroSection from "./HomeHeroSection";
 import LeadCaptureBar from "@/components/lead/LeadCaptureBar";
 import HomePageClient from "./HomePageClient";
+import { coworkingPartnerLogos } from "@/config/coworkingLogos";
 import { siteConfig } from "@/config/site";
 import type { Metadata } from "next";
 
@@ -46,8 +48,6 @@ export default function HomePage() {
     },
   ];
 
-  const operatorLogos = ["WeWork", "AWFIS", "Smartworks", "BHIVE", "Regus"];
-
   const insightCards = [
     {
       category: "Market Update",
@@ -70,7 +70,7 @@ export default function HomePage() {
     <main>
       <HomeHeroSection />
 
-      <section className="border-y border-slate-200 bg-white py-12">
+      <section className="border-y border-slate-200 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.12),transparent_30%),linear-gradient(180deg,#f8fbff_0%,#eef5ff_100%)] py-12">
         <Container size="xl">
           <StatsBar stats={siteConfig.stats} tone="dark" className="gap-0" />
         </Container>
@@ -110,26 +110,32 @@ export default function HomePage() {
         </Container>
       </section>
 
-      <section className="border-t border-slate-200 bg-slate-50 py-16 lg:py-20">
+      <section className="border-t border-slate-200 bg-slate-50 py-12 lg:py-14">
         <Container size="xl">
           <SectionHeader
             eyebrow="Coworking"
             eyebrowIcon={<Landmark className="h-4 w-4" />}
             title="Our Trusted Partners (Coworking & Flex Space)"
-            subtitle="Logos shown here are placeholders for partner brands and workspace networks."
+            subtitle="Logos shown here are the actual partner brands and workspace networks."
             action={{ label: "View Coworking", href: "/coworking" }}
           />
 
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
-            {operatorLogos.map((operator) => (
-              <Card key={operator} padding="sm" className="flex min-h-[78px] items-center justify-center rounded-2xl border-slate-200 bg-white text-center shadow-sm">
-                <div className="flex h-10 w-full items-center justify-center rounded-xl border border-pink-200 bg-[linear-gradient(135deg,rgba(252,231,243,0.96),rgba(253,242,248,1))] px-3 text-sm font-semibold uppercase tracking-[0.16em] text-pink-300">
-                  {operator}
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-6">
+            {coworkingPartnerLogos.map((operator) => (
+              <Card key={operator.name} padding="none" className="flex min-h-[86px] items-center justify-center rounded-2xl border-slate-200 bg-white p-2 text-center shadow-sm">
+                <div className="flex h-16 w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-3 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+                  <Image
+                    src={operator.src}
+                    alt={operator.name}
+                    width={180}
+                    height={64}
+                    className={operator.imageClassName}
+                  />
                 </div>
               </Card>
             ))}
-            <Card padding="sm" className="flex min-h-[78px] items-center justify-center rounded-2xl border-slate-200 bg-white text-center shadow-sm">
-              <div className="flex h-10 w-full items-center justify-center rounded-xl border border-pink-200 bg-[linear-gradient(135deg,rgba(252,231,243,0.96),rgba(253,242,248,1))] px-3 text-sm font-semibold uppercase tracking-[0.16em] text-pink-300">
+            <Card padding="none" className="flex min-h-[86px] items-center justify-center rounded-2xl border-slate-200 bg-white p-2 text-center shadow-sm">
+              <div className="flex h-14 w-full items-center justify-center rounded-xl border border-slate-200 bg-[linear-gradient(135deg,rgba(248,250,252,1),rgba(255,255,255,1))] px-4 text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">
                 And More
               </div>
             </Card>

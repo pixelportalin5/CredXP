@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
-  ArrowLeft, MapPin, Ruler, IndianRupee, Tag, Building2,
-  Phone, Mail, CheckCircle2, TrendingUp, Clock, ShieldCheck, Route,
+  ArrowLeft, MapPin, Building2, CheckCircle2, TrendingUp,
+  Clock, FileText, Heart, Download,
 } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Card } from "@/components/ui/Card";
@@ -16,7 +16,6 @@ import PropertyGallery from "@/components/property/PropertyGallery";
 import PropertyEnquiryForm from "@/components/property/PropertyEnquiryForm";
 import propertyService from "@/services/property.service";
 import { formatPrice, formatSize, formatPricePerSqft, formatDate, formatPriceCompact, formatYield } from "@/utils/format";
-import { siteConfig } from "@/config/site";
 import type { Property } from "@/types/property";
 
 /* ============================================================
@@ -116,6 +115,55 @@ export default function PropertyDetailClient() {
 
   const STATUS_VARIANT = status === "Trending" ? "warning" : "success";
 
+  const handleEnquireClick = () => {
+    document.getElementById("property-enquiry-form")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
+
+  const detailTabs = ["Overview", "Details", "Tenant Profile", "Financials", "Documents", "Location"];
+  const keyHighlights = highlights && highlights.length > 0
+    ? highlights
+    : [
+        `${formatSize(size)} commercial space`,
+        `${occupancy ? `${occupancy}% occupied` : "Occupancy available on request"}`,
+        financials?.escalation ? `Rent escalation: ${financials.escalation}` : "Commercial terms available on request",
+        reraId ? `RERA No: ${reraId}` : "RERA details available on request",
+      ];
+  const locationAdvantages = [
+    location.landmark || `${location.city} commercial catchment`,
+    `${location.city}, ${location.state}`,
+    location.micromarket || "Established business micro-market",
+    "Connectivity details available on request",
+  ];
+  const tenantRows = [
+    { label: "Tenant", value: tenant?.name || "Blue-chip tenant mix" },
+    { label: "Industry", value: tenant?.industry || "Enterprise occupiers" },
+    { label: "Lease Expiry", value: tenant?.leaseExpiry || "—" },
+    { label: "Lock-in", value: tenant?.lockInPeriod || "—" },
+    { label: "Occupancy", value: occupancy ? `${occupancy}%` : "—" },
+    { label: "Furnishing", value: specs?.furnishing || "—" },
+  ];
+  const financialRows = [
+    { label: "Price", value: formatPrice(price) },
+    { label: "Price per Sqft", value: formatPricePerSqft(price, size) },
+    { label: "Rental Yield", value: financials?.rentalYield ? formatYield(financials.rentalYield) : "—" },
+    { label: "Cap Rate", value: financials?.capRate ? `${financials.capRate.toFixed(2)}%` : "—" },
+    { label: "Security Deposit", value: financials?.securityDeposit ? formatPrice(financials.securityDeposit) : "—" },
+    { label: "Escalation", value: financials?.escalation || "—" },
+  ];
+  const specificationRows = [
+    { label: "Floor Area", value: formatSize(size) },
+    { label: "Property Type", value: type },
+    { label: "Building", value: property.buildingName || "—" },
+    { label: "Grade", value: grade ? `Grade ${grade}` : "—" },
+    { label: "Parking", value: specs?.parking ? `${specs.parking}` : "—" },
+    { label: "Workstations", value: specs?.workstations ? `${specs.workstations}` : "—" },
+    { label: "Meeting Rooms", value: specs?.meetingRooms ? `${specs.meetingRooms}` : "—" },
+    { label: "Washrooms", value: specs?.washrooms ? `${specs.washrooms}` : "—" },
+  ];
+
   return (
     <Container as="section" size="xl" className="py-10 lg:py-14">
       <Link
@@ -127,232 +175,197 @@ export default function PropertyDetailClient() {
         Back to Properties
       </Link>
 
-      <div className="mb-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-        <Card padding="lg" className="shadow-sm">
-          <div className="mb-4 flex flex-wrap items-center gap-2">
-            <Badge variant="accent">{type}</Badge>
-            <Badge variant={STATUS_VARIANT as "warning" | "success"} icon={STATUS_ICON}>
-              {status}
-            </Badge>
-            {grade && <Badge variant="info">Grade {grade}</Badge>}
-            {occupancy && <Badge variant="outline">{occupancy}% Occupied</Badge>}
+      <Card padding="lg" className="mb-8 overflow-hidden border-slate-200 bg-white shadow-[0_18px_48px_rgba(15,23,42,0.08)]">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.12fr)_minmax(340px,0.88fr)] lg:items-start">
+          <div className="[&>div]:mb-0">
+            <PropertyGallery images={images} title={title} />
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
-            <div>
-              <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
-                {title}
-              </h1>
-              <p className="mt-3 flex items-center gap-1.5 text-sm text-slate-600">
-                <MapPin className="h-4 w-4 shrink-0 text-slate-400" />
-                {location.address}, {location.city}, {location.state}
-              </p>
+          <div className="flex h-full flex-col">
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+              <Badge variant="accent">{type}</Badge>
+              <Badge variant={STATUS_VARIANT as "warning" | "success"} icon={STATUS_ICON}>
+                {status}
+              </Badge>
+              {grade && <Badge variant="info">Grade {grade}</Badge>}
+              {reraId && <Badge variant="outline">RERA Registered</Badge>}
             </div>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-2">
-              {[
-                { label: "Price", value: formatPriceCompact(price) },
-                { label: "Area", value: formatSize(size) },
-                { label: "Per Sqft", value: formatPricePerSqft(price, size) },
-                { label: "Yield", value: financials?.rentalYield ? formatYield(financials.rentalYield) : "—" },
-              ].map((metric) => (
-                <div key={metric.label} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                  <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">{metric.label}</p>
-                  <p className="mt-1 text-sm font-semibold text-slate-900">{metric.value}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Card>
 
-        <Card padding="md" className="border-slate-200 shadow-sm">
-          <div className="mb-1 flex items-baseline gap-1 text-3xl font-semibold text-slate-900">
-            {formatPrice(price)}
-            <span className="text-sm font-normal text-slate-500">/month</span>
-          </div>
-          <p className="mb-5 text-sm text-slate-500">
-            {formatPricePerSqft(price, size)} &bull; {formatSize(size)}
-          </p>
+            <h1 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
+              {property.buildingName || title}
+            </h1>
+            <p className="mt-2 text-lg font-semibold text-slate-800">{title}</p>
+            <p className="mt-3 flex items-start gap-2 text-sm leading-6 text-slate-600">
+              <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-accent-500" />
+              <span>{location.address}, {location.city}, {location.state}</span>
+            </p>
 
-          {financials?.rentalYield && (
-            <div className="mb-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3">
-              <p className="text-xs font-medium uppercase tracking-[0.16em] text-slate-500">Expected Yield</p>
-              <p className="mt-1 text-2xl font-semibold text-emerald-700">{financials.rentalYield.toFixed(2)}%</p>
-            </div>
-          )}
-
-          <div className="space-y-3 text-sm text-slate-600">
-            <div className="flex items-center gap-3">
-              <Phone className="h-4 w-4 shrink-0 text-slate-400" />
-              <a href={`tel:${siteConfig.contact.phone}`} className="transition-colors hover:text-slate-900">
-                {siteConfig.contact.phone}
-              </a>
-            </div>
-            <div className="flex items-center gap-3">
-              <Mail className="h-4 w-4 shrink-0 text-slate-400" />
-              <a href={`mailto:${siteConfig.contact.email}`} className="transition-colors hover:text-slate-900">
-                {siteConfig.contact.email}
-              </a>
-            </div>
-          </div>
-
-          <div className="mt-6 flex gap-3">
-            <Link href="/contact" className="inline-flex flex-1 items-center justify-center rounded-xl bg-accent-500 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-accent-600">
-              Request Brochure
-            </Link>
-            <Link href="/contact" className="inline-flex flex-1 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50">
-              Speak to Advisor
-            </Link>
-          </div>
-        </Card>
-      </div>
-
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
-        <div className="space-y-8">
-          <PropertyGallery images={images} title={title} />
-
-          <Card padding="lg" className="shadow-sm">
-            <h2 className="text-lg font-semibold text-slate-900">Investment Overview</h2>
-            <p className="mt-3 text-sm leading-7 text-slate-600">{description}</p>
-            {highlights && highlights.length > 0 && (
-              <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                {highlights.map((highlight) => (
-                  <div key={highlight} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-                    {highlight}
-                  </div>
-                ))}
+            <div className="mt-7 grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Price</p>
+                <p className="mt-2 text-3xl font-semibold text-slate-950">{formatPriceCompact(price)}</p>
               </div>
-            )}
-            {createdAt && (
-              <p className="mt-4 text-xs text-slate-500">Listed on {formatDate(createdAt)}</p>
-            )}
-          </Card>
-
-          <div className="grid gap-6 xl:grid-cols-2">
-            <Card padding="lg" className="shadow-sm">
-              <h2 className="text-lg font-semibold text-slate-900">Lease & Tenant Profile</h2>
-              <div className="mt-4 space-y-3 text-sm text-slate-600">
-                <div className="flex justify-between gap-4 border-b border-slate-200 pb-2">
-                  <span>Tenant</span>
-                  <span className="font-medium text-slate-900">{tenant?.name || "Blue-chip tenant mix"}</span>
-                </div>
-                <div className="flex justify-between gap-4 border-b border-slate-200 pb-2">
-                  <span>Industry</span>
-                  <span className="font-medium text-slate-900">{tenant?.industry || "Enterprise occupiers"}</span>
-                </div>
-                <div className="flex justify-between gap-4 border-b border-slate-200 pb-2">
-                  <span>Lease Expiry</span>
-                  <span className="font-medium text-slate-900">{tenant?.leaseExpiry || "—"}</span>
-                </div>
-                <div className="flex justify-between gap-4 border-b border-slate-200 pb-2">
-                  <span>Lock-in</span>
-                  <span className="font-medium text-slate-900">{tenant?.lockInPeriod || "—"}</span>
-                </div>
-                <div className="flex justify-between gap-4 border-b border-slate-200 pb-2">
-                  <span>Occupancy</span>
-                  <span className="font-medium text-slate-900">{occupancy ? `${occupancy}%` : "—"}</span>
-                </div>
-                {specs?.furnishing && (
-                  <div className="flex justify-between gap-4">
-                    <span>Furnishing</span>
-                    <span className="font-medium text-slate-900">{specs.furnishing}</span>
-                  </div>
-                )}
-              </div>
-            </Card>
-
-            <Card padding="lg" className="shadow-sm">
-              <h2 className="text-lg font-semibold text-slate-900">Key Specifications</h2>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                {[
-                  { label: "Floor Area", value: formatSize(size) },
-                  { label: "Property Type", value: type },
-                  { label: "RERA ID", value: reraId || "—" },
-                  { label: "Cap Rate", value: financials?.capRate ? `${financials.capRate.toFixed(2)}%` : "—" },
-                  { label: "Escalation", value: financials?.escalation || "—" },
-                  { label: "Price / Month", value: formatPrice(price) },
-                ].map((item) => (
-                  <div key={item.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                    <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">{item.label}</p>
-                    <p className="mt-1 text-sm font-semibold text-slate-900">{item.value}</p>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          </div>
-
-          <Card padding="lg" className="shadow-sm">
-            <h2 className="text-lg font-semibold text-slate-900">Amenities</h2>
-            <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {amenities.map((amenity) => (
-                <div key={amenity} className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-                  <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
-                  {amenity}
-                </div>
-              ))}
-            </div>
-          </Card>
-
-          <Card padding="lg" className="shadow-sm">
-            <div className="flex items-center justify-between gap-3">
-              <h2 className="text-lg font-semibold text-slate-900">Location Advantage</h2>
-              <Badge variant="outline" icon={<Route className="h-3 w-3" />}>Map View</Badge>
-            </div>
-            <div className="mt-4 rounded-3xl border border-pink-200 bg-[linear-gradient(135deg,rgba(252,231,243,0.96),rgba(253,242,248,1))] p-6">
-              <div className="flex min-h-[220px] items-center justify-center rounded-2xl border border-slate-200 bg-white/80 text-center">
-                <div>
-                  <Building2 className="mx-auto h-12 w-12 text-accent-500" />
-                  <p className="mt-3 text-sm font-medium text-slate-900">Map preview placeholder</p>
-                  <p className="mt-1 text-xs text-slate-500">{location.landmark || `${location.city}, ${location.state}`}</p>
-                </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Current Yield</p>
+                <p className="mt-2 text-2xl font-semibold text-slate-950">
+                  {financials?.rentalYield ? formatYield(financials.rentalYield) : "—"}
+                </p>
               </div>
             </div>
-          </Card>
-        </div>
 
-        <div className="space-y-6">
-          <Card padding="lg" className="sticky top-24 shadow-sm">
-            <div className="mb-1 text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Investment Dashboard</div>
-            <div className="mb-5 flex items-baseline gap-1 text-3xl font-semibold text-slate-900">
-              {formatPrice(price)}
-              <span className="text-sm font-normal text-slate-500">/month</span>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Area</p>
+                <p className="mt-1 text-lg font-semibold text-slate-900">{formatSize(size)}</p>
+              </div>
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                 <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Price per Sqft</p>
                 <p className="mt-1 text-lg font-semibold text-slate-900">{formatPricePerSqft(price, size)}</p>
               </div>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Yield</p>
-                <p className="mt-1 text-lg font-semibold text-slate-900">{financials?.rentalYield ? formatYield(financials.rentalYield) : "—"}</p>
+            </div>
+
+            <div className="mt-auto pt-7">
+              <Button type="button" size="lg" fullWidth onClick={handleEnquireClick} className="h-[52px] shadow-lg shadow-accent-500/20">
+                Enquire Now
+              </Button>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <Button type="button" variant="outline" size="md" icon={<Download className="h-4 w-4" />} className="border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50">
+                  Download Brochure
+                </Button>
+                <Button type="button" variant="outline" size="md" icon={<Heart className="h-4 w-4" />} className="border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50">
+                  Add to Shortlist
+                </Button>
               </div>
             </div>
-            <div className="mt-4 space-y-3 text-sm text-slate-600">
-              <div className="flex items-center gap-3">
-                <ShieldCheck className="h-4 w-4 text-slate-400" />
-                Institutional verification available
+          </div>
+        </div>
+
+        <div className="mt-8 overflow-x-auto border-t border-slate-200 pt-5">
+          <div className="flex min-w-max gap-8">
+            {detailTabs.map((tab, index) => (
+              <a
+                key={tab}
+                href={`#property-${tab.toLowerCase().replace(/\s+/g, "-")}`}
+                className="relative pb-3 text-sm font-semibold text-slate-600 transition-colors hover:text-slate-950"
+              >
+                {tab}
+                {index === 0 && <span className="absolute inset-x-0 bottom-0 h-0.5 rounded-full bg-accent-500" />}
+              </a>
+            ))}
+          </div>
+        </div>
+      </Card>
+
+      <div id="property-overview" className="grid gap-8 lg:grid-cols-2">
+        <Card padding="lg" className="shadow-sm">
+          <h2 className="text-lg font-semibold text-slate-900">Key Highlights</h2>
+          <p className="mt-3 text-sm leading-7 text-slate-600">{description}</p>
+          <div className="mt-5 space-y-3">
+            {keyHighlights.map((highlight) => (
+              <div key={highlight} className="flex gap-3 text-sm leading-6 text-slate-700">
+                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-accent-500" />
+                <span>{highlight}</span>
               </div>
-              <div className="flex items-center gap-3">
-                <Phone className="h-4 w-4 text-slate-400" />
-                <a href={`tel:${siteConfig.contact.phone}`} className="hover:text-slate-900">{siteConfig.contact.phone}</a>
-              </div>
-              <div className="flex items-center gap-3">
-                <Mail className="h-4 w-4 text-slate-400" />
-                <a href={`mailto:${siteConfig.contact.email}`} className="hover:text-slate-900">{siteConfig.contact.email}</a>
-              </div>
-            </div>
-            <div className="mt-6 flex gap-3">
-              <Link href="/contact" className="inline-flex flex-1 items-center justify-center rounded-xl bg-accent-500 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-accent-600">
-                Request Brochure
-              </Link>
-              <Link href="/contact" className="inline-flex flex-1 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50">
-                Schedule Call
-              </Link>
+            ))}
+          </div>
+          {createdAt && (
+            <p className="mt-5 text-xs text-slate-500">Listed on {formatDate(createdAt)}</p>
+          )}
+        </Card>
+
+        <div id="property-location" className="scroll-mt-28">
+          <Card padding="lg" className="h-full shadow-sm">
+            <h2 className="text-lg font-semibold text-slate-900">Location Advantage</h2>
+            <div className="mt-5 space-y-3">
+              {locationAdvantages.map((advantage) => (
+                <div key={advantage} className="flex gap-3 text-sm leading-6 text-slate-700">
+                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-accent-500" />
+                  <span>{advantage}</span>
+                </div>
+              ))}
             </div>
           </Card>
+        </div>
 
-          <PropertyEnquiryForm propertyTitle={title} propertyId={_id} />
+        <div id="property-tenant-profile" className="scroll-mt-28">
+          <Card padding="lg" className="h-full shadow-sm">
+            <h2 className="text-lg font-semibold text-slate-900">Tenant Profile</h2>
+            <div className="mt-5 divide-y divide-slate-200 text-sm">
+              {tenantRows.map((row) => (
+                <div key={row.label} className="flex justify-between gap-4 py-3">
+                  <span className="text-slate-500">{row.label}</span>
+                  <span className="text-right font-semibold text-slate-900">{row.value}</span>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+
+        <div id="property-financials" className="scroll-mt-28">
+          <Card padding="lg" className="h-full shadow-sm">
+            <h2 className="text-lg font-semibold text-slate-900">Financials</h2>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              {financialRows.map((row) => (
+                <div key={row.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-xs uppercase tracking-[0.18em] text-slate-500">{row.label}</p>
+                  <p className="mt-1 text-sm font-semibold text-slate-900">{row.value}</p>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+
+        <div id="property-details" className="scroll-mt-28">
+          <Card padding="lg" className="h-full shadow-sm">
+            <h2 className="text-lg font-semibold text-slate-900">Details</h2>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              {specificationRows.map((row) => (
+                <div key={row.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-xs uppercase tracking-[0.18em] text-slate-500">{row.label}</p>
+                  <p className="mt-1 text-sm font-semibold text-slate-900">{row.value}</p>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+
+        <Card padding="lg" className="shadow-sm">
+          <h2 className="text-lg font-semibold text-slate-900">Amenities</h2>
+          <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {amenities.map((amenity) => (
+              <div key={amenity} className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+                <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+                {amenity}
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        <div id="property-documents" className="scroll-mt-28 lg:col-span-2">
+          <Card padding="lg" className="shadow-sm">
+            <h2 className="text-lg font-semibold text-slate-900">Documents</h2>
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+              {[
+                { label: "RERA Certificate", value: reraId || "Available on request" },
+                { label: "Brochure", value: "Available on request" },
+                { label: "Due Diligence", value: "Available on request" },
+              ].map((document) => (
+                <div key={document.label} className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <FileText className="mt-0.5 h-4 w-4 shrink-0 text-accent-500" />
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900">{document.label}</p>
+                    <p className="mt-1 text-xs text-slate-500">{document.value}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
         </div>
       </div>
+
+      <section id="property-enquiry-form" className="scroll-mt-28 pt-10">
+        <PropertyEnquiryForm propertyTitle={title} propertyId={_id} />
+      </section>
     </Container>
   );
 }

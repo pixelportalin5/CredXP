@@ -22,6 +22,7 @@ export type PropertyType =
   | "Office Space"
   | "Retail/SCO"
   | "Coworking"
+  | "Coworking Space"
   | "Shop"
   | "Warehouse"
   | "Commercial Land";
@@ -86,6 +87,12 @@ export interface Property {
   amenities: string[];
   images: string[];
   status: PropertyStatus;
+  isActive?: boolean;
+  featured?: boolean;
+  views?: number;
+  enquiryCount?: number;
+  listingStatus?: "draft" | "published" | "paused" | "sold";
+  seller?: string;
   description: string;
   highlights?: string[];
   reraId?: string;

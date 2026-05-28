@@ -47,7 +47,7 @@ function StatCard({ stat, className, tone = "light", icon: Icon = Building2 }: S
 }
 
 interface StatsBarProps {
-  stats: StatItem[];
+  stats: readonly StatItem[];
   className?: string;
   tone?: "light" | "dark";
 }

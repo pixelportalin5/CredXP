@@ -2,6 +2,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import ScrollToTop from "@/components/layout/ScrollToTop";
+import { AppProviders } from "@/components/providers/AppProviders";
 import { siteConfig } from "@/config/site";
 import type { Metadata } from "next";
 
@@ -52,9 +54,12 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-[var(--bg-primary)] text-[var(--text-primary)]">
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <AppProviders>
+          <ScrollToTop />
+          <Navbar />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </AppProviders>
       </body>
     </html>
   );

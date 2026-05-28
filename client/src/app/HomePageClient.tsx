@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, SlidersHorizontal, WifiOff, TrendingUp } from "lucide-react";
@@ -10,6 +11,8 @@ import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import propertyService from "@/services/property.service";
+import { topCoworkingPartnerLogos } from "@/config/coworkingLogos";
+import { getPropertySection } from "@/utils/propertySections";
 import type { Property } from "@/types/property";
 
 /* ============================================================
@@ -32,17 +35,19 @@ export default function HomePageClient() {
   ];
 
   const filteredFeatured = allProperties.filter((property) => {
+    const section = getPropertySection(property);
+
     if (activeFeaturedTab === "pre-leased-office") {
-      return property.type === "Office Space";
+      return section === "offices-to-buy";
     }
     if (activeFeaturedTab === "pre-leased-shop") {
-      return property.type === "Shop";
+      return section === "shops-to-buy";
     }
     if (activeFeaturedTab === "office-rent") {
-      return property.type === "Office Space" && property.status === "Recently Posted";
+      return section === "offices-to-rent";
     }
     if (activeFeaturedTab === "shop-rent") {
-      return property.type === "Shop" && property.status === "Recently Posted";
+      return section === "shops-to-rent";
     }
     return true;
   });
@@ -235,22 +240,49 @@ export default function HomePageClient() {
           </div>
 
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {[
-              { name: "WeWork", location: "Cyber City, Gurugram", type: "Private Offices", price: "₹ 14,999 / seat / month", chips: ["Community Events", "24x7 Access"] },
-              { name: "AWFIS", location: "DLF Cyber Hub, Gurugram", type: "Premium Office Space", price: "₹ 9,999 / seat / month", chips: ["High Speed Wi-Fi", "Meeting Rooms"] },
-              { name: "Smartworks", location: "Golf Course Road, Gurugram", type: "Enterprise Workspace", price: "₹ 8,499 / seat / month", chips: ["Ergonomic Setup", "Pantry"] },
-              { name: "BHIVE", location: "Sohna Road, Gurugram", type: "Flexible Workspace", price: "₹ 7,999 / seat / month", chips: ["Lounge Area", "Parking"] },
-            ].map((space) => (
+            {topCoworkingPartnerLogos.map((space) => ({
+              ...space,
+              location: {
+                WeWork: "Cyber City, Gurugram",
+                AWFIS: "DLF Cyber Hub, Gurugram",
+                Smartworks: "Golf Course Road, Gurugram",
+                BHIVE: "Sohna Road, Gurugram",
+              }[space.name],
+              type: {
+                WeWork: "Private Offices",
+                AWFIS: "Premium Office Space",
+                Smartworks: "Enterprise Workspace",
+                BHIVE: "Flexible Workspace",
+              }[space.name],
+              price: {
+                WeWork: "₹ 14,999 / seat / month",
+                AWFIS: "₹ 9,999 / seat / month",
+                Smartworks: "₹ 8,499 / seat / month",
+                BHIVE: "₹ 7,999 / seat / month",
+              }[space.name],
+              chips: {
+                WeWork: ["Community Events", "24x7 Access"],
+                AWFIS: ["High Speed Wi-Fi", "Meeting Rooms"],
+                Smartworks: ["Ergonomic Setup", "Pantry"],
+                BHIVE: ["Lounge Area", "Parking"],
+              }[space.name],
+            })).map((space) => (
               <Card key={space.name} padding="md" hover className="overflow-hidden rounded-[1.4rem] border-slate-200 bg-white">
-                <div className="mb-4 flex h-11 w-28 items-center justify-center rounded-2xl border border-pink-200 bg-[linear-gradient(135deg,rgba(252,231,243,0.96),rgba(253,242,248,1))] text-xs font-semibold uppercase tracking-[0.2em] text-pink-300">
-                  Logo
+                <div className="mb-4 flex h-16 w-full items-center justify-start rounded-2xl border border-slate-200 bg-white px-4">
+                  <Image
+                    src={space.src}
+                    alt={space.name}
+                    width={128}
+                    height={44}
+                    className={space.imageClassName}
+                  />
                 </div>
                 <h3 className="text-xl font-semibold text-slate-900">{space.name}</h3>
                 <p className="mt-1 text-sm text-slate-600">{space.location}</p>
                 <p className="mt-2 text-sm text-slate-500">{space.type}</p>
                 <p className="mt-4 text-base font-semibold text-slate-900">{space.price}</p>
                 <div className="mt-4 flex flex-wrap gap-2">
-                  {space.chips.map((chip) => (
+                  {(space.chips ?? []).map((chip) => (
                     <span key={chip} className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600">
                       {chip}
                     </span>

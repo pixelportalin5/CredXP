@@ -34,7 +34,7 @@ export default function PropertiesPageClient() {
 
   const [filters, setFilters] = useState<PropertyFiltersType>({
     page: 1,
-    limit: 12,
+    limit: 6,
     type: searchParams.get("type") || "",
     status: searchParams.get("status") || "",
     city: searchParams.get("city") || "",
@@ -90,16 +90,18 @@ export default function PropertiesPageClient() {
   };
 
   return (
-    <Container as="section" size="xl" className="py-10 lg:py-14">
+    <>
+      <section className="blue-hero-bg border-b border-white/10 py-10 lg:py-14">
+        <Container size="xl">
       <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <Badge variant="accent" icon={<Building2 className="h-3 w-3" />}>
             Property Directory
           </Badge>
-          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
+          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
             Commercial Property Listings
           </h1>
-          <p className="mt-3 max-w-2xl text-slate-600">
+          <p className="mt-3 max-w-2xl text-white/72">
             Discover pre-leased investments, office leasing, and premium commercial spaces across India in a structured enterprise directory.
           </p>
         </div>
@@ -111,7 +113,7 @@ export default function PropertiesPageClient() {
             { label: "Yields", value: "7%+" },
             { label: "Operators", value: "15+" },
           ].map((item) => (
-            <Card key={item.label} padding="sm" className="text-center">
+            <Card key={item.label} padding="sm" className="border-blue-100/80 bg-[linear-gradient(135deg,rgba(255,255,255,0.98),rgba(240,247,255,0.94))] text-center shadow-sm">
               <p className="text-xs uppercase tracking-[0.18em] text-slate-500">{item.label}</p>
               <p className="mt-2 text-lg font-semibold text-slate-900">{item.value}</p>
             </Card>
@@ -119,7 +121,7 @@ export default function PropertiesPageClient() {
         </div>
       </div>
 
-      <Card className="mb-8 shadow-sm" padding="md">
+      <Card className="mb-8 border-blue-100/80 bg-[linear-gradient(135deg,rgba(255,255,255,0.98),rgba(240,247,255,0.94))] shadow-[0_18px_48px_rgba(15,23,42,0.08)]" padding="md">
         <div className="grid gap-4 xl:grid-cols-[minmax(0,1.4fr)_repeat(3,minmax(0,1fr))_auto] xl:items-end">
           <SearchBar onSearch={handleSearch} initialValue={searchQuery} placeholder="Search by tower, city, tenant, or micromarket" />
           <Select label="Location" options={CITIES} placeholder="All locations" value={filters.city || ""} onChange={(e) => setFilters((prev) => ({ ...prev, city: e.target.value, page: 1 }))} />
@@ -132,7 +134,10 @@ export default function PropertiesPageClient() {
           </Link>
         </div>
       </Card>
+        </Container>
+      </section>
 
+      <Container as="section" size="xl" className="py-10 lg:py-14">
       <div className="mb-8 flex items-center justify-between gap-4 xl:hidden">
         <PropertyFilters filters={filters} onChange={handleFilterChange} variant="mobile" />
         <p className="text-sm text-slate-500">
@@ -169,7 +174,7 @@ export default function PropertiesPageClient() {
               title="No properties found"
               message="Try adjusting your filters or search query to find what you're looking for."
               actionLabel="Clear Filters"
-              onAction={() => setFilters({ page: 1, limit: 12 })}
+              onAction={() => setFilters({ page: 1, limit: 6 })}
             />
           ) : (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-2">
@@ -187,5 +192,6 @@ export default function PropertiesPageClient() {
         </div>
       </div>
     </Container>
+    </>
   );
 }

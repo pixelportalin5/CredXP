@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Card } from "@/components/ui/Card";
@@ -6,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import LeadCaptureBar from "@/components/lead/LeadCaptureBar";
 import { Landmark, MapPin, Users, Wifi, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { coworkingPartnerLogos } from "@/config/coworkingLogos";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -15,26 +17,45 @@ export const metadata: Metadata = {
 };
 
 export default function CoworkingPage() {
-  const operators = [
-    { name: "WeWork", location: "Cyber City, Gurugram", seats: "4,870+ seats", type: "Enterprise hubs" },
-    { name: "AWFIS", location: "DLF Cyber Hub, Gurugram", seats: "3,200+ seats", type: "Managed offices" },
-    { name: "Smartworks", location: "Golf Course Road, Gurugram", seats: "2,500+ seats", type: "Enterprise workspace" },
-    { name: "BHIVE", location: "Sohna Road, Gurugram", seats: "1,800+ seats", type: "Flexible workspace" },
-    { name: "Regus", location: "MG Road, Gurugram", seats: "1,500+ seats", type: "Business centres" },
-    { name: "91springboard", location: "Sector 44, Gurugram", seats: "2,100+ seats", type: "Co-working hubs" },
-  ];
+  const operators = coworkingPartnerLogos.map((logo) => ({
+    ...logo,
+    location: {
+      WeWork: "Cyber City, Gurugram",
+      AWFIS: "DLF Cyber Hub, Gurugram",
+      Smartworks: "Golf Course Road, Gurugram",
+      BHIVE: "Sohna Road, Gurugram",
+      Regus: "MG Road, Gurugram",
+      "91springboard": "Sector 44, Gurugram",
+    }[logo.name],
+    seats: {
+      WeWork: "4,870+ seats",
+      AWFIS: "3,200+ seats",
+      Smartworks: "2,500+ seats",
+      BHIVE: "1,800+ seats",
+      Regus: "1,500+ seats",
+      "91springboard": "2,100+ seats",
+    }[logo.name],
+    type: {
+      WeWork: "Enterprise hubs",
+      AWFIS: "Managed offices",
+      Smartworks: "Enterprise workspace",
+      BHIVE: "Flexible workspace",
+      Regus: "Business centres",
+      "91springboard": "Co-working hubs",
+    }[logo.name],
+  }));
 
   return (
     <>
-      <section className="border-b border-slate-200 bg-white py-16 lg:py-20">
+      <section className="blue-hero-bg border-b border-white/10 py-16 text-white lg:py-20">
         <Container size="xl">
           <Badge variant="accent" icon={<Landmark className="h-3 w-3" />} className="mb-4">
             Coworking Aggregator
           </Badge>
-          <h1 className="max-w-2xl text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
+          <h1 className="max-w-2xl text-3xl font-semibold tracking-tight text-white sm:text-4xl">
             Flexible Workspace Solutions for Enterprise Teams
           </h1>
-          <p className="mt-3 max-w-2xl text-slate-600">
+          <p className="mt-3 max-w-2xl text-white/72">
             Book coworking desks, private offices, and enterprise suites from 15+ partner operators across India&apos;s top commercial hubs.
           </p>
         </Container>
@@ -52,9 +73,14 @@ export default function CoworkingPage() {
             {operators.map((space) => (
               <Card key={space.name} hover padding="md" className="flex flex-col">
                 <div className="mb-4 flex items-center justify-between gap-3">
-                  <div>
-                    <h3 className="text-xl font-semibold text-slate-900">{space.name}</h3>
-                    <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Partner</p>
+                  <div className="flex h-16 items-center">
+                    <Image
+                      src={space.src}
+                      alt={space.name}
+                      width={150}
+                      height={48}
+                      className={space.imageClassName}
+                    />
                   </div>
                   <Badge variant="accent" size="sm">Verified</Badge>
                 </div>

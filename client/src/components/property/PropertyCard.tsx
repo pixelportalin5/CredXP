@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -8,6 +7,7 @@ import { MapPin, TrendingUp, Clock, ImageOff, Building2, Heart } from "lucide-re
 import { Badge } from "@/components/ui/Badge";
 import { cn } from "@/utils/cn";
 import { formatPriceCompact, formatSize, formatYield } from "@/utils/format";
+import { getPropertySectionCoverImage } from "@/utils/propertySections";
 import type { Property } from "@/types/property";
 
 /* ============================================================
@@ -27,8 +27,8 @@ const STATUS_BADGE_MAP: Record<string, { variant: "warning" | "success" | "accen
 };
 
 export default function PropertyCard({ property, variant = "default" }: PropertyCardProps) {
-  const { _id, title, type, location, price, size, images, status, financials, grade, tenant, occupancy } = property;
-  const imageUrl = images?.[0];
+  const { _id, title, type, location, price, size, status, financials, grade, tenant, occupancy } = property;
+  const imageUrl = getPropertySectionCoverImage(property);
   const [imgError, setImgError] = useState(false);
   const router = useRouter();
 
@@ -67,6 +67,7 @@ export default function PropertyCard({ property, variant = "default" }: Property
                 fill
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                 className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                unoptimized={imageUrl.startsWith("data:")}
                 onError={() => setImgError(true)}
               />
             )}
@@ -143,11 +144,20 @@ export default function PropertyCard({ property, variant = "default" }: Property
 
   return (
     <article
-      className={cn(
-        "group overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-accent-500/30 hover:shadow-xl",
-        variant === "featured" && "border-slate-300 shadow-md"
-      )}
       id={`property-card-${_id}`}
+      role="link"
+      tabIndex={0}
+      aria-label={`Open ${title}`}
+      onClick={() => router.push(`/properties/${_id}`)}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          router.push(`/properties/${_id}`);
+        }
+      }}
+      className={cn(
+        "group cursor-pointer overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-accent-500/30 hover:shadow-xl focus:outline-none focus-visible:border-accent-500/30 focus-visible:shadow-xl"
+      )}
     >
       <div className="relative overflow-hidden bg-pink-50/70">
         <div className={cn("relative w-full", imageHeightClass)}>
@@ -162,6 +172,7 @@ export default function PropertyCard({ property, variant = "default" }: Property
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+              unoptimized={imageUrl.startsWith("data:")}
               onError={() => setImgError(true)}
             />
           )}
@@ -176,6 +187,7 @@ export default function PropertyCard({ property, variant = "default" }: Property
         <button
           type="button"
           aria-label={`Save ${title}`}
+          onClick={(event) => event.stopPropagation()}
           className="absolute right-4 top-4 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-500 shadow-sm transition-colors hover:border-accent-500/30 hover:text-accent-500"
         >
           <Heart className="h-4 w-4" />
@@ -231,17 +243,11 @@ export default function PropertyCard({ property, variant = "default" }: Property
           <p className="mt-1 text-xs text-slate-500">{tenant?.industry || "Institutional demand"}</p>
         </div>
 
-        <div className="flex items-center justify-between border-t border-slate-200 pt-4">
+        <div className="border-t border-slate-200 pt-4">
           <div>
             <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Current Yield</p>
             <p className="mt-1 text-xl font-semibold text-slate-900">{rentalYield ? formatYield(rentalYield) : "—"}</p>
           </div>
-          <Link
-            href={`/properties/${_id}`}
-            className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50"
-          >
-            View Details
-          </Link>
         </div>
       </div>
     </article>

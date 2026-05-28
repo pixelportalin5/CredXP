@@ -33,7 +33,7 @@ export default function PropertyFilters({ filters, onChange, variant = "desktop"
   };
 
   const clearFilters = () => {
-    onChange({ page: 1, limit: 12 });
+    onChange({ page: 1, limit: 6 });
   };
 
   const hasActiveFilters = Boolean(
@@ -42,8 +42,8 @@ export default function PropertyFilters({ filters, onChange, variant = "desktop"
 
   const filterContent = (
     <div className="space-y-5">
-      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-        <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
+      <div className="rounded-2xl border border-white/10 bg-white/8 p-4">
+        <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-white/70">
           <MapPin className="h-3.5 w-3.5 text-accent-500" />
           Location & Search
         </div>
@@ -56,8 +56,8 @@ export default function PropertyFilters({ filters, onChange, variant = "desktop"
         />
       </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-4">
-        <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
+      <div className="rounded-2xl border border-white/10 bg-white/8 p-4">
+        <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.22em] text-white/70">
           Property Type
         </label>
         <div className="grid grid-cols-2 gap-2">
@@ -68,8 +68,8 @@ export default function PropertyFilters({ filters, onChange, variant = "desktop"
               className={cn(
                 "rounded-xl border px-3 py-2 text-left text-xs font-semibold transition-all duration-200",
                 (filters.type === t.value || (!filters.type && t.value === ""))
-                  ? "border-accent-500 bg-accent-500/10 text-slate-900"
-                  : "border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300 hover:bg-white"
+                  ? "border-white/30 bg-white/22 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_8px_18px_rgba(0,0,0,0.18)]"
+                  : "border-white/10 bg-white/12 text-white/82 hover:border-white/25 hover:bg-white/18"
               )}
             >
               {t.label}
@@ -78,9 +78,9 @@ export default function PropertyFilters({ filters, onChange, variant = "desktop"
         </div>
       </div>
 
-      <div className="grid gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+      <div className="grid gap-4 rounded-2xl border border-white/10 bg-white/8 p-4">
         <div>
-          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
+          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.22em] text-white/70">
             Budget Range
           </label>
           <select
@@ -89,7 +89,7 @@ export default function PropertyFilters({ filters, onChange, variant = "desktop"
               const [min, max] = e.target.value.split("-");
               onChange({ ...filters, minPrice: min, maxPrice: max, page: 1 });
             }}
-            className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition-all hover:border-slate-300 focus:border-accent-500/50 focus:ring-1 focus:ring-accent-500/15"
+            className="w-full rounded-xl border border-white/15 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition-all hover:border-white/30 focus:border-accent-500/50 focus:ring-1 focus:ring-accent-500/15"
           >
             {PRICE_RANGES.map((r) => (
               <option key={r.label} value={`${r.min}-${r.max}`}>
@@ -144,11 +144,11 @@ export default function PropertyFilters({ filters, onChange, variant = "desktop"
         {mobileOpen && (
           <div className="fixed inset-0 z-[var(--z-overlay)] lg:hidden">
             <div className="absolute inset-0 bg-slate-950/20 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
-            <div className="absolute right-0 top-0 h-full w-80 max-w-[85vw] overflow-y-auto border-l border-slate-200 bg-white p-6 shadow-2xl">
+            <div className="black-section-bg absolute right-0 top-0 h-full w-80 max-w-[85vw] overflow-y-auto border-l border-white/10 p-6 shadow-2xl">
               <div className="mb-6 flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-slate-900">Filters</h3>
+                <h3 className="text-lg font-semibold text-white">Filters</h3>
                 <button onClick={() => setMobileOpen(false)} aria-label="Close filters">
-                  <X className="h-5 w-5 text-slate-500 transition-colors hover:text-slate-900" />
+                  <X className="h-5 w-5 text-white/70 transition-colors hover:text-white" />
                 </button>
               </div>
               {filterContent}
@@ -161,8 +161,8 @@ export default function PropertyFilters({ filters, onChange, variant = "desktop"
 
   // Desktop variant
   return (
-    <div className="sticky top-24 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm" id="property-filters">
-      <h3 className="mb-5 text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
+    <div className="black-section-bg rounded-3xl border border-white/10 p-5 shadow-[0_18px_48px_rgba(15,23,42,0.16)]" id="property-filters">
+      <h3 className="mb-5 text-xs font-semibold uppercase tracking-[0.22em] text-white/70">
         Filters
       </h3>
       {filterContent}

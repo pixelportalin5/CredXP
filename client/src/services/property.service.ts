@@ -27,6 +27,18 @@ const propertyService = {
   /** Create a new property (admin) */
   create: (data: Partial<Property>): Promise<{ data: Property }> =>
     api.post("/properties", data),
+
+  /** Get current seller's listings */
+  getMyProperties: (): Promise<{ data: Property[] }> =>
+    api.get("/properties/seller/my-properties"),
+
+  /** Update a seller-owned property */
+  update: (id: string, data: Partial<Property>): Promise<{ data: Property }> =>
+    api.put(`/properties/${id}`, data),
+
+  /** Delete a seller-owned property */
+  delete: (id: string): Promise<{ data: { id: string } }> =>
+    api.delete(`/properties/${id}`),
 };
 
 export default propertyService;

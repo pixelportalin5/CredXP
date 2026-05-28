@@ -247,6 +247,45 @@ body {
   background: linear-gradient(135deg, #12213d 0%, #0d1730 52%, #0a1326 100%);
 }
 
+/* Shared image-backed blue hero surface */
+.blue-hero-bg {
+  background:
+    linear-gradient(90deg, rgba(5, 12, 25, 0.72), rgba(6, 18, 35, 0.48)),
+    url("/images/blue%20background.png");
+  background-size: cover;
+  background-position: center;
+}
+
+.black-section-bg {
+  background:
+    linear-gradient(135deg, rgba(2, 6, 23, 0.54), rgba(2, 6, 23, 0.68)),
+    url("/images/black%20background.jpg");
+  background-size: cover;
+  background-position: center;
+}
+
+.black-section-bg label {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.black-section-bg input,
+.black-section-bg select,
+.black-section-bg textarea {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.black-section-bg input::placeholder,
+.black-section-bg textarea::placeholder {
+  color: rgba(203, 213, 225, 0.72);
+}
+
+.black-section-bg select option {
+  background: #0f172a;
+  color: #ffffff;
+}
+
 /* Accent glow effect for CTAs */
 .accent-glow {
   box-shadow: var(--shadow-accent);

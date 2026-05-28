@@ -61,15 +61,15 @@ export default function InsightsPage() {
 
   return (
     <>
-      <section className="border-b border-slate-200 bg-white py-16 lg:py-20">
+      <section className="blue-hero-bg border-b border-white/10 py-16 text-white lg:py-20">
         <Container size="xl">
           <Badge variant="accent" icon={<BarChart3 className="h-3 w-3" />} className="mb-4">
             Market Intelligence
           </Badge>
-          <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
+          <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
             Market Insights & Updates
           </h1>
-          <p className="mt-3 max-w-2xl text-slate-600">
+          <p className="mt-3 max-w-2xl text-white/72">
             Expert analysis, market reports, and investment insights for India&apos;s commercial real estate ecosystem.
           </p>
         </Container>
@@ -83,10 +83,10 @@ export default function InsightsPage() {
               { label: "Average yield", value: "7.0% - 8.5%", note: "Pre-leased assets" },
               { label: "Flex space demand", value: "+40% YoY", note: "Enterprise uptake" },
             ].map((item) => (
-              <Card key={item.label} padding="md" hover>
-                <p className="text-xs uppercase tracking-[0.18em] text-slate-500">{item.label}</p>
-                <p className="mt-2 text-2xl font-semibold text-slate-900">{item.value}</p>
-                <p className="mt-1 text-sm text-slate-600">{item.note}</p>
+              <Card key={item.label} padding="md" hover className="black-section-bg border-white/10 shadow-[0_16px_40px_rgba(15,23,42,0.16)]">
+                <p className="text-xs uppercase tracking-[0.18em] text-white/60">{item.label}</p>
+                <p className="mt-2 text-2xl font-semibold text-white">{item.value}</p>
+                <p className="mt-1 text-sm text-white/70">{item.note}</p>
               </Card>
             ))}
           </div>
