@@ -32,6 +32,23 @@ const enquirySchema = new mongoose.Schema(
       ref: "User",
       required: false,
     },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: false,
+    },
+    userArchived: {
+      type: Boolean,
+      default: false,
+    },
+    status: {
+      type: String,
+      enum: ["open", "closed"],
+      default: "open",
+    },
+    closedAt: {
+      type: Date,
+    },
   },
   { timestamps: true }
 );

@@ -25,6 +25,10 @@ const validateAuth = (mode) => (req, res, next) => {
       throw new ApiError(400, "Password must be at least 8 characters");
     }
 
+    if (mode === "register" && req.body.role && !["buyer", "seller"].includes(req.body.role)) {
+      throw new ApiError(400, "Role must be buyer or seller");
+    }
+
     next();
   } catch (error) {
     next(error);

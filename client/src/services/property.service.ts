@@ -1,6 +1,21 @@
 import api from "@/lib/api";
 import type { Property, PropertyListResponse } from "@/types/property";
 
+export interface BulkUploadRowResult {
+  row: number;
+  success: boolean;
+  propertyId?: string;
+  title?: string;
+  errors?: string[];
+}
+
+export interface BulkUploadResult {
+  totalRows: number;
+  createdCount: number;
+  failedCount: number;
+  results: BulkUploadRowResult[];
+}
+
 /**
  * Property API service
  * All property-related API calls centralized here
@@ -39,6 +54,22 @@ const propertyService = {
   /** Delete a seller-owned property */
   delete: (id: string): Promise<{ data: { id: string } }> =>
     api.delete(`/properties/${id}`),
+
+  /** Download Excel template for bulk listing upload */
+  downloadBulkTemplate: (): Promise<Blob> =>
+    api.get("/properties/bulk/template", { responseType: "blob" }),
+
+  /** Upload Excel + image ZIP for bulk property creation */
+  bulkUpload: (excel: File, imagesZip: File): Promise<{ data: BulkUploadResult }> => {
+    const formData = new FormData();
+    formData.append("excel", excel);
+    formData.append("imagesZip", imagesZip);
+
+    return api.post("/properties/bulk/upload", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+      timeout: 120000,
+    });
+  },
 };
 
 export default propertyService;

@@ -28,8 +28,10 @@ function signToken(user) {
   );
 }
 
+const emailPattern = /^\S+@\S+\.\S+$/;
+
 const authService = {
-  async register({ name, email, password, phone, avatar }) {
+  async register({ name, email, password, phone, avatar, role = "buyer" }) {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       throw new ApiError(409, "Email is already registered");
@@ -41,7 +43,7 @@ const authService = {
       password,
       phone,
       avatar,
-      role: "seller",
+      role,
     });
 
     return {
@@ -67,6 +69,59 @@ const authService = {
     if (!user) {
       throw new ApiError(404, "User not found");
     }
+    return sanitizeUser(user);
+  },
+
+  async updateMe(userId, { name, email, phone, avatar }) {
+    const updates = {};
+    if (name !== undefined) updates.name = name;
+    if (email !== undefined) {
+      if (!emailPattern.test(String(email))) {
+        throw new ApiError(400, "Please provide a valid email");
+      }
+
+      const existingUser = await User.findOne({ email, _id: { $ne: userId } });
+      if (existingUser) {
+        throw new ApiError(409, "Email is already registered");
+      }
+
+      updates.email = email;
+    }
+    if (phone !== undefined) updates.phone = phone;
+    if (phone && !/^\d{8,15}$/.test(String(phone))) {
+      throw new ApiError(400, "Phone must contain 8 to 15 digits");
+    }
+    if (avatar !== undefined) updates.avatar = avatar;
+
+    const user = await User.findByIdAndUpdate(userId, updates, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+
+    return sanitizeUser(user);
+  },
+
+  async updatePassword(userId, { currentPassword, newPassword }) {
+    if (!currentPassword || !newPassword) {
+      throw new ApiError(400, "Current password and new password are required");
+    }
+
+    if (String(newPassword).length < 8) {
+      throw new ApiError(400, "Password must be at least 8 characters");
+    }
+
+    const user = await User.findById(userId).select("+password");
+    if (!user || !(await user.comparePassword(currentPassword))) {
+      throw new ApiError(401, "Current password is incorrect");
+    }
+
+    user.password = newPassword;
+    await user.save();
+
     return sanitizeUser(user);
   },
 };

@@ -114,6 +114,8 @@ export interface PropertyFilters {
   maxPrice?: string;
   minSize?: string;
   maxSize?: string;
+  minYield?: string;
+  maxYield?: string;
   furnishing?: string;
   sort?: string;
   q?: string;

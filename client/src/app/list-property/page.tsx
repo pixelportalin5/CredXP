@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Building2 } from "lucide-react";
+import { Building2, Upload } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -52,10 +52,19 @@ export default function ListPropertyPage() {
       <section className="blue-hero-bg border-b border-white/10 py-10 text-white lg:py-14">
         <Container size="lg">
           <Badge variant="accent" icon={<Building2 className="h-3 w-3" />}>Seller Listing</Badge>
-          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">List a Commercial Property</h1>
-          <p className="mt-3 max-w-2xl text-white/72">
-            Add all required property details and exactly three images. Published active listings become visible in public browsing immediately.
-          </p>
+          <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">List a Commercial Property</h1>
+              <p className="mt-3 max-w-2xl text-white/72">
+                Add all required property details and exactly three images. Published active listings become visible in public browsing immediately.
+              </p>
+            </div>
+            <Link href="/list-property/bulk-upload">
+              <Button icon={<Upload className="h-4 w-4" />} className="!bg-white !text-slate-950 hover:!bg-slate-100">
+                Bulk Upload
+              </Button>
+            </Link>
+          </div>
         </Container>
       </section>
       <Container size="lg" className="py-10 lg:py-14">

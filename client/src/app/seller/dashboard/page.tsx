@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { Building2, Edit3, Eye, Mail, Plus, Power, Search, Trash2 } from "lucide-react";
+import { Building2, CheckCircle2, Edit3, Eye, Mail, Plus, Power, Search, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -102,6 +102,16 @@ export default function SellerDashboardPage() {
       showToast({ type: "success", title: "Property updated" });
     } catch (error) {
       showToast({ type: "error", title: "Update failed", message: error instanceof Error ? error.message : "Please review the form." });
+    }
+  };
+
+  const handleCloseEnquiry = async (enquiry: Enquiry) => {
+    try {
+      const res = await enquiryService.closeSellerEnquiry(enquiry._id);
+      setEnquiries((current) => current.map((item) => item._id === enquiry._id ? res.data : item));
+      showToast({ type: "success", title: "Enquiry closed", message: "The buyer can now see it in history." });
+    } catch (error) {
+      showToast({ type: "error", title: "Unable to close enquiry", message: error instanceof Error ? error.message : "Please try again." });
     }
   };
 
@@ -230,13 +240,30 @@ export default function SellerDashboardPage() {
               <Card key={enquiry._id} padding="md" className="border-slate-200 bg-white shadow-sm">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <h3 className="font-semibold text-slate-900">{enquiry.customerName}</h3>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="font-semibold text-slate-900">{enquiry.customerName}</h3>
+                      <Badge variant={enquiry.status === "closed" ? "success" : "warning"} size="sm">
+                        {enquiry.status === "closed" ? "Closed" : "Active"}
+                      </Badge>
+                    </div>
                     <p className="mt-1 text-sm text-slate-600">{enquiry.email}{enquiry.phone ? ` • ${enquiry.phone}` : ""}</p>
                   </div>
                   <span className="text-xs text-slate-500">{formatDate(enquiry.createdAt)}</span>
                 </div>
                 <p className="mt-3 text-sm font-medium text-slate-900">{getEnquiryPropertyTitle(enquiry)}</p>
                 {enquiry.message && <p className="mt-2 text-sm leading-6 text-slate-600">{enquiry.message}</p>}
+                {enquiry.status !== "closed" && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    icon={<CheckCircle2 className="h-4 w-4" />}
+                    onClick={() => void handleCloseEnquiry(enquiry)}
+                    className="mt-4 border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+                  >
+                    Close Enquiry
+                  </Button>
+                )}
               </Card>
             ))}
           </div>

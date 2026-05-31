@@ -14,7 +14,10 @@ import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
 import PropertyGallery from "@/components/property/PropertyGallery";
 import PropertyEnquiryForm from "@/components/property/PropertyEnquiryForm";
+import { useAuth } from "@/components/providers/AuthProvider";
+import { useToast } from "@/components/providers/ToastProvider";
 import propertyService from "@/services/property.service";
+import savedPropertyService from "@/services/saved-property.service";
 import { formatPrice, formatSize, formatPricePerSqft, formatDate, formatPriceCompact, formatYield } from "@/utils/format";
 import type { Property } from "@/types/property";
 
@@ -24,9 +27,13 @@ import type { Property } from "@/types/property";
 
 export default function PropertyDetailClient() {
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
+  const { showToast } = useToast();
   const [property, setProperty] = useState<Property | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     async function fetchProperty() {
@@ -120,6 +127,30 @@ export default function PropertyDetailClient() {
       behavior: "smooth",
       block: "start",
     });
+  };
+
+  const handleSaveClick = async () => {
+    if (!user) {
+      showToast({ type: "info", title: "Login required", message: "Login to save this property to your dashboard." });
+      return;
+    }
+
+    try {
+      setSaving(true);
+      if (saved) {
+        await savedPropertyService.remove(_id);
+        setSaved(false);
+        showToast({ type: "success", title: "Removed from saved" });
+      } else {
+        await savedPropertyService.save(_id);
+        setSaved(true);
+        showToast({ type: "success", title: "Property saved" });
+      }
+    } catch (err) {
+      showToast({ type: "error", title: "Save failed", message: err instanceof Error ? err.message : "Please try again." });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const detailTabs = ["Overview", "Details", "Tenant Profile", "Financials", "Documents", "Location"];
@@ -232,8 +263,16 @@ export default function PropertyDetailClient() {
                 <Button type="button" variant="outline" size="md" icon={<Download className="h-4 w-4" />} className="border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50">
                   Download Brochure
                 </Button>
-                <Button type="button" variant="outline" size="md" icon={<Heart className="h-4 w-4" />} className="border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50">
-                  Add to Shortlist
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="md"
+                  icon={<Heart className={`h-4 w-4 ${saved ? "fill-current" : ""}`} />}
+                  loading={saving}
+                  onClick={handleSaveClick}
+                  className="border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+                >
+                  {saved ? "Saved" : "Add to Shortlist"}
                 </Button>
               </div>
             </div>

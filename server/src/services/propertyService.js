@@ -13,6 +13,7 @@ function buildSort(sort) {
     price_desc: { price: -1 },
     size_asc: { size: 1 },
     size_desc: { size: -1 },
+    yield_desc: { "financials.rentalYield": -1 },
   };
   return sortMap[sort] || { createdAt: -1 };
 }
@@ -24,7 +25,7 @@ const propertyService = {
   /**
    * Get all properties with pagination, filtering, and sorting
    */
-  async getAll({ page = 1, limit = 10, type, status, city, minPrice, maxPrice, sort }) {
+  async getAll({ page = 1, limit = 10, type, status, city, minPrice, maxPrice, minSize, maxSize, minYield, maxYield, sort }) {
     const query = {
       isActive: { $ne: false },
       listingStatus: { $in: ["published", null] },
@@ -37,6 +38,16 @@ const propertyService = {
       query.price = {};
       if (minPrice) query.price.$gte = Number(minPrice);
       if (maxPrice) query.price.$lte = Number(maxPrice);
+    }
+    if (minSize || maxSize) {
+      query.size = {};
+      if (minSize) query.size.$gte = Number(minSize);
+      if (maxSize) query.size.$lte = Number(maxSize);
+    }
+    if (minYield || maxYield) {
+      query["financials.rentalYield"] = {};
+      if (minYield) query["financials.rentalYield"].$gte = Number(minYield);
+      if (maxYield) query["financials.rentalYield"].$lte = Number(maxYield);
     }
 
     const skip = (Number(page) - 1) * Number(limit);
@@ -87,21 +98,39 @@ const propertyService = {
   /**
    * Search properties by text query
    */
-  async search({ q, type, city, minPrice, maxPrice, sort, page = 1, limit = 10 }) {
+  async search({ q, type, status, city, minPrice, maxPrice, minSize, maxSize, minYield, maxYield, sort, page = 1, limit = 10 }) {
     const query = {
       isActive: { $ne: false },
       listingStatus: { $in: ["published", null] },
     };
 
     if (q) {
-      query.title = { $regex: q, $options: "i" };
+      const searchRegex = { $regex: q, $options: "i" };
+      query.$or = [
+        { title: searchRegex },
+        { buildingName: searchRegex },
+        { "location.city": searchRegex },
+        { "location.micromarket": searchRegex },
+        { "tenant.name": searchRegex },
+      ];
     }
     if (type) query.type = type;
+    if (status) query.status = status;
     if (city) query["location.city"] = { $regex: city, $options: "i" };
     if (minPrice || maxPrice) {
       query.price = {};
       if (minPrice) query.price.$gte = Number(minPrice);
       if (maxPrice) query.price.$lte = Number(maxPrice);
+    }
+    if (minSize || maxSize) {
+      query.size = {};
+      if (minSize) query.size.$gte = Number(minSize);
+      if (maxSize) query.size.$lte = Number(maxSize);
+    }
+    if (minYield || maxYield) {
+      query["financials.rentalYield"] = {};
+      if (minYield) query["financials.rentalYield"].$gte = Number(minYield);
+      if (maxYield) query["financials.rentalYield"].$lte = Number(maxYield);
     }
 
     const skip = (Number(page) - 1) * Number(limit);

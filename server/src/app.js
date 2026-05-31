@@ -3,10 +3,12 @@ const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
 const errorHandler = require("./middleware/errorHandler");
+const adminRoutes = require("./routes/adminRoutes");
 const authRoutes = require("./routes/authRoutes");
 const contactRoutes = require("./routes/contactRoutes");
 const enquiryRoutes = require("./routes/enquiryRoutes");
 const propertyRoutes = require("./routes/propertyRoutes");
+const savedPropertyRoutes = require("./routes/savedPropertyRoutes");
 
 const app = express();
 
@@ -31,9 +33,11 @@ app.get("/api/health", (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/properties", propertyRoutes);
 app.use("/api/enquiries", enquiryRoutes);
+app.use("/api/saved-properties", savedPropertyRoutes);
 
 // --------------- Error Handling ---------------
 app.use(errorHandler);

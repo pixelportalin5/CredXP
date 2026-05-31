@@ -56,6 +56,14 @@ export const SIZE_RANGES: { label: string; min: string; max: string }[] = [
   { label: "Above 10,000 sqft", min: "10000", max: "" },
 ];
 
+export const YIELD_RANGES: { label: string; min: string; max: string }[] = [
+  { label: "Any Yield", min: "", max: "" },
+  { label: "5%+", min: "5", max: "" },
+  { label: "6%+", min: "6", max: "" },
+  { label: "7%+", min: "7", max: "" },
+  { label: "8%+", min: "8", max: "" },
+];
+
 export const SORT_OPTIONS: SelectOption[] = [
   { label: "Newest First", value: "newest" },
   { label: "Price: Low to High", value: "price_asc" },

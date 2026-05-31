@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { MapPin, TrendingUp, Clock, ImageOff, Building2, Heart } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
+import { useAuth } from "@/components/providers/AuthProvider";
+import { useToast } from "@/components/providers/ToastProvider";
+import savedPropertyService from "@/services/saved-property.service";
 import { cn } from "@/utils/cn";
 import { formatPriceCompact, formatSize, formatYield } from "@/utils/format";
 import { getPropertySectionCoverImage } from "@/utils/propertySections";
@@ -17,6 +20,8 @@ import type { Property } from "@/types/property";
 interface PropertyCardProps {
   property: Property;
   variant?: "default" | "compact" | "featured";
+  initialSaved?: boolean;
+  onSavedChange?: (propertyId: string, saved: boolean) => void;
 }
 
 const STATUS_BADGE_MAP: Record<string, { variant: "warning" | "success" | "accent" | "info"; icon: React.ReactNode }> = {
@@ -26,15 +31,47 @@ const STATUS_BADGE_MAP: Record<string, { variant: "warning" | "success" | "accen
   "Available": { variant: "info", icon: null },
 };
 
-export default function PropertyCard({ property, variant = "default" }: PropertyCardProps) {
+export default function PropertyCard({ property, variant = "default", initialSaved = false, onSavedChange }: PropertyCardProps) {
   const { _id, title, type, location, price, size, status, financials, grade, tenant, occupancy } = property;
   const imageUrl = getPropertySectionCoverImage(property);
   const [imgError, setImgError] = useState(false);
+  const [saved, setSaved] = useState(initialSaved);
+  const [saving, setSaving] = useState(false);
   const router = useRouter();
+  const { user } = useAuth();
+  const { showToast } = useToast();
 
   const statusBadge = STATUS_BADGE_MAP[status] || { variant: "info" as const, icon: null };
   const rentalYield = financials?.rentalYield;
   const imageHeightClass = variant === "featured" ? "h-44 sm:h-48" : variant === "compact" ? "h-40 sm:h-44" : "h-40 sm:h-44";
+
+  const handleSaveClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+
+    if (!user) {
+      showToast({ type: "info", title: "Login required", message: "Login to save properties to your dashboard." });
+      return;
+    }
+
+    try {
+      setSaving(true);
+      if (saved) {
+        await savedPropertyService.remove(_id);
+        setSaved(false);
+        onSavedChange?.(_id, false);
+        showToast({ type: "success", title: "Removed from saved" });
+      } else {
+        await savedPropertyService.save(_id);
+        setSaved(true);
+        onSavedChange?.(_id, true);
+        showToast({ type: "success", title: "Property saved" });
+      }
+    } catch (error) {
+      showToast({ type: "error", title: "Save failed", message: error instanceof Error ? error.message : "Please try again." });
+    } finally {
+      setSaving(false);
+    }
+  };
 
   if (variant === "featured") {
     return (
@@ -81,11 +118,15 @@ export default function PropertyCard({ property, variant = "default" }: Property
 
           <button
             type="button"
-            aria-label={`Save ${title}`}
-            onClick={(event) => event.stopPropagation()}
-            className="absolute right-4 top-4 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-500 shadow-sm transition-colors hover:border-accent-500/30 hover:text-accent-500"
+            aria-label={`${saved ? "Unsave" : "Save"} ${title}`}
+            disabled={saving}
+            onClick={handleSaveClick}
+            className={cn(
+              "absolute right-4 top-4 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-500 shadow-sm transition-colors hover:border-accent-500/30 hover:text-accent-500 disabled:cursor-not-allowed disabled:opacity-60",
+              saved && "border-accent-500/30 text-accent-500"
+            )}
           >
-            <Heart className="h-4 w-4" />
+            <Heart className={cn("h-4 w-4", saved && "fill-current")} />
           </button>
 
           <div className="absolute right-4 top-14 z-10 flex flex-wrap justify-end gap-1.5">
@@ -186,11 +227,15 @@ export default function PropertyCard({ property, variant = "default" }: Property
 
         <button
           type="button"
-          aria-label={`Save ${title}`}
-          onClick={(event) => event.stopPropagation()}
-          className="absolute right-4 top-4 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-500 shadow-sm transition-colors hover:border-accent-500/30 hover:text-accent-500"
+          aria-label={`${saved ? "Unsave" : "Save"} ${title}`}
+          disabled={saving}
+          onClick={handleSaveClick}
+          className={cn(
+            "absolute right-4 top-4 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-500 shadow-sm transition-colors hover:border-accent-500/30 hover:text-accent-500 disabled:cursor-not-allowed disabled:opacity-60",
+            saved && "border-accent-500/30 text-accent-500"
+          )}
         >
-          <Heart className="h-4 w-4" />
+          <Heart className={cn("h-4 w-4", saved && "fill-current")} />
         </button>
 
         <div className="absolute right-4 top-14 z-10 flex flex-wrap justify-end gap-1.5">

@@ -5,6 +5,7 @@ import { Send, CheckCircle2, Phone, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { EnterpriseInput, EnterpriseTextarea, FormField } from "@/components/forms/EnterpriseForm";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { useToast } from "@/components/providers/ToastProvider";
 import enquiryService from "@/services/enquiry.service";
 import { siteConfig } from "@/config/site";
@@ -21,12 +22,14 @@ interface PropertyEnquiryFormProps {
 export default function PropertyEnquiryForm({ propertyTitle, propertyId }: PropertyEnquiryFormProps) {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
   const { showToast } = useToast();
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-      const formData = new FormData(e.currentTarget);
+      const form = e.currentTarget;
+      const formData = new FormData(form);
 
       try {
         setLoading(true);
@@ -37,7 +40,7 @@ export default function PropertyEnquiryForm({ propertyTitle, propertyId }: Prope
           message: String(formData.get("message") || ""),
           propertyId,
         });
-        e.currentTarget.reset();
+        form.reset();
         setFormSubmitted(true);
         showToast({ type: "success", title: "Enquiry submitted", message: "The seller team will follow up shortly." });
         window.setTimeout(() => setFormSubmitted(false), 5000);
@@ -70,13 +73,13 @@ export default function PropertyEnquiryForm({ propertyTitle, propertyId }: Prope
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <FormField label="Your Name" tone="dark">
-            <EnterpriseInput tone="dark" type="text" name="customerName" placeholder="Your Name" required id={`enquiry-name-${propertyId}`} />
+            <EnterpriseInput tone="dark" type="text" name="customerName" placeholder="Your Name" required defaultValue={user?.name || ""} id={`enquiry-name-${propertyId}`} />
           </FormField>
           <FormField label="Email Address" tone="dark">
-            <EnterpriseInput tone="dark" type="email" name="email" placeholder="Email Address" required id={`enquiry-email-${propertyId}`} />
+            <EnterpriseInput tone="dark" type="email" name="email" placeholder="Email Address" required defaultValue={user?.email || ""} id={`enquiry-email-${propertyId}`} />
           </FormField>
           <FormField label="Phone Number" tone="dark">
-            <EnterpriseInput tone="dark" type="tel" name="phone" placeholder="Phone Number" id={`enquiry-phone-${propertyId}`} />
+            <EnterpriseInput tone="dark" type="tel" name="phone" placeholder="Phone Number" defaultValue={user?.phone || ""} id={`enquiry-phone-${propertyId}`} />
           </FormField>
           <FormField label="Message" tone="dark">
             <EnterpriseTextarea tone="dark" name="message" placeholder="I'm interested in this property..." rows={3} id={`enquiry-message-${propertyId}`} />

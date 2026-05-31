@@ -27,8 +27,28 @@ const me = async (req, res, next) => {
   }
 };
 
+const updateMe = async (req, res, next) => {
+  try {
+    const user = await authService.updateMe(req.user._id, req.body);
+    res.json({ success: true, data: user });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updatePassword = async (req, res, next) => {
+  try {
+    const user = await authService.updatePassword(req.user._id, req.body);
+    res.json({ success: true, data: user });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   register,
   login,
   me,
+  updateMe,
+  updatePassword,
 };

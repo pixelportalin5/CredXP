@@ -7,6 +7,7 @@ const authService = {
     email: string;
     password: string;
     phone?: string;
+    role?: "buyer" | "seller";
   }): Promise<{ data: AuthResponse }> => api.post("/auth/register", data),
 
   login: (data: {
@@ -15,6 +16,18 @@ const authService = {
   }): Promise<{ data: AuthResponse }> => api.post("/auth/login", data),
 
   me: (): Promise<{ data: User }> => api.get("/auth/me"),
+
+  updateMe: (data: {
+    name?: string;
+    email?: string;
+    phone?: string;
+    avatar?: string;
+  }): Promise<{ data: User }> => api.patch("/auth/me", data),
+
+  updatePassword: (data: {
+    currentPassword: string;
+    newPassword: string;
+  }): Promise<{ data: User }> => api.patch("/auth/password", data),
 };
 
 export default authService;

@@ -9,7 +9,8 @@ interface AuthContextValue {
   token: string | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<User>;
-  register: (data: { name: string; email: string; password: string; phone?: string }) => Promise<User>;
+  register: (data: { name: string; email: string; password: string; phone?: string; role?: "buyer" | "seller" }) => Promise<User>;
+  refreshUser: () => Promise<User>;
   logout: () => void;
 }
 
@@ -63,11 +64,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return res.data.user;
   }, [persistSession]);
 
-  const register = useCallback(async (data: { name: string; email: string; password: string; phone?: string }) => {
+  const register = useCallback(async (data: { name: string; email: string; password: string; phone?: string; role?: "buyer" | "seller" }) => {
     const res = await authService.register(data);
     persistSession(res.data.token, res.data.user);
     return res.data.user;
   }, [persistSession]);
+
+  const refreshUser = useCallback(async () => {
+    const res = await authService.me();
+    setUser(res.data);
+    return res.data;
+  }, []);
 
   const logout = useCallback(() => {
     window.localStorage.removeItem("credxp_token");
@@ -77,8 +84,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ user, token, loading, login, register, logout }),
-    [user, token, loading, login, register, logout]
+    () => ({ user, token, loading, login, register, refreshUser, logout }),
+    [user, token, loading, login, register, refreshUser, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

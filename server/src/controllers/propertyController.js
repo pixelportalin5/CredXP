@@ -1,4 +1,5 @@
 const propertyService = require("../services/propertyService");
+const bulkPropertyService = require("../services/bulkPropertyService");
 const ApiError = require("../utils/ApiError");
 
 /**
@@ -74,6 +75,49 @@ const createProperty = async (req, res, next) => {
 };
 
 /**
+ * @desc   Download bulk property upload template
+ * @route  GET /api/properties/bulk/template
+ */
+const downloadBulkTemplate = async (req, res, next) => {
+  try {
+    const template = await bulkPropertyService.generateTemplate();
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    res.setHeader("Content-Disposition", "attachment; filename=credxp-property-bulk-template.xlsx");
+    res.send(template);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc   Import properties from Excel and image ZIP
+ * @route  POST /api/properties/bulk/upload
+ */
+const bulkUploadProperties = async (req, res, next) => {
+  try {
+    const excelFile = req.files?.excel?.[0];
+    const zipFile = req.files?.imagesZip?.[0];
+
+    if (!excelFile) {
+      throw new ApiError(400, "Excel file is required");
+    }
+    if (!zipFile) {
+      throw new ApiError(400, "Images ZIP file is required");
+    }
+
+    const result = await bulkPropertyService.importProperties({
+      excelFile,
+      zipFile,
+      user: req.user,
+    });
+
+    res.status(201).json({ success: true, data: result });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
  * @desc   Get seller-owned properties
  * @route  GET /api/properties/seller/my-properties
  */
@@ -118,6 +162,8 @@ module.exports = {
   searchProperties,
   getPropertyById,
   createProperty,
+  downloadBulkTemplate,
+  bulkUploadProperties,
   getSellerProperties,
   updateProperty,
   deleteProperty,

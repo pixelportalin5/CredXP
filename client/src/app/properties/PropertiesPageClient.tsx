@@ -30,17 +30,21 @@ export default function PropertiesPageClient() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [pagination, setPagination] = useState<PaginationType | null>(null);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
 
   const [filters, setFilters] = useState<PropertyFiltersType>({
-    page: 1,
-    limit: 6,
+    page: Number(searchParams.get("page")) || 1,
+    limit: Number(searchParams.get("limit")) || 6,
     type: searchParams.get("type") || "",
     status: searchParams.get("status") || "",
     city: searchParams.get("city") || "",
     category: searchParams.get("category") || "",
     minPrice: searchParams.get("minPrice") || "",
     maxPrice: searchParams.get("maxPrice") || "",
+    minSize: searchParams.get("minSize") || "",
+    maxSize: searchParams.get("maxSize") || "",
+    minYield: searchParams.get("minYield") || "",
+    maxYield: searchParams.get("maxYield") || "",
     sort: searchParams.get("sort") || "newest",
   });
 
