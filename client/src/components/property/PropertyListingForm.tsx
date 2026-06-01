@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Image from "next/image";
-import { CheckCircle2, Eye, ImagePlus, UploadCloud } from "lucide-react";
+import { CheckCircle2, Eye, ImagePlus, UploadCloud, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { EnterpriseInput, EnterpriseSelect, EnterpriseTextarea, FormField, FormSection } from "@/components/forms/EnterpriseForm";
 import { useToast } from "@/components/providers/ToastProvider";
@@ -61,6 +61,9 @@ function readFileAsDataUrl(file: File) {
   });
 }
 
+const MAX_IMAGE_SIZE_MB = 4;
+const MAX_IMAGE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024;
+
 interface PropertyListingFormProps {
   initialProperty?: Property;
   submitLabel?: string;
@@ -82,21 +85,36 @@ export default function PropertyListingForm({
 
   const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
-    if (files.length !== 3) {
-      showToast({ type: "error", title: "Exactly 3 images required", message: "Please select three property images." });
+    const availableSlots = 3 - images.length;
+
+    if (files.length === 0) {
+      return;
+    }
+
+    if (files.length > availableSlots) {
+      showToast({
+        type: "error",
+        title: "Too many images",
+        message: availableSlots > 0 ? `You can add ${availableSlots} more image${availableSlots === 1 ? "" : "s"}.` : "Remove an image before adding a new one.",
+      });
       event.target.value = "";
       return;
     }
 
-    const oversized = files.find((file) => file.size > 2 * 1024 * 1024);
+    const oversized = files.find((file) => file.size > MAX_IMAGE_SIZE_BYTES);
     if (oversized) {
-      showToast({ type: "error", title: "Image too large", message: "Each image should be 2MB or smaller." });
+      showToast({ type: "error", title: "Image too large", message: `Each image should be ${MAX_IMAGE_SIZE_MB}MB or smaller.` });
       event.target.value = "";
       return;
     }
 
     const encoded = await Promise.all(files.map(readFileAsDataUrl));
-    setImages(encoded);
+    setImages((current) => [...current, ...encoded].slice(0, 3));
+    event.target.value = "";
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setImages((current) => current.filter((_, imageIndex) => imageIndex !== index));
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -343,14 +361,24 @@ export default function PropertyListingForm({
             <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-500/10 text-accent-500">
               <UploadCloud className="h-7 w-7" />
             </span>
-            <span className="text-base font-semibold text-slate-950">Upload exactly 3 property images</span>
-            <span className="max-w-md text-sm leading-6 text-slate-500">JPEG, PNG, or WebP. Keep each file under 2MB for faster listing performance.</span>
-            <input type="file" accept="image/*" multiple className="sr-only" onChange={handleImageChange} />
+            <span className="text-base font-semibold text-slate-950">
+              {images.length === 3 ? "All 3 property images are ready" : `Upload ${3 - images.length} more property image${3 - images.length === 1 ? "" : "s"}`}
+            </span>
+            <span className="max-w-md text-sm leading-6 text-slate-500">JPEG, PNG, or WebP. Keep each file under 4MB for faster listing performance.</span>
+            <input type="file" accept="image/*" multiple className="sr-only" onChange={handleImageChange} disabled={images.length >= 3} />
           </label>
           {images.length > 0 && (
             <div className="mt-6 grid gap-4 sm:grid-cols-3">
               {images.map((image, index) => (
-                <div key={image.slice(0, 48) + index} className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
+                <div key={image.slice(0, 48) + index} className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
+                  <button
+                    type="button"
+                    aria-label={`Remove image ${index + 1}`}
+                    onClick={() => handleRemoveImage(index)}
+                    className="absolute right-3 top-3 z-10 inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/70 bg-slate-950/70 text-white shadow-lg backdrop-blur transition-colors hover:bg-red-500"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
                   <Image
                     src={image}
                     alt={`Preview ${index + 1}`}
