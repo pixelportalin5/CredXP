@@ -21,6 +21,10 @@ function getProperty(enquiry: Enquiry) {
   return typeof enquiry.propertyId === "string" ? null : enquiry.propertyId;
 }
 
+function getCoworkingSpace(enquiry: Enquiry) {
+  return typeof enquiry.coworkingSpaceId === "string" ? null : enquiry.coworkingSpaceId;
+}
+
 export default function UserDashboardPage() {
   const { user, loading: authLoading } = useAuth();
   const { showToast } = useToast();
@@ -56,10 +60,13 @@ export default function UserDashboardPage() {
     if (!normalized) return enquiries;
     return enquiries.filter((enquiry) => {
       const property = getProperty(enquiry);
+      const coworkingSpace = getCoworkingSpace(enquiry);
       return (
         enquiry.message?.toLowerCase().includes(normalized) ||
         property?.title.toLowerCase().includes(normalized) ||
-        property?.location.city.toLowerCase().includes(normalized)
+        property?.location.city.toLowerCase().includes(normalized) ||
+        coworkingSpace?.title.toLowerCase().includes(normalized) ||
+        coworkingSpace?.location.city.toLowerCase().includes(normalized)
       );
     });
   }, [enquiries, query]);
@@ -191,16 +198,22 @@ export default function UserDashboardPage() {
                 </Card>
               ) : filteredEnquiries.map((enquiry) => {
                 const property = getProperty(enquiry);
+                const coworkingSpace = getCoworkingSpace(enquiry);
                 return (
                   <Card key={enquiry._id} padding="md" className="border-slate-200 bg-white shadow-sm">
                     <div className="flex flex-col gap-3">
                       <div className="flex flex-wrap items-center justify-between gap-2">
-                        <h3 className="font-semibold text-slate-900">{property?.title || "Deleted property"}</h3>
+                        <h3 className="font-semibold text-slate-900">{property?.title || coworkingSpace?.title || "Deleted listing"}</h3>
                         <Badge variant="outline" size="sm">{formatDate(enquiry.createdAt)}</Badge>
                       </div>
                       {property && (
                         <p className="text-sm text-slate-600">
                           {property.location.city} • {formatPriceCompact(property.price)}
+                        </p>
+                      )}
+                      {coworkingSpace && (
+                        <p className="text-sm text-slate-600">
+                          {coworkingSpace.location.city} • {coworkingSpace.priceLabel || formatPriceCompact(coworkingSpace.monthlySeatPrice)}
                         </p>
                       )}
                       {enquiry.message && (
@@ -213,6 +226,13 @@ export default function UserDashboardPage() {
                           <Link href={`/properties/${property._id}`}>
                             <Button variant="outline" size="sm" className="border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50">
                               View Property
+                            </Button>
+                          </Link>
+                        )}
+                        {coworkingSpace && (
+                          <Link href={`/coworking/${coworkingSpace._id}`}>
+                            <Button variant="outline" size="sm" className="border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50">
+                              View Coworking
                             </Button>
                           </Link>
                         )}

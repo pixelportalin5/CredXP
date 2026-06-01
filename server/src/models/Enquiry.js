@@ -25,7 +25,12 @@ const enquirySchema = new mongoose.Schema(
     propertyId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Property",
-      required: [true, "Property is required"],
+      required: false,
+    },
+    coworkingSpaceId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "CoworkingSpace",
+      required: false,
     },
     sellerId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -52,5 +57,12 @@ const enquirySchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+enquirySchema.pre("validate", function validateReference(next) {
+  if (!this.propertyId && !this.coworkingSpaceId) {
+    this.invalidate("propertyId", "Property or coworking space is required");
+  }
+  next();
+});
 
 module.exports = mongoose.model("Enquiry", enquirySchema);

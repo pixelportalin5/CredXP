@@ -1,12 +1,21 @@
 const Enquiry = require("../models/Enquiry");
 const Property = require("../models/Property");
+const CoworkingSpace = require("../models/CoworkingSpace");
 const ApiError = require("../utils/ApiError");
 
 const enquiryService = {
   async create(data, user) {
-    const property = await Property.findById(data.propertyId);
-    if (!property) {
+    const property = data.propertyId ? await Property.findById(data.propertyId) : null;
+    const coworkingSpace = data.coworkingSpaceId ? await CoworkingSpace.findById(data.coworkingSpaceId) : null;
+
+    if (data.propertyId && !property) {
       throw new ApiError(404, "Property not found");
+    }
+    if (data.coworkingSpaceId && !coworkingSpace) {
+      throw new ApiError(404, "Coworking space not found");
+    }
+    if (!property && !coworkingSpace) {
+      throw new ApiError(400, "Property or coworking space is required");
     }
 
     const enquiry = await Enquiry.create({
@@ -14,19 +23,29 @@ const enquiryService = {
       email: data.email,
       phone: data.phone,
       message: data.message,
-      propertyId: property._id,
-      sellerId: property.seller || undefined,
+      propertyId: property?._id,
+      coworkingSpaceId: coworkingSpace?._id,
+      sellerId: property?.seller || coworkingSpace?.seller || undefined,
       userId: user?._id,
     });
 
-    await Property.findByIdAndUpdate(property._id, { $inc: { enquiryCount: 1 } });
+    if (property) {
+      await Property.findByIdAndUpdate(property._id, { $inc: { enquiryCount: 1 } });
+    }
+    if (coworkingSpace) {
+      await CoworkingSpace.findByIdAndUpdate(coworkingSpace._id, { $inc: { enquiryCount: 1 } });
+    }
 
-    return enquiry.populate("propertyId", "title type location price");
+    return enquiry.populate([
+      { path: "propertyId", select: "title type location price" },
+      { path: "coworkingSpaceId", select: "title operator location monthlySeatPrice priceLabel images" },
+    ]);
   },
 
-  async getForSeller(sellerId, { q, propertyId } = {}) {
+  async getForSeller(sellerId, { q, propertyId, coworkingSpaceId } = {}) {
     const query = { sellerId };
     if (propertyId) query.propertyId = propertyId;
+    if (coworkingSpaceId) query.coworkingSpaceId = coworkingSpaceId;
     if (q) {
       query.$or = [
         { customerName: { $regex: q, $options: "i" } },
@@ -37,6 +56,7 @@ const enquiryService = {
 
     return Enquiry.find(query)
       .populate("propertyId", "title type location price")
+      .populate("coworkingSpaceId", "title operator location monthlySeatPrice priceLabel images")
       .sort({ createdAt: -1 });
   },
 
@@ -46,6 +66,7 @@ const enquiryService = {
 
     return Enquiry.find(query)
       .populate("propertyId", "title type location price images status financials size")
+      .populate("coworkingSpaceId", "title operator location monthlySeatPrice priceLabel images")
       .sort({ createdAt: -1 });
   },
 
@@ -54,7 +75,9 @@ const enquiryService = {
       { _id: enquiryId, sellerId },
       { status: "closed", closedAt: new Date() },
       { new: true }
-    ).populate("propertyId", "title type location price");
+    )
+      .populate("propertyId", "title type location price")
+      .populate("coworkingSpaceId", "title operator location monthlySeatPrice priceLabel images");
 
     if (!enquiry) {
       throw new ApiError(404, "Enquiry not found");

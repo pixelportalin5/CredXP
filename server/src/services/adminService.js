@@ -134,6 +134,7 @@ const adminService = {
 
     return Enquiry.find(query)
       .populate("propertyId", "title type location price")
+      .populate("coworkingSpaceId", "title operator location monthlySeatPrice priceLabel")
       .populate("sellerId", "name email phone role")
       .populate("userId", "name email phone role")
       .sort({ createdAt: -1 })
@@ -151,6 +152,7 @@ const adminService = {
       { new: true }
     )
       .populate("propertyId", "title type location price")
+      .populate("coworkingSpaceId", "title operator location monthlySeatPrice priceLabel")
       .populate("sellerId", "name email phone role")
       .populate("userId", "name email phone role");
 

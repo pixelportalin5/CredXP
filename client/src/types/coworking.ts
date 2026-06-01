@@ -2,37 +2,57 @@
    Coworking Domain Types
    ============================================================ */
 
+import type { User } from "./auth";
+
+export interface CoworkingLocation {
+  address: string;
+  city: string;
+  state: string;
+  micromarket?: string;
+  landmark?: string;
+}
+
 export interface CoworkingSpace {
   _id: string;
-  name: string;
+  title: string;
+  name?: string;
   operator: string;
   operatorLogo?: string;
-  location: {
-    address: string;
-    city: string;
-    state: string;
-    micromarket?: string;
-  };
-  pricing: {
+  website?: string;
+  seller?: string | Pick<User, "_id" | "name" | "email" | "role">;
+  location: CoworkingLocation;
+  monthlySeatPrice: number;
+  priceLabel: string;
+  workspaceType: string;
+  pricing?: {
     hotDesk?: number;
     dedicatedDesk?: number;
     privateCabin?: number;
     customSuite?: number;
     pricingUnit: "day" | "month" | "seat/month";
   };
-  capacity: {
-    totalSeats: number;
+  capacity?: {
+    totalSeats?: number;
     availableSeats?: number;
     minSeats?: number;
     maxSeats?: number;
   };
-  amenities: string[];
-  highlights: string[];
   images: string[];
-  rating?: number;
-  reviewCount?: number;
-  operatingHours?: string;
-  contractTerms?: string;
+  amenities: string[];
+  highlights?: string[];
+  description: string;
+  specs?: {
+    seatsFrom?: number;
+    privateCabins?: boolean;
+    meetingRooms?: boolean;
+    internet?: boolean;
+    parking?: boolean;
+  };
+  isActive?: boolean;
+  featured?: boolean;
+  views?: number;
+  enquiryCount?: number;
+  listingStatus?: "draft" | "published" | "paused";
   createdAt: string;
   updatedAt: string;
 }

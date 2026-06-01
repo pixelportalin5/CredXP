@@ -6,6 +6,7 @@ const errorHandler = require("./middleware/errorHandler");
 const adminRoutes = require("./routes/adminRoutes");
 const authRoutes = require("./routes/authRoutes");
 const contactRoutes = require("./routes/contactRoutes");
+const coworkingRoutes = require("./routes/coworkingRoutes");
 const enquiryRoutes = require("./routes/enquiryRoutes");
 const propertyRoutes = require("./routes/propertyRoutes");
 const savedPropertyRoutes = require("./routes/savedPropertyRoutes");
@@ -35,6 +36,7 @@ app.get("/api/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/contact", contactRoutes);
+app.use("/api/coworking", coworkingRoutes);
 app.use("/api/properties", propertyRoutes);
 app.use("/api/enquiries", enquiryRoutes);
 app.use("/api/saved-properties", savedPropertyRoutes);

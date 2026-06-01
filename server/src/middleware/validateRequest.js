@@ -37,7 +37,10 @@ const validateAuth = (mode) => (req, res, next) => {
 
 const validateEnquiry = (req, res, next) => {
   try {
-    requireFields(req.body, ["customerName", "email", "propertyId"]);
+    requireFields(req.body, ["customerName", "email"]);
+    if (!req.body.propertyId && !req.body.coworkingSpaceId) {
+      throw new ApiError(400, "Property or coworking space is required");
+    }
     if (!emailPattern.test(req.body.email)) {
       throw new ApiError(400, "Please provide a valid email");
     }

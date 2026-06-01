@@ -47,7 +47,10 @@ function userLabel(value: Enquiry["userId"] | Enquiry["sellerId"]) {
 }
 
 function propertyTitle(enquiry: Enquiry) {
-  if (!enquiry.propertyId || typeof enquiry.propertyId === "string") return "Deleted property";
+  if (enquiry.coworkingSpaceId && typeof enquiry.coworkingSpaceId !== "string") {
+    return enquiry.coworkingSpaceId.title;
+  }
+  if (!enquiry.propertyId || typeof enquiry.propertyId === "string") return "Deleted listing";
   return enquiry.propertyId.title;
 }
 

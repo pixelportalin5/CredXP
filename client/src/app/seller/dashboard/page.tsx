@@ -20,7 +20,10 @@ import type { Property } from "@/types/property";
 const inputClass = "border-slate-200 bg-white text-slate-900 placeholder:text-slate-400";
 
 function getEnquiryPropertyTitle(enquiry: Enquiry) {
-  if (!enquiry.propertyId) return "Deleted property";
+  if (enquiry.coworkingSpaceId && typeof enquiry.coworkingSpaceId !== "string") {
+    return enquiry.coworkingSpaceId.title;
+  }
+  if (!enquiry.propertyId) return "Deleted listing";
   return typeof enquiry.propertyId === "string" ? "Property" : enquiry.propertyId.title;
 }
 

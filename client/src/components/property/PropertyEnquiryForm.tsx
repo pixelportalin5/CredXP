@@ -16,10 +16,12 @@ import { siteConfig } from "@/config/site";
 
 interface PropertyEnquiryFormProps {
   propertyTitle: string;
-  propertyId: string;
+  propertyId?: string;
+  coworkingSpaceId?: string;
+  subjectType?: "property" | "coworking";
 }
 
-export default function PropertyEnquiryForm({ propertyTitle, propertyId }: PropertyEnquiryFormProps) {
+export default function PropertyEnquiryForm({ propertyTitle, propertyId, coworkingSpaceId, subjectType = "property" }: PropertyEnquiryFormProps) {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
@@ -39,6 +41,7 @@ export default function PropertyEnquiryForm({ propertyTitle, propertyId }: Prope
           phone: String(formData.get("phone") || ""),
           message: String(formData.get("message") || ""),
           propertyId,
+          coworkingSpaceId,
         });
         form.reset();
         setFormSubmitted(true);
@@ -50,13 +53,15 @@ export default function PropertyEnquiryForm({ propertyTitle, propertyId }: Prope
         setLoading(false);
       }
     },
-    [propertyId, showToast]
+    [coworkingSpaceId, propertyId, showToast]
   );
+
+  const fieldId = propertyId || coworkingSpaceId || "lead";
 
   return (
     <Card padding="md" className="black-section-bg border-white/10 shadow-[0_18px_48px_rgba(15,23,42,0.16)]">
       <h3 className="mb-1 text-base font-semibold text-white">
-        Enquire About This Property
+        {subjectType === "coworking" ? "Enquire About This Space" : "Enquire About This Property"}
       </h3>
       <p className="mb-5 text-xs text-white/58">
         Our advisors will get back to you within 2 hours.
@@ -73,16 +78,16 @@ export default function PropertyEnquiryForm({ propertyTitle, propertyId }: Prope
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <FormField label="Your Name" tone="dark">
-            <EnterpriseInput tone="dark" type="text" name="customerName" placeholder="Your Name" required defaultValue={user?.name || ""} id={`enquiry-name-${propertyId}`} />
+            <EnterpriseInput tone="dark" type="text" name="customerName" placeholder="Your Name" required defaultValue={user?.name || ""} id={`enquiry-name-${fieldId}`} />
           </FormField>
           <FormField label="Email Address" tone="dark">
-            <EnterpriseInput tone="dark" type="email" name="email" placeholder="Email Address" required defaultValue={user?.email || ""} id={`enquiry-email-${propertyId}`} />
+            <EnterpriseInput tone="dark" type="email" name="email" placeholder="Email Address" required defaultValue={user?.email || ""} id={`enquiry-email-${fieldId}`} />
           </FormField>
           <FormField label="Phone Number" tone="dark">
-            <EnterpriseInput tone="dark" type="tel" name="phone" placeholder="Phone Number" defaultValue={user?.phone || ""} id={`enquiry-phone-${propertyId}`} />
+            <EnterpriseInput tone="dark" type="tel" name="phone" placeholder="Phone Number" defaultValue={user?.phone || ""} id={`enquiry-phone-${fieldId}`} />
           </FormField>
           <FormField label="Message" tone="dark">
-            <EnterpriseTextarea tone="dark" name="message" placeholder="I'm interested in this property..." rows={3} id={`enquiry-message-${propertyId}`} />
+            <EnterpriseTextarea tone="dark" name="message" placeholder={subjectType === "coworking" ? "I'm interested in this coworking space..." : "I'm interested in this property..."} rows={3} id={`enquiry-message-${fieldId}`} />
           </FormField>
           <Button
             type="submit"

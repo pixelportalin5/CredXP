@@ -18,6 +18,11 @@ function buildSort(sort) {
   return sortMap[sort] || { createdAt: -1 };
 }
 
+function applyTypeFilter(query, type) {
+  if (!type) return;
+  query.type = type === "Office Space" ? { $in: ["Office Space", "Pre-Leased Office"] } : type;
+}
+
 /**
  * Property service - handles business logic for properties
  */
@@ -31,7 +36,7 @@ const propertyService = {
       listingStatus: { $in: ["published", null] },
     };
 
-    if (type) query.type = type;
+    applyTypeFilter(query, type);
     if (status) query.status = status;
     if (city) query["location.city"] = { $regex: city, $options: "i" };
     if (minPrice || maxPrice) {
@@ -55,6 +60,7 @@ const propertyService = {
     const [properties, total] = await Promise.all([
       Property.find(query)
         .sort(buildSort(sort))
+        .slice("images", 1)
         .skip(skip)
         .limit(Number(limit)),
       Property.countDocuments(query),
@@ -75,13 +81,16 @@ const propertyService = {
    * Get properties by status (for homepage sections)
    */
   async getByStatus(status, limit = 6) {
-    return Property.find({
+    const properties = await Property.find({
       status,
       isActive: { $ne: false },
       listingStatus: { $in: ["published", null] },
     })
       .sort({ createdAt: -1 })
+      .slice("images", 1)
       .limit(Number(limit));
+
+    return properties;
   },
 
   /**
@@ -114,7 +123,7 @@ const propertyService = {
         { "tenant.name": searchRegex },
       ];
     }
-    if (type) query.type = type;
+    applyTypeFilter(query, type);
     if (status) query.status = status;
     if (city) query["location.city"] = { $regex: city, $options: "i" };
     if (minPrice || maxPrice) {
@@ -138,6 +147,7 @@ const propertyService = {
     const [properties, total] = await Promise.all([
       Property.find(query)
         .sort(buildSort(sort))
+        .slice("images", 1)
         .skip(skip)
         .limit(Number(limit)),
       Property.countDocuments(query),

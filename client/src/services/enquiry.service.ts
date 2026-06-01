@@ -7,7 +7,8 @@ const enquiryService = {
     email: string;
     phone?: string;
     message?: string;
-    propertyId: string;
+    propertyId?: string;
+    coworkingSpaceId?: string;
   }): Promise<{ data: Enquiry }> => api.post("/enquiries", data),
 
   getSellerEnquiries: (params: Record<string, unknown> = {}): Promise<{ data: Enquiry[] }> =>

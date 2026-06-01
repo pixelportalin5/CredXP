@@ -9,7 +9,7 @@ const propertySchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["Office Space", "Shop", "Coworking Space"],
+      enum: ["Pre-Leased Office", "Office Space", "Retail/SCO", "Coworking", "Coworking Space", "Shop", "Warehouse", "Commercial Land"],
       required: [true, "Property type is required"],
     },
     seller: {
@@ -118,5 +118,10 @@ const propertySchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+propertySchema.index({ createdAt: -1 });
+propertySchema.index({ price: 1 });
+propertySchema.index({ size: 1 });
+propertySchema.index({ "financials.rentalYield": -1 });
 
 module.exports = mongoose.model("Property", propertySchema);
