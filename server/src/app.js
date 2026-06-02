@@ -14,12 +14,12 @@ const savedPropertyRoutes = require("./routes/savedPropertyRoutes");
 const app = express();
 
 // --------------- Middleware ---------------
-app.use(helmet());
 app.use(
   cors({
     origin: [
       "http://localhost:3000",
       "https://credxp-mvp.vercel.app",
+      "https://aqua-goldfinch-370087.hostingersite.com",
     ],
     credentials: true,
   })

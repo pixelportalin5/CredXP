@@ -18,7 +18,6 @@ import { Card } from "@/components/ui/Card";
 import { Select } from "@/components/ui/Select";
 import { Container } from "@/components/ui/Container";
 import { CITIES, PROPERTY_TYPES, PRICE_RANGES, SIZE_RANGES, YIELD_RANGES } from "@/config/filters";
-import heroBackground from "../../../Hero section for credxp.png";
 
 const goalCards = [
   {
@@ -38,8 +37,8 @@ const goalCards = [
   },
 ] as const;
 
-const heroBackgrounds: Record<(typeof goalCards)[number]["key"], string | typeof heroBackground> = {
-  invest: heroBackground,
+const heroBackgrounds: Record<(typeof goalCards)[number]["key"], string> = {
+  invest: "/images/Hero section for credxp.png",
   lease: "/hero2.jpeg",
   coworking: "/hero3.jpeg",
 };
