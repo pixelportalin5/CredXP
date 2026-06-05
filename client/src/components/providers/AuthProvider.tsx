@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import authService from "@/services/auth.service";
 import type { User } from "@/types/auth";
@@ -17,6 +18,7 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -81,7 +83,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(null);
     setUser(null);
     setLoading(false);
-  }, []);
+    router.push("/");
+  }, [router]);
 
   const value = useMemo(
     () => ({ user, token, loading, login, register, refreshUser, logout }),

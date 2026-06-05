@@ -7,8 +7,9 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Container } from "@/components/ui/Container";
+import { PageLoader } from "@/components/ui/PageLoader";
+import { AdminSectionSkeleton } from "@/components/ui/Skeleton";
 import { EnterpriseInput } from "@/components/forms/EnterpriseForm";
-import PropertyListingForm from "@/components/property/PropertyListingForm";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useToast } from "@/components/providers/ToastProvider";
 import enquiryService from "@/services/enquiry.service";
@@ -34,8 +35,6 @@ export default function SellerDashboardPage() {
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
   const [dashboardLoading, setDashboardLoading] = useState(false);
   const [query, setQuery] = useState("");
-  const [editingProperty, setEditingProperty] = useState<Property | null>(null);
-
   useEffect(() => {
     if (!user) return;
 
@@ -96,18 +95,6 @@ export default function SellerDashboardPage() {
     }
   };
 
-  const handleUpdate = async (data: Partial<Property>) => {
-    if (!editingProperty) return;
-    try {
-      const res = await propertyService.update(editingProperty._id, data);
-      setProperties((current) => current.map((item) => item._id === res.data._id ? res.data : item));
-      setEditingProperty(null);
-      showToast({ type: "success", title: "Property updated" });
-    } catch (error) {
-      showToast({ type: "error", title: "Update failed", message: error instanceof Error ? error.message : "Please review the form." });
-    }
-  };
-
   const handleCloseEnquiry = async (enquiry: Enquiry) => {
     try {
       const res = await enquiryService.closeSellerEnquiry(enquiry._id);
@@ -118,8 +105,8 @@ export default function SellerDashboardPage() {
     }
   };
 
-  if (authLoading || dashboardLoading) {
-    return <div className="min-h-[50vh]" />;
+  if (authLoading) {
+    return <PageLoader label="Checking access…" />;
   }
 
   if (!user) {
@@ -168,22 +155,12 @@ export default function SellerDashboardPage() {
       </section>
 
       <Container size="xl" className="py-10 lg:py-14">
-      {editingProperty && (
-        <Card padding="lg" className="mb-8 border-slate-200 bg-white shadow-sm">
-          <div className="mb-5 flex items-center justify-between gap-4">
-            <div>
-              <h2 className="text-xl font-semibold text-slate-900">Edit Property</h2>
-              <p className="text-sm text-slate-600">{editingProperty.title}</p>
-            </div>
-            <Button type="button" variant="outline" onClick={() => setEditingProperty(null)}>Cancel</Button>
-          </div>
-          <PropertyListingForm initialProperty={editingProperty} submitLabel="Save Changes" onSubmit={handleUpdate} />
-        </Card>
-      )}
-
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)]">
         <section>
           <h2 className="mb-4 text-xl font-semibold text-slate-900">Listed Properties</h2>
+          {dashboardLoading ? (
+            <AdminSectionSkeleton rows={3} />
+          ) : (
           <div className="space-y-4">
             {properties.length === 0 ? (
               <Card padding="lg" className="border-slate-200 bg-white text-center shadow-sm">
@@ -211,7 +188,9 @@ export default function SellerDashboardPage() {
                     <Link href={`/properties/${property._id}`}>
                       <Button variant="outline" size="sm" icon={<Eye className="h-4 w-4" />}>View</Button>
                     </Link>
-                    <Button variant="outline" size="sm" icon={<Edit3 className="h-4 w-4" />} onClick={() => setEditingProperty(property)}>Edit</Button>
+                    <Link href={`/seller/dashboard/properties/${property._id}/edit`}>
+                      <Button variant="outline" size="sm" icon={<Edit3 className="h-4 w-4" />}>Edit</Button>
+                    </Link>
                     <Button variant="outline" size="sm" icon={<Power className="h-4 w-4" />} onClick={() => void handleToggleActive(property)}>
                       {property.isActive === false ? "Activate" : "Deactivate"}
                     </Button>
@@ -221,6 +200,7 @@ export default function SellerDashboardPage() {
               </Card>
             ))}
           </div>
+          )}
         </section>
 
         <section>
@@ -233,6 +213,9 @@ export default function SellerDashboardPage() {
               </div>
             </div>
           </div>
+          {dashboardLoading ? (
+            <AdminSectionSkeleton rows={3} />
+          ) : (
           <div className="space-y-4">
             {filteredEnquiries.length === 0 ? (
               <Card padding="lg" className="border-slate-200 bg-white text-center shadow-sm">
@@ -270,6 +253,7 @@ export default function SellerDashboardPage() {
               </Card>
             ))}
           </div>
+          )}
         </section>
       </div>
     </Container>

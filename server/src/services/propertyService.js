@@ -188,7 +188,7 @@ const propertyService = {
   },
 
   async getSellerProperties(sellerId) {
-    return Property.find({ seller: sellerId }).sort({ createdAt: -1 });
+    return Property.find({ seller: sellerId }).select("-images").sort({ createdAt: -1 });
   },
 
   async updateByOwner(id, data, user) {

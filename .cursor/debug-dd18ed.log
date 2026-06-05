@@ -1,0 +1,30 @@
+{"sessionId":"dd18ed","location":"admin/dashboard/page.tsx:fetchAdminData","message":"fetchAdminData started","data":{"authLoading":false},"timestamp":1780642932215,"hypothesisId":"H1"}
+{"sessionId":"dd18ed","location":"admin/dashboard/page.tsx:fetchAdminData","message":"fetchAdminData started","data":{"authLoading":false},"timestamp":1780642932218,"hypothesisId":"H1"}
+{"sessionId":"dd18ed","location":"admin/dashboard/page.tsx:fetchAdminData","message":"admin endpoint completed","data":{"label":"users","ms":101},"timestamp":1780642932317,"hypothesisId":"H1"}
+{"sessionId":"dd18ed","location":"admin/dashboard/page.tsx:fetchAdminData","message":"admin endpoint completed","data":{"label":"enquiries","ms":104},"timestamp":1780642932321,"hypothesisId":"H1"}
+{"sessionId":"dd18ed","location":"admin/dashboard/page.tsx:fetchAdminData","message":"admin endpoint completed","data":{"label":"logs","ms":137},"timestamp":1780642932354,"hypothesisId":"H1"}
+{"sessionId":"dd18ed","location":"admin/dashboard/page.tsx:fetchAdminData","message":"admin endpoint completed","data":{"label":"users","ms":162},"timestamp":1780642932380,"hypothesisId":"H1"}
+{"sessionId":"dd18ed","location":"admin/dashboard/page.tsx:fetchAdminData","message":"admin endpoint completed","data":{"label":"enquiries","ms":169},"timestamp":1780642932387,"hypothesisId":"H1"}
+{"sessionId":"dd18ed","location":"admin/dashboard/page.tsx:fetchAdminData","message":"admin endpoint completed","data":{"label":"logs","ms":234},"timestamp":1780642932452,"hypothesisId":"H1"}
+{"sessionId":"dd18ed","location":"admin/dashboard/page.tsx:fetchAdminData","message":"admin endpoint completed","data":{"label":"summary","ms":306},"timestamp":1780642932522,"hypothesisId":"H1"}
+{"sessionId":"dd18ed","location":"admin/dashboard/page.tsx:fetchAdminData","message":"admin endpoint completed","data":{"label":"summary","ms":373},"timestamp":1780642932591,"hypothesisId":"H1"}
+{"sessionId":"dd18ed","location":"adminController.js:getProperties","message":"admin properties response","data":{"count":23,"dbMs":3383,"payloadBytes":3974885,"imagePayloadBytes":3950610},"timestamp":1780642938992,"hypothesisId":"H3"}
+{"sessionId":"dd18ed","location":"admin/dashboard/page.tsx:fetchAdminData","message":"admin endpoint completed","data":{"label":"properties","ms":6825},"timestamp":1780642939042,"hypothesisId":"H1"}
+{"sessionId":"dd18ed","location":"admin/dashboard/page.tsx:fetchAdminData","message":"fetchAdminData completed","data":{"totalMs":6829,"propertyCount":23},"timestamp":1780642939044,"hypothesisId":"H1"}
+{"sessionId":"dd18ed","location":"adminController.js:getProperties","message":"admin properties response","data":{"count":23,"dbMs":3278,"payloadBytes":3974885,"imagePayloadBytes":3950610},"timestamp":1780642942336,"hypothesisId":"H3"}
+{"sessionId":"dd18ed","location":"admin/dashboard/page.tsx:fetchAdminData","message":"admin endpoint completed","data":{"label":"properties","ms":10149},"timestamp":1780642942367,"hypothesisId":"H1"}
+{"sessionId":"dd18ed","location":"admin/dashboard/page.tsx:fetchAdminData","message":"fetchAdminData completed","data":{"totalMs":10150,"propertyCount":23},"timestamp":1780642942368,"hypothesisId":"H1"}
+{"sessionId":"dd18ed","location":"admin/dashboard/page.tsx:fetchAdminData","message":"fetchAdminData started","data":{"authLoading":false},"timestamp":1780643166661,"hypothesisId":"H1"}
+{"sessionId":"dd18ed","location":"admin/dashboard/page.tsx:fetchAdminData","message":"fetchAdminData started","data":{"authLoading":false},"timestamp":1780643166663,"hypothesisId":"H1"}
+{"sessionId":"dd18ed","location":"admin/dashboard/page.tsx:fetchAdminData","message":"admin endpoint completed","data":{"label":"summary","ms":1075},"timestamp":1780643167737,"hypothesisId":"H1"}
+{"sessionId":"dd18ed","location":"admin/dashboard/page.tsx:fetchAdminData","message":"admin endpoint completed","data":{"label":"logs","ms":1155},"timestamp":1780643167817,"hypothesisId":"H1"}
+{"sessionId":"dd18ed","location":"admin/dashboard/page.tsx:fetchAdminData","message":"admin endpoint completed","data":{"label":"summary","ms":1221},"timestamp":1780643167884,"hypothesisId":"H1"}
+{"sessionId":"dd18ed","location":"admin/dashboard/page.tsx:fetchAdminData","message":"admin endpoint completed","data":{"label":"properties","ms":1239},"timestamp":1780643167901,"hypothesisId":"H1"}
+{"sessionId":"dd18ed","location":"admin/dashboard/page.tsx:fetchAdminData","message":"admin endpoint completed","data":{"label":"users","ms":1287},"timestamp":1780643167949,"hypothesisId":"H1"}
+{"sessionId":"dd18ed","location":"admin/dashboard/page.tsx:fetchAdminData","message":"admin endpoint completed","data":{"label":"logs","ms":1319},"timestamp":1780643167982,"hypothesisId":"H1"}
+{"sessionId":"dd18ed","location":"admin/dashboard/page.tsx:fetchAdminData","message":"admin endpoint completed","data":{"label":"enquiries","ms":1327},"timestamp":1780643167989,"hypothesisId":"H1"}
+{"sessionId":"dd18ed","location":"admin/dashboard/page.tsx:fetchAdminData","message":"fetchAdminData completed","data":{"totalMs":1329,"propertyCount":23},"timestamp":1780643167990,"hypothesisId":"H1"}
+{"sessionId":"dd18ed","location":"admin/dashboard/page.tsx:fetchAdminData","message":"admin endpoint completed","data":{"label":"users","ms":1472},"timestamp":1780643168135,"hypothesisId":"H1"}
+{"sessionId":"dd18ed","location":"admin/dashboard/page.tsx:fetchAdminData","message":"admin endpoint completed","data":{"label":"properties","ms":1473},"timestamp":1780643168136,"hypothesisId":"H1"}
+{"sessionId":"dd18ed","location":"admin/dashboard/page.tsx:fetchAdminData","message":"admin endpoint completed","data":{"label":"enquiries","ms":1474},"timestamp":1780643168137,"hypothesisId":"H1"}
+{"sessionId":"dd18ed","location":"admin/dashboard/page.tsx:fetchAdminData","message":"fetchAdminData completed","data":{"totalMs":1474,"propertyCount":23},"timestamp":1780643168137,"hypothesisId":"H1"}

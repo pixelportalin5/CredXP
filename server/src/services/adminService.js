@@ -44,50 +44,83 @@ function buildTextQuery(q) {
 
 const adminService = {
   async summary() {
-    const [
-      totalUsers,
-      activeSellers,
-      activeListings,
-      openEnquiries,
-      closedEnquiries,
-      savedPropertyCount,
-      missingImages,
-      missingReraId,
-      missingTenant,
-      missingFinancials,
-    ] = await Promise.all([
-      User.countDocuments(),
-      User.countDocuments({ role: "seller", accountStatus: { $ne: "disabled" } }),
-      Property.countDocuments({ isActive: { $ne: false }, listingStatus: "published" }),
-      Enquiry.countDocuments({ status: { $ne: "closed" } }),
-      Enquiry.countDocuments({ status: "closed" }),
+    const facetCount = (count) => count[0]?.count || 0;
+
+    const [userCounts, enquiryCounts, savedPropertyCount, propertyCounts] = await Promise.all([
+      User.aggregate([
+        {
+          $facet: {
+            totalUsers: [{ $count: "count" }],
+            activeSellers: [
+              { $match: { role: "seller", accountStatus: { $ne: "disabled" } } },
+              { $count: "count" },
+            ],
+          },
+        },
+      ]),
+      Enquiry.aggregate([
+        {
+          $facet: {
+            openEnquiries: [{ $match: { status: { $ne: "closed" } } }, { $count: "count" }],
+            closedEnquiries: [{ $match: { status: "closed" } }, { $count: "count" }],
+          },
+        },
+      ]),
       SavedProperty.countDocuments(),
-      Property.countDocuments({ $or: [{ images: { $exists: false } }, { images: { $size: 0 } }] }),
-      Property.countDocuments({ $or: [{ reraId: { $exists: false } }, { reraId: "" }] }),
-      Property.countDocuments({ $or: [{ "tenant.name": { $exists: false } }, { "tenant.name": "" }] }),
-      Property.countDocuments({
-        $or: [
-          { financials: { $exists: false } },
-          { "financials.rentalYield": { $exists: false } },
-          { "financials.capRate": { $exists: false } },
-        ],
-      }),
+      Property.aggregate([
+        {
+          $facet: {
+            activeListings: [
+              { $match: { isActive: { $ne: false }, listingStatus: "published" } },
+              { $count: "count" },
+            ],
+            missingImages: [
+              { $match: { $or: [{ images: { $exists: false } }, { images: { $size: 0 } }] } },
+              { $count: "count" },
+            ],
+            missingReraId: [
+              { $match: { $or: [{ reraId: { $exists: false } }, { reraId: "" }] } },
+              { $count: "count" },
+            ],
+            missingTenant: [
+              { $match: { $or: [{ "tenant.name": { $exists: false } }, { "tenant.name": "" }] } },
+              { $count: "count" },
+            ],
+            missingFinancials: [
+              {
+                $match: {
+                  $or: [
+                    { financials: { $exists: false } },
+                    { "financials.rentalYield": { $exists: false } },
+                    { "financials.capRate": { $exists: false } },
+                  ],
+                },
+              },
+              { $count: "count" },
+            ],
+          },
+        },
+      ]),
     ]);
+
+    const users = userCounts[0] || {};
+    const enquiries = enquiryCounts[0] || {};
+    const properties = propertyCounts[0] || {};
 
     return {
       metrics: {
-        totalUsers,
-        activeSellers,
-        activeListings,
-        openEnquiries,
-        closedEnquiries,
+        totalUsers: facetCount(users.totalUsers),
+        activeSellers: facetCount(users.activeSellers),
+        activeListings: facetCount(properties.activeListings),
+        openEnquiries: facetCount(enquiries.openEnquiries),
+        closedEnquiries: facetCount(enquiries.closedEnquiries),
         savedPropertyCount,
       },
       dataQuality: {
-        missingImages,
-        missingReraId,
-        missingTenant,
-        missingFinancials,
+        missingImages: facetCount(properties.missingImages),
+        missingReraId: facetCount(properties.missingReraId),
+        missingTenant: facetCount(properties.missingTenant),
+        missingFinancials: facetCount(properties.missingFinancials),
       },
     };
   },
@@ -181,7 +214,11 @@ const adminService = {
         { "tenant.name": search },
       ];
     }
-    return Property.find(query).populate("seller", "name email role").sort({ createdAt: -1 }).limit(150);
+    return Property.find(query)
+      .select("-images")
+      .populate("seller", "name email role")
+      .sort({ createdAt: -1 })
+      .limit(150);
   },
 
   async createProperty(actor, data) {
