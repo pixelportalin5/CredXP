@@ -8,6 +8,8 @@ const User = require("../models/User");
 const Enquiry = require("../models/Enquiry");
 const SavedProperty = require("../models/SavedProperty");
 
+const { classifyPropertyType } = require("../utils/classifyPropertyType");
+
 const WORKBOOK_PATH = path.resolve(__dirname, "../../../client/public/data/properties_filled.xlsx");
 const TEMP_IMAGES = ["/images/office1.png", "/images/office2.png", "/images/office1.png"];
 const ADMIN_EMAIL = "admin@gmail.com";
@@ -59,7 +61,7 @@ function readRows() {
 function rowToProperty(row, rowNumber, sellerId, images) {
   const title = clean(row.title);
   const description = clean(row.description);
-  const type = "Pre-Leased Office";
+  const type = classifyPropertyType(title, description, row.type);
   const status = clean(row.status) || "Recently Posted";
   const price = requiredNumber(row.price, "price", rowNumber);
   const size = requiredNumber(row.size, "size", rowNumber);

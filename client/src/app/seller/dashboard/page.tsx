@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { Building2, CheckCircle2, Edit3, Eye, Mail, Plus, Power, Search, Trash2 } from "lucide-react";
+import { Building2, CheckCircle2, Edit3, Eye, Landmark, Mail, Plus, Power, Search, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -14,9 +14,11 @@ import { useAuth } from "@/components/providers/AuthProvider";
 import { useToast } from "@/components/providers/ToastProvider";
 import enquiryService from "@/services/enquiry.service";
 import propertyService from "@/services/property.service";
+import coworkingService from "@/services/coworking.service";
 import { formatDate, formatPriceCompact } from "@/utils/format";
 import type { Enquiry } from "@/types/enquiry";
 import type { Property } from "@/types/property";
+import type { CoworkingSpace } from "@/types/coworking";
 
 const inputClass = "border-slate-200 bg-white text-slate-900 placeholder:text-slate-400";
 
@@ -32,6 +34,7 @@ export default function SellerDashboardPage() {
   const { user, loading: authLoading } = useAuth();
   const { showToast } = useToast();
   const [properties, setProperties] = useState<Property[]>([]);
+  const [coworkingSpaces, setCoworkingSpaces] = useState<CoworkingSpace[]>([]);
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
   const [dashboardLoading, setDashboardLoading] = useState(false);
   const [query, setQuery] = useState("");
@@ -41,11 +44,13 @@ export default function SellerDashboardPage() {
     async function fetchDashboard() {
       try {
         setDashboardLoading(true);
-        const [propertyRes, enquiryRes] = await Promise.all([
+        const [propertyRes, coworkingRes, enquiryRes] = await Promise.all([
           propertyService.getMyProperties(),
+          coworkingService.getMySpaces(),
           enquiryService.getSellerEnquiries(),
         ]);
         setProperties(propertyRes.data);
+        setCoworkingSpaces(coworkingRes.data);
         setEnquiries(enquiryRes.data);
       } catch (error) {
         showToast({ type: "error", title: "Dashboard unavailable", message: error instanceof Error ? error.message : "Please try again." });
@@ -66,6 +71,17 @@ export default function SellerDashboardPage() {
       getEnquiryPropertyTitle(enquiry).toLowerCase().includes(normalized)
     ));
   }, [enquiries, query]);
+
+  const handleCoworkingDelete = async (space: CoworkingSpace) => {
+    if (!window.confirm(`Delete ${space.title}?`)) return;
+    try {
+      await coworkingService.delete(space._id);
+      setCoworkingSpaces((current) => current.filter((item) => item._id !== space._id));
+      showToast({ type: "success", title: "Coworking space deleted" });
+    } catch (error) {
+      showToast({ type: "error", title: "Delete failed", message: error instanceof Error ? error.message : "Please try again." });
+    }
+  };
 
   const handleDelete = async (property: Property) => {
     if (!window.confirm(`Delete ${property.title}?`)) return;
@@ -133,9 +149,14 @@ export default function SellerDashboardPage() {
               <h1 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">Manage Listings & Enquiries</h1>
               <p className="mt-3 text-white/72">Welcome back, {user.name}. Your public listings and customer enquiries are below.</p>
             </div>
-            <Link href="/list-property">
-              <Button icon={<Plus className="h-4 w-4" />}>List Property</Button>
-            </Link>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Link href="/list-property">
+                <Button icon={<Plus className="h-4 w-4" />}>List Property</Button>
+              </Link>
+              <Link href="/list-coworking">
+                <Button variant="outline" icon={<Landmark className="h-4 w-4" />} className="border-white/30 bg-white/10 text-white hover:bg-white/20">List Coworking</Button>
+              </Link>
+            </div>
           </div>
 
           <div className="grid gap-4 md:grid-cols-4">
@@ -200,6 +221,47 @@ export default function SellerDashboardPage() {
               </Card>
             ))}
           </div>
+          )}
+
+          <h2 className="mb-4 mt-10 text-xl font-semibold text-slate-900">Coworking Spaces</h2>
+          {dashboardLoading ? (
+            <AdminSectionSkeleton rows={2} />
+          ) : (
+            <div className="space-y-4">
+              {coworkingSpaces.length === 0 ? (
+                <Card padding="lg" className="border-slate-200 bg-white text-center shadow-sm">
+                  <p className="text-sm text-slate-600">No coworking spaces yet.</p>
+                  <Link href="/list-coworking" className="mt-4 inline-block">
+                    <Button icon={<Plus className="h-4 w-4" />}>List Coworking</Button>
+                  </Link>
+                </Card>
+              ) : coworkingSpaces.map((space) => (
+                <Card key={space._id} padding="md" className="border-slate-200 bg-white shadow-sm">
+                  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="font-semibold text-slate-900">{space.title}</h3>
+                        <Badge variant={space.isActive === false ? "warning" : "success"} size="sm">
+                          {space.isActive === false ? "Inactive" : "Active"}
+                        </Badge>
+                      </div>
+                      <p className="mt-2 text-sm text-slate-600">
+                        {space.operator} • {space.location.city}, {space.location.state} • {space.priceLabel || `₹${space.monthlySeatPrice?.toLocaleString("en-IN")}/seat`}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Link href={`/coworking/${space._id}`}>
+                        <Button variant="outline" size="sm" icon={<Eye className="h-4 w-4" />}>View</Button>
+                      </Link>
+                      <Link href={`/seller/dashboard/coworking/${space._id}/edit`}>
+                        <Button variant="outline" size="sm" icon={<Edit3 className="h-4 w-4" />}>Edit</Button>
+                      </Link>
+                      <Button variant="danger" size="sm" icon={<Trash2 className="h-4 w-4" />} onClick={() => void handleCoworkingDelete(space)}>Delete</Button>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
           )}
         </section>
 

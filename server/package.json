@@ -8,7 +8,10 @@
     "start": "node src/server.js",
     "seed": "node src/seed/importPreleasedProperties.js",
     "seed:demo": "node src/seed/seed.js",
-    "seed:coworking": "node src/seed/seedCoworkingSpaces.js"
+    "seed:coworking": "node src/seed/seedCoworkingSpaces.js",
+    "seed:reclassify": "node src/seed/reclassifyProperties.js",
+    "seed:covers": "node src/seed/generateCoverImages.js",
+    "seed:lease": "node src/seed/seedLeaseSamples.js"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +20,7 @@
   "dependencies": {
     "adm-zip": "^0.5.17",
     "bcryptjs": "^3.0.3",
+    "compression": "^1.8.1",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "exceljs": "^4.4.0",
@@ -26,6 +30,8 @@
     "mongoose": "^9.6.2",
     "morgan": "^1.10.1",
     "multer": "^2.1.1",
+    "rss-parser": "^3.13.0",
+    "sharp": "^0.34.5",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

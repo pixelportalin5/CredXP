@@ -81,6 +81,7 @@ export default function HomeHeroSection() {
     const { min: minPrice, max: maxPrice } = parseRange(priceRange);
     const { min: minYield, max: maxYield } = parseRange(yieldRange);
     const params = new URLSearchParams({ page: "1", limit: "6" });
+    let basePath = "/invest";
 
     if (city) params.set("city", city);
     if (propertyType) params.set("type", propertyType);
@@ -88,18 +89,18 @@ export default function HomeHeroSection() {
     if (maxSize) params.set("maxSize", maxSize);
     if (minPrice) params.set("minPrice", minPrice);
     if (maxPrice) params.set("maxPrice", maxPrice);
-    if (minYield) params.set("minYield", minYield);
-    if (maxYield) params.set("maxYield", maxYield);
 
-    if (!propertyType && activeTab === "Lease") {
-      params.set("type", "Office Space");
+    if (activeTab === "Lease") {
+      basePath = "/lease";
+    } else {
+      basePath = "/invest";
+      if (minYield) params.set("minYield", minYield);
+      if (maxYield) params.set("maxYield", maxYield);
+      if (activeTab === "Pre-Leased" && !propertyType) params.delete("type");
     }
 
-    if (activeTab === "Pre-Leased") {
-      params.set("status", "Pre-Leased");
-    }
-
-    router.push(`/properties?${params.toString()}`);
+    const query = params.toString();
+    router.push(query ? `${basePath}?${query}` : basePath);
   };
 
   return (
@@ -261,7 +262,10 @@ export default function HomeHeroSection() {
                   <Button type="button" variant="primary" size="lg" onClick={handleHeroSearch} className="w-full text-base font-semibold shadow-md shadow-accent-500/20">
                     Search Properties
                   </Button>
-                  <Link href="/properties" className="flex items-center gap-1 text-[11px] font-semibold text-slate-600 hover:text-slate-900">
+                  <Link
+                    href={activeTab === "Lease" ? "/lease" : "/invest"}
+                    className="flex items-center gap-1 text-[11px] font-semibold text-slate-600 hover:text-slate-900"
+                  >
                     Advanced Search <ArrowRight className="h-3 w-3" />
                   </Link>
                 </div>

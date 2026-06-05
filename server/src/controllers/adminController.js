@@ -80,6 +80,38 @@ const deleteProperty = async (req, res, next) => {
   }
 };
 
+const getCoworkingSpaces = async (req, res, next) => {
+  try {
+    res.json({ success: true, data: await adminService.listCoworkingSpaces(req.query) });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const createCoworkingSpace = async (req, res, next) => {
+  try {
+    res.status(201).json({ success: true, data: await adminService.createCoworkingSpace(req.user, req.body) });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateCoworkingSpace = async (req, res, next) => {
+  try {
+    res.json({ success: true, data: await adminService.updateCoworkingSpace(req.user, req.params.id, req.body) });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const deleteCoworkingSpace = async (req, res, next) => {
+  try {
+    res.json({ success: true, data: await adminService.deleteCoworkingSpace(req.user, req.params.id) });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getSummary,
   getUsers,
@@ -91,4 +123,8 @@ module.exports = {
   createProperty,
   updateProperty,
   deleteProperty,
+  getCoworkingSpaces,
+  createCoworkingSpace,
+  updateCoworkingSpace,
+  deleteCoworkingSpace,
 };

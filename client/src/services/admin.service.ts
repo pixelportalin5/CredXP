@@ -1,6 +1,7 @@
 import api from "@/lib/api";
 import type { Enquiry } from "@/types/enquiry";
 import type { Property } from "@/types/property";
+import type { CoworkingSpace } from "@/types/coworking";
 import type { User } from "@/types/auth";
 
 export interface AdminSummary {
@@ -64,6 +65,18 @@ const adminService = {
 
   deleteProperty: (id: string): Promise<{ data: { id: string } }> =>
     api.delete(`/admin/properties/${id}`),
+
+  getCoworkingSpaces: (params: Record<string, unknown> = {}): Promise<{ data: CoworkingSpace[] }> =>
+    api.get("/admin/coworking", { params }),
+
+  createCoworkingSpace: (data: Partial<CoworkingSpace>): Promise<{ data: CoworkingSpace }> =>
+    api.post("/admin/coworking", data),
+
+  updateCoworkingSpace: (id: string, data: Partial<CoworkingSpace>): Promise<{ data: CoworkingSpace }> =>
+    api.patch(`/admin/coworking/${id}`, data),
+
+  deleteCoworkingSpace: (id: string): Promise<{ data: { id: string } }> =>
+    api.delete(`/admin/coworking/${id}`),
 };
 
 export default adminService;

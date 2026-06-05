@@ -39,7 +39,7 @@ export default function PlaceholderPage({ eyebrow, title, description }: Placeho
               We are preparing this section. For now, you can explore available properties or contact the CredXP team directly.
             </p>
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-              <Link href="/properties">
+              <Link href="/invest">
                 <Button size="md" iconRight={<ArrowRight className="h-4 w-4" />}>
                   Explore Properties
                 </Button>

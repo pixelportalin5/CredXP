@@ -1,4 +1,5 @@
 const express = require("express");
+const compression = require("compression");
 const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
@@ -10,10 +11,12 @@ const coworkingRoutes = require("./routes/coworkingRoutes");
 const enquiryRoutes = require("./routes/enquiryRoutes");
 const propertyRoutes = require("./routes/propertyRoutes");
 const savedPropertyRoutes = require("./routes/savedPropertyRoutes");
+const insightsRoutes = require("./routes/insightsRoutes");
 
 const app = express();
 
 // --------------- Middleware ---------------
+app.use(compression());
 app.use(
   cors({
     origin: [
@@ -40,6 +43,7 @@ app.use("/api/coworking", coworkingRoutes);
 app.use("/api/properties", propertyRoutes);
 app.use("/api/enquiries", enquiryRoutes);
 app.use("/api/saved-properties", savedPropertyRoutes);
+app.use("/api/insights", insightsRoutes);
 
 // --------------- Error Handling ---------------
 app.use(errorHandler);

@@ -19,6 +19,7 @@ import {
   Trash2,
   Upload,
   Users,
+  Landmark,
 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -28,14 +29,16 @@ import { PageLoader } from "@/components/ui/PageLoader";
 import { AdminSectionSkeleton } from "@/components/ui/Skeleton";
 import { EnterpriseInput } from "@/components/forms/EnterpriseForm";
 import PropertyListingForm from "@/components/property/PropertyListingForm";
+import CoworkingListingForm from "@/components/coworking/CoworkingListingForm";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useToast } from "@/components/providers/ToastProvider";
 import adminService, { type AdminAuditLog, type AdminSummary, type AdminUser } from "@/services/admin.service";
 import { formatDate, formatPriceCompact } from "@/utils/format";
 import type { Enquiry } from "@/types/enquiry";
 import type { Property } from "@/types/property";
+import type { CoworkingSpace } from "@/types/coworking";
 
-type AdminSection = "users" | "enquiries" | "logs" | "properties";
+type AdminSection = "users" | "enquiries" | "logs" | "properties" | "coworking";
 
 const CACHE_TTL_MS = 3 * 60 * 1000;
 
@@ -44,9 +47,10 @@ const sectionButtons: { id: AdminSection; label: string; icon: ReactNode }[] = [
   { id: "enquiries", label: "Enquiries", icon: <Mail className="h-4 w-4" /> },
   { id: "logs", label: "Logs", icon: <Activity className="h-4 w-4" /> },
   { id: "properties", label: "Properties", icon: <Building2 className="h-4 w-4" /> },
+  { id: "coworking", label: "Coworking", icon: <Landmark className="h-4 w-4" /> },
 ];
 
-const adminSections: AdminSection[] = ["users", "enquiries", "logs", "properties"];
+const adminSections: AdminSection[] = ["users", "enquiries", "logs", "properties", "coworking"];
 
 let summaryCache: { data: AdminSummary; fetchedAt: number } | null = null;
 
@@ -55,6 +59,7 @@ type SectionDataMap = {
   enquiries: Enquiry[];
   logs: AdminAuditLog[];
   properties: Property[];
+  coworking: CoworkingSpace[];
 };
 
 const sectionDataCache: Partial<{ [K in AdminSection]: { data: SectionDataMap[K]; fetchedAt: number } }> = {};
@@ -93,7 +98,9 @@ export default function AdminDashboardPage() {
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
   const [logs, setLogs] = useState<AdminAuditLog[]>([]);
   const [properties, setProperties] = useState<Property[]>([]);
+  const [coworkingSpaces, setCoworkingSpaces] = useState<CoworkingSpace[]>([]);
   const [showPropertyForm, setShowPropertyForm] = useState(false);
+  const [showCoworkingForm, setShowCoworkingForm] = useState(false);
   const [query, setQuery] = useState("");
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [sectionLoading, setSectionLoading] = useState<AdminSection | null>(null);
@@ -130,7 +137,8 @@ export default function AdminDashboardPage() {
     if (section === "users") setUsers(data as AdminUser[]);
     else if (section === "enquiries") setEnquiries(data as Enquiry[]);
     else if (section === "logs") setLogs(data as AdminAuditLog[]);
-    else setProperties(data as Property[]);
+    else if (section === "properties") setProperties(data as Property[]);
+    else setCoworkingSpaces(data as CoworkingSpace[]);
   }, []);
 
   const fetchSection = useCallback(async (section: AdminSection, force = false) => {
@@ -155,10 +163,14 @@ export default function AdminDashboardPage() {
         const res = await adminService.getLogs();
         sectionDataCache.logs = { data: res.data, fetchedAt: Date.now() };
         setLogs(res.data);
-      } else {
+      } else if (section === "properties") {
         const res = await adminService.getProperties();
         sectionDataCache.properties = { data: res.data, fetchedAt: Date.now() };
         setProperties(res.data);
+      } else {
+        const res = await adminService.getCoworkingSpaces();
+        sectionDataCache.coworking = { data: res.data, fetchedAt: Date.now() };
+        setCoworkingSpaces(res.data);
       }
       loadedSections.current.add(section);
     } catch (error) {
@@ -210,6 +222,16 @@ export default function AdminDashboardPage() {
       property.type.toLowerCase().includes(normalized)
     ));
   }, [activeSection, properties, query]);
+
+  const filteredCoworking = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+    if (activeSection !== "coworking" || !normalized) return coworkingSpaces;
+    return coworkingSpaces.filter((space) => (
+      space.title.toLowerCase().includes(normalized) ||
+      space.operator.toLowerCase().includes(normalized) ||
+      space.location.city.toLowerCase().includes(normalized)
+    ));
+  }, [activeSection, coworkingSpaces, query]);
 
   const handleUserUpdate = async (nextUser: AdminUser, data: Partial<AdminUser>) => {
     try {
@@ -274,6 +296,40 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const handleCoworkingSubmit = async (data: Partial<CoworkingSpace>) => {
+    try {
+      const res = await adminService.createCoworkingSpace(data);
+      setCoworkingSpaces((current) => [res.data, ...current]);
+      setShowCoworkingForm(false);
+      showToast({ type: "success", title: "Coworking space published" });
+      invalidateSection("coworking");
+    } catch (error) {
+      showToast({ type: "error", title: "Coworking save failed", message: error instanceof Error ? error.message : "Please review the listing." });
+    }
+  };
+
+  const handleCoworkingQuickUpdate = async (space: CoworkingSpace, data: Partial<CoworkingSpace>) => {
+    try {
+      const res = await adminService.updateCoworkingSpace(space._id, data);
+      setCoworkingSpaces((current) => current.map((item) => item._id === space._id ? res.data : item));
+      showToast({ type: "success", title: "Coworking space updated" });
+    } catch (error) {
+      showToast({ type: "error", title: "Coworking update failed", message: error instanceof Error ? error.message : "Please try again." });
+    }
+  };
+
+  const handleCoworkingDelete = async (space: CoworkingSpace) => {
+    if (!window.confirm(`Delete ${space.title}?`)) return;
+    try {
+      await adminService.deleteCoworkingSpace(space._id);
+      setCoworkingSpaces((current) => current.filter((item) => item._id !== space._id));
+      showToast({ type: "success", title: "Coworking space deleted" });
+      invalidateSection("coworking");
+    } catch (error) {
+      showToast({ type: "error", title: "Coworking delete failed", message: error instanceof Error ? error.message : "Please try again." });
+    }
+  };
+
   const handleSectionChange = (section: AdminSection) => {
     setActiveSection(section);
     void fetchSection(section);
@@ -318,6 +374,9 @@ export default function AdminDashboardPage() {
               </Link>
               <Button icon={<Plus className="h-4 w-4" />} onClick={() => setShowPropertyForm(true)}>
                 Publish Property
+              </Button>
+              <Button icon={<Landmark className="h-4 w-4" />} variant="outline" className="border-white/30 bg-white/10 text-white hover:bg-white/20" onClick={() => { setActiveSection("coworking"); setShowCoworkingForm(true); }}>
+                Add Coworking
               </Button>
             </div>
           </div>
@@ -410,6 +469,21 @@ export default function AdminDashboardPage() {
           </Card>
         )}
 
+        {showCoworkingForm && (
+          <Card padding="lg" className="mb-8 border-slate-200 bg-white shadow-sm">
+            <div className="mb-5 flex items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-semibold text-slate-900">Publish Coworking Space</h2>
+                <p className="text-sm text-slate-600">Add a new coworking listing to the marketplace.</p>
+              </div>
+              <Button type="button" variant="outline" onClick={() => setShowCoworkingForm(false)}>
+                Cancel
+              </Button>
+            </div>
+            <CoworkingListingForm submitLabel="Publish Coworking Space" onSubmit={handleCoworkingSubmit} />
+          </Card>
+        )}
+
         {isSectionLoading ? (
           <AdminSectionSkeleton />
         ) : (
@@ -491,6 +565,45 @@ export default function AdminDashboardPage() {
               </div>
             )}
 
+            {activeSection === "coworking" && (
+              <div className="space-y-4">
+                {filteredCoworking.length === 0 ? (
+                  <Card padding="lg" className="border-slate-200 bg-white text-center shadow-sm">
+                    <p className="text-sm text-slate-600">No coworking spaces yet.</p>
+                    <Button className="mt-4" icon={<Plus className="h-4 w-4" />} onClick={() => setShowCoworkingForm(true)}>Add Coworking</Button>
+                  </Card>
+                ) : filteredCoworking.map((space) => (
+                  <Card key={space._id} padding="md" className="border-slate-200 bg-white shadow-sm">
+                    <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="font-semibold text-slate-900">{space.title}</h3>
+                          <Badge variant={space.featured ? "accent" : "outline"} size="sm">{space.featured ? "Featured" : "Standard"}</Badge>
+                          <Badge variant={space.isActive === false ? "warning" : "success"} size="sm">{space.isActive === false ? "Inactive" : "Active"}</Badge>
+                        </div>
+                        <p className="mt-2 text-sm text-slate-600">{space.operator} • {space.location.city}, {space.location.state} • {space.priceLabel || `₹${space.monthlySeatPrice?.toLocaleString("en-IN")}/seat`}</p>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <Link href={`/coworking/${space._id}`}>
+                          <Button size="sm" variant="outline" icon={<Eye className="h-4 w-4" />} className="border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50">View</Button>
+                        </Link>
+                        <Link href={`/admin/dashboard/coworking/${space._id}/edit?from=coworking`}>
+                          <Button size="sm" variant="outline" icon={<Edit3 className="h-4 w-4" />} className="border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50">Edit</Button>
+                        </Link>
+                        <Button size="sm" variant={space.featured ? "outline" : "primary"} icon={<Star className="h-4 w-4" />} onClick={() => void handleCoworkingQuickUpdate(space, { featured: !space.featured })} className={space.featured ? "border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50" : ""}>
+                          {space.featured ? "Unfeature" : "Feature"}
+                        </Button>
+                        <Button size="sm" variant="outline" icon={<BarChart3 className="h-4 w-4" />} onClick={() => void handleCoworkingQuickUpdate(space, { isActive: space.isActive === false })} className="border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50">
+                          {space.isActive === false ? "Activate" : "Pause"}
+                        </Button>
+                        <Button size="sm" variant="danger" icon={<Trash2 className="h-4 w-4" />} onClick={() => void handleCoworkingDelete(space)}>Delete</Button>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+
             {activeSection === "properties" && (
               <div className="space-y-4">
                 {filteredProperties.map((property) => (
@@ -527,7 +640,7 @@ export default function AdminDashboardPage() {
               </div>
             )}
 
-            {activeSection !== "logs" && activeSection !== "properties" && !isSectionLoading && (
+            {activeSection !== "logs" && activeSection !== "properties" && activeSection !== "coworking" && !isSectionLoading && (
               <p className="mt-6 rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-500">
                 Tables are export-ready in structure for a future CSV/XLSX export action.
               </p>

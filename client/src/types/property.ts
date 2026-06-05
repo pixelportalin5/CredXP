@@ -86,6 +86,7 @@ export interface Property {
   tenant?: PropertyTenant;
   amenities: string[];
   images: string[];
+  coverImage?: string;
   status: PropertyStatus;
   isActive?: boolean;
   featured?: boolean;
@@ -106,7 +107,7 @@ export interface Property {
 export interface PropertyFilters {
   page: number;
   limit: number;
-  type?: string;
+  types?: string[];
   status?: string;
   city?: string;
   category?: string;

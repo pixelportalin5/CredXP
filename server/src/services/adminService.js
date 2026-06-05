@@ -3,6 +3,9 @@ const Property = require("../models/Property");
 const Enquiry = require("../models/Enquiry");
 const SavedProperty = require("../models/SavedProperty");
 const AuditLog = require("../models/AuditLog");
+const coworkingService = require("./coworkingService");
+const { applyCoverImage } = require("../utils/imageThumbnail");
+const { invalidatePrefix } = require("../utils/queryCache");
 const ApiError = require("../utils/ApiError");
 
 function publicUser(user) {
@@ -222,12 +225,14 @@ const adminService = {
   },
 
   async createProperty(actor, data) {
-    const property = await Property.create({
+    const payload = await applyCoverImage({
       ...data,
       seller: undefined,
       isActive: data.isActive !== false,
       listingStatus: data.listingStatus || "published",
     });
+    const property = await Property.create(payload);
+    invalidatePrefix("properties");
     await writeLog(actor, "admin.property.create", "Property", property._id, { title: property.title });
     return property;
   },
@@ -235,8 +240,10 @@ const adminService = {
   async updateProperty(actor, id, data) {
     const property = await Property.findById(id);
     if (!property) throw new ApiError(404, "Property not found");
-    Object.assign(property, data);
+    const nextData = data.images ? await applyCoverImage(data) : data;
+    Object.assign(property, nextData);
     await property.save();
+    invalidatePrefix("properties");
     await writeLog(actor, "admin.property.update", "Property", property._id, {
       title: property.title,
       listingStatus: property.listingStatus,
@@ -251,8 +258,31 @@ const adminService = {
     if (!property) throw new ApiError(404, "Property not found");
     await Enquiry.deleteMany({ propertyId: property._id });
     await property.deleteOne();
+    invalidatePrefix("properties");
     await writeLog(actor, "admin.property.delete", "Property", property._id, { title: property.title });
     return { id };
+  },
+
+  async listCoworkingSpaces(params = {}) {
+    return coworkingService.listForAdmin(params);
+  },
+
+  async createCoworkingSpace(actor, data) {
+    const space = await coworkingService.create(data);
+    await writeLog(actor, "admin.coworking.create", "CoworkingSpace", space._id, { title: space.title });
+    return space;
+  },
+
+  async updateCoworkingSpace(actor, id, data) {
+    const space = await coworkingService.updateById(id, data, actor);
+    await writeLog(actor, "admin.coworking.update", "CoworkingSpace", space._id, { title: space.title });
+    return space;
+  },
+
+  async deleteCoworkingSpace(actor, id) {
+    const result = await coworkingService.deleteById(id, actor);
+    await writeLog(actor, "admin.coworking.delete", "CoworkingSpace", id, {});
+    return result;
   },
 };
 

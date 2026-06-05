@@ -19,6 +19,7 @@ import { useToast } from "@/components/providers/ToastProvider";
 import propertyService from "@/services/property.service";
 import savedPropertyService from "@/services/saved-property.service";
 import { formatPrice, formatSize, formatPricePerSqft, formatDate, formatPriceCompact, formatYield } from "@/utils/format";
+import { getListingDirectoryPath } from "@/utils/propertyFilterParams";
 import type { Property } from "@/types/property";
 
 /* ============================================================
@@ -100,9 +101,9 @@ export default function PropertyDetailClient() {
           <p className="mt-2 max-w-sm text-sm text-navy-400">
             {error || "This property does not exist or has been removed."}
           </p>
-          <Link href="/properties" className="inline-block mt-6">
+          <Link href="/invest" className="inline-block mt-6">
             <Button variant="primary" size="md" icon={<ArrowLeft className="h-4 w-4" />}>
-              Back to Properties
+              Back to listings
             </Button>
           </Link>
         </div>
@@ -195,15 +196,17 @@ export default function PropertyDetailClient() {
     { label: "Washrooms", value: specs?.washrooms ? `${specs.washrooms}` : "—" },
   ];
 
+  const listingsPath = getListingDirectoryPath(property);
+
   return (
     <Container as="section" size="xl" className="py-10 lg:py-14">
       <Link
-        href="/properties"
+        href={listingsPath}
         className="mb-8 inline-flex items-center gap-2 text-sm font-medium text-slate-600 transition-colors hover:text-slate-900"
         id="back-to-properties"
       >
         <ArrowLeft className="h-4 w-4" />
-        Back to Properties
+        Back to {listingsPath === "/lease" ? "lease listings" : "investments"}
       </Link>
 
       <Card padding="lg" className="mb-8 overflow-hidden border-slate-200 bg-white shadow-[0_18px_48px_rgba(15,23,42,0.08)]">

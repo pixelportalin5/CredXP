@@ -6,6 +6,22 @@ const nextConfig = {
         protocol: "https",
         hostname: "images.unsplash.com",
       },
+      {
+        protocol: "https",
+        hostname: "**.etb2bimg.com",
+      },
+      {
+        protocol: "https",
+        hostname: "img.etimg.com",
+      },
+      {
+        protocol: "https",
+        hostname: "static.etimg.com",
+      },
+      {
+        protocol: "https",
+        hostname: "images.moneycontrol.com",
+      },
     ],
   },
 };

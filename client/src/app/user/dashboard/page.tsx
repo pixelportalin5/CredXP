@@ -144,7 +144,7 @@ export default function UserDashboardPage() {
             {savedProperties.length === 0 ? (
               <Card padding="lg" className="border-slate-200 bg-white text-center shadow-sm">
                 <p className="text-sm text-slate-600">No saved properties yet.</p>
-                <Link href="/properties" className="mt-5 inline-block">
+                <Link href="/invest" className="mt-5 inline-block">
                   <Button>Explore Properties</Button>
                 </Link>
               </Card>

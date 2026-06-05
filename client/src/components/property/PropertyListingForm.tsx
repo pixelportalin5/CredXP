@@ -6,6 +6,7 @@ import { CheckCircle2, Eye, ImagePlus, UploadCloud, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { EnterpriseInput, EnterpriseSelect, EnterpriseTextarea, FormField, FormSection } from "@/components/forms/EnterpriseForm";
 import { useToast } from "@/components/providers/ToastProvider";
+import { MAX_IMAGE_SIZE_BYTES, MAX_IMAGE_SIZE_MB, compressImageFile } from "@/utils/compressImage";
 import type { Property } from "@/types/property";
 
 type ListingFormValues = Partial<Property> & {
@@ -52,18 +53,6 @@ function splitList(value: FormDataEntryValue | null) {
     .filter(Boolean);
 }
 
-function readFileAsDataUrl(file: File) {
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(file);
-  });
-}
-
-const MAX_IMAGE_SIZE_MB = 4;
-const MAX_IMAGE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024;
-
 interface PropertyListingFormProps {
   initialProperty?: Property;
   submitLabel?: string;
@@ -108,7 +97,7 @@ export default function PropertyListingForm({
       return;
     }
 
-    const encoded = await Promise.all(files.map(readFileAsDataUrl));
+    const encoded = await Promise.all(files.map((file) => compressImageFile(file)));
     setImages((current) => [...current, ...encoded].slice(0, 3));
     event.target.value = "";
   };

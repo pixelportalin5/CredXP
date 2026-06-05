@@ -14,26 +14,37 @@ function isShopType(type: Property["type"]) {
   return type === "Shop" || type === "Retail/SCO";
 }
 
-function isRentStatus(status: Property["status"]) {
-  return status === "Recently Posted" || status === "Available";
+function isPreLeasedBuyType(type: Property["type"]) {
+  return type === "Pre-Leased Office" || type === "Shop" || type === "Retail/SCO";
+}
+
+function isLeaseListing(property: Property) {
+  const unit = property.financials?.priceUnit;
+  return unit === "month" || unit === "year";
 }
 
 export function getPropertySection(property: Property): PropertySection {
-  const rent = isRentStatus(property.status);
+  if (isLeaseListing(property)) {
+    return isShopType(property.type) ? "shops-to-rent" : "offices-to-rent";
+  }
 
-  if (isOfficeType(property.type)) {
-    return rent ? "offices-to-rent" : "offices-to-buy";
+  if (isPreLeasedBuyType(property.type)) {
+    return isShopType(property.type) ? "shops-to-buy" : "offices-to-buy";
+  }
+
+  if (property.type === "Office Space") {
+    return "offices-to-rent";
   }
 
   if (isShopType(property.type)) {
-    return rent ? "shops-to-rent" : "shops-to-buy";
+    return "shops-to-rent";
   }
 
-  // Fallback for other commercial types to keep cards deterministic.
-  return rent ? "offices-to-rent" : "offices-to-buy";
+  return "offices-to-buy";
 }
 
 export function getPropertySectionCoverImage(property: Property): string {
+  if (property.coverImage) return property.coverImage;
   if (property.images?.[0]) return property.images[0];
 
   const section = getPropertySection(property);

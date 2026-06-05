@@ -38,6 +38,7 @@ export interface CoworkingSpace {
     maxSeats?: number;
   };
   images: string[];
+  coverImage?: string;
   amenities: string[];
   highlights?: string[];
   description: string;

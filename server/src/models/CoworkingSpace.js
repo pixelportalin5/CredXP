@@ -49,6 +49,10 @@ const coworkingSpaceSchema = new mongoose.Schema(
         message: "At least one image is required",
       },
     },
+    coverImage: {
+      type: String,
+      default: "",
+    },
     amenities: [{ type: String }],
     highlights: [{ type: String }],
     description: {
@@ -88,5 +92,9 @@ const coworkingSpaceSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+coworkingSpaceSchema.index({ isActive: 1, listingStatus: 1, featured: -1, createdAt: -1 });
+coworkingSpaceSchema.index({ "location.city": 1, isActive: 1 });
+coworkingSpaceSchema.index({ operator: 1, isActive: 1 });
 
 module.exports = mongoose.model("CoworkingSpace", coworkingSpaceSchema);

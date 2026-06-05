@@ -7,21 +7,21 @@ import type { NavLink } from "@/types/common";
 
 export const mainNavLinks: NavLink[] = [
   {
-    href: "/properties",
+    href: "/invest",
     label: "Invest",
     children: [
-      { href: "/properties?category=pre-leased", label: "Pre-Leased Assets" },
-      { href: "/properties?category=investment", label: "Investment Opportunities" },
-      { href: "/properties", label: "All Properties" },
+      { href: "/invest?type=Pre-Leased+Office", label: "Pre-Leased Offices" },
+      { href: "/invest?type=Shop", label: "Pre-Leased Shops" },
+      { href: "/invest", label: "All Investments" },
     ],
   },
   {
-    href: "/properties?category=lease",
+    href: "/lease",
     label: "Lease",
     children: [
-      { href: "/properties?type=Office+Space", label: "Office Spaces" },
-      { href: "/properties?type=Retail/SCO", label: "Retail / SCO" },
-      { href: "/properties?type=Warehouse", label: "Warehouses" },
+      { href: "/lease?type=Office+Space", label: "Office Spaces" },
+      { href: "/lease?type=Shop", label: "Retail Shops" },
+      { href: "/lease", label: "All Lease Listings" },
     ],
   },
   {
@@ -44,10 +44,10 @@ export const mainNavLinks: NavLink[] = [
 
 export const footerLinks = {
   explore: [
-    { href: "/properties?category=pre-leased", label: "Invest in Pre-Leased" },
-    { href: "/properties?category=lease", label: "Lease Corporate Space" },
+    { href: "/invest", label: "Invest in Pre-Leased" },
+    { href: "/lease", label: "Lease Corporate Space" },
     { href: "/coworking", label: "Coworking Spaces" },
-    { href: "/properties", label: "All Properties" },
+    { href: "/invest", label: "Investment Directory" },
   ],
   company: [
     { href: "/about", label: "About Us" },

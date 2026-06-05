@@ -1,6 +1,10 @@
 const Property = require("../models/Property");
 const Enquiry = require("../models/Enquiry");
 const ApiError = require("../utils/ApiError");
+const { PROPERTY_LIST_FIELDS, normalizePropertyListItem } = require("../utils/listPayload");
+const { applyCoverImage } = require("../utils/imageThumbnail");
+const { getCacheKey, getCached, setCached, invalidatePrefix } = require("../utils/queryCache");
+const { applyPropertyFilters } = require("../utils/propertyFilters");
 
 /**
  * Build sort object from query string
@@ -18,11 +22,6 @@ function buildSort(sort) {
   return sortMap[sort] || { createdAt: -1 };
 }
 
-function applyTypeFilter(query, type) {
-  if (!type) return;
-  query.type = type === "Office Space" ? { $in: ["Office Space", "Pre-Leased Office"] } : type;
-}
-
 /**
  * Property service - handles business logic for properties
  */
@@ -30,44 +29,33 @@ const propertyService = {
   /**
    * Get all properties with pagination, filtering, and sorting
    */
-  async getAll({ page = 1, limit = 10, type, status, city, minPrice, maxPrice, minSize, maxSize, minYield, maxYield, sort }) {
+  async getAll({ page = 1, limit = 10, type, category, status, city, minPrice, maxPrice, minSize, maxSize, minYield, maxYield, furnishing, sort }) {
+    const cacheKey = getCacheKey("properties", { page, limit, type, category, status, city, minPrice, maxPrice, minSize, maxSize, minYield, maxYield, furnishing, sort });
+    const cached = getCached(cacheKey);
+    if (cached) return cached;
+
     const query = {
       isActive: { $ne: false },
       listingStatus: { $in: ["published", null] },
     };
 
-    applyTypeFilter(query, type);
-    if (status) query.status = status;
-    if (city) query["location.city"] = { $regex: city, $options: "i" };
-    if (minPrice || maxPrice) {
-      query.price = {};
-      if (minPrice) query.price.$gte = Number(minPrice);
-      if (maxPrice) query.price.$lte = Number(maxPrice);
-    }
-    if (minSize || maxSize) {
-      query.size = {};
-      if (minSize) query.size.$gte = Number(minSize);
-      if (maxSize) query.size.$lte = Number(maxSize);
-    }
-    if (minYield || maxYield) {
-      query["financials.rentalYield"] = {};
-      if (minYield) query["financials.rentalYield"].$gte = Number(minYield);
-      if (maxYield) query["financials.rentalYield"].$lte = Number(maxYield);
-    }
+    applyPropertyFilters(query, { category, type, status, furnishing, city, minPrice, maxPrice, minSize, maxSize, minYield, maxYield });
 
     const skip = (Number(page) - 1) * Number(limit);
 
     const [properties, total] = await Promise.all([
       Property.find(query)
+        .select(PROPERTY_LIST_FIELDS)
         .sort(buildSort(sort))
-        .slice("images", 1)
         .skip(skip)
-        .limit(Number(limit)),
+        .limit(Number(limit))
+        .lean(),
       Property.countDocuments(query),
     ]);
 
-    return {
-      properties,
+    const normalized = properties.map(normalizePropertyListItem);
+    const result = {
+      properties: normalized,
       pagination: {
         currentPage: Number(page),
         totalPages: Math.ceil(total / Number(limit)),
@@ -75,6 +63,9 @@ const propertyService = {
         itemsPerPage: Number(limit),
       },
     };
+
+    setCached(cacheKey, result);
+    return result;
   },
 
   /**
@@ -86,20 +77,21 @@ const propertyService = {
       isActive: { $ne: false },
       listingStatus: { $in: ["published", null] },
     })
+      .select(PROPERTY_LIST_FIELDS)
       .sort({ createdAt: -1 })
-      .slice("images", 1)
-      .limit(Number(limit));
+      .limit(Number(limit))
+      .lean();
 
-    return properties;
+    return properties.map(normalizePropertyListItem);
   },
 
   /**
    * Get a single property by ID
    */
   async getById(id) {
-    const property = await Property.findById(id);
+    const property = await Property.findById(id).lean();
     if (property) {
-      await Property.findByIdAndUpdate(id, { $inc: { views: 1 } });
+      void Property.findByIdAndUpdate(id, { $inc: { views: 1 } });
     }
     return property;
   },
@@ -107,7 +99,11 @@ const propertyService = {
   /**
    * Search properties by text query
    */
-  async search({ q, type, status, city, minPrice, maxPrice, minSize, maxSize, minYield, maxYield, sort, page = 1, limit = 10 }) {
+  async search({ q, type, category, status, city, minPrice, maxPrice, minSize, maxSize, minYield, maxYield, furnishing, sort, page = 1, limit = 10 }) {
+    const cacheKey = getCacheKey("properties-search", { q, type, category, status, city, minPrice, maxPrice, minSize, maxSize, minYield, maxYield, furnishing, sort, page, limit });
+    const cached = getCached(cacheKey);
+    if (cached) return cached;
+
     const query = {
       isActive: { $ne: false },
       listingStatus: { $in: ["published", null] },
@@ -123,38 +119,23 @@ const propertyService = {
         { "tenant.name": searchRegex },
       ];
     }
-    applyTypeFilter(query, type);
-    if (status) query.status = status;
-    if (city) query["location.city"] = { $regex: city, $options: "i" };
-    if (minPrice || maxPrice) {
-      query.price = {};
-      if (minPrice) query.price.$gte = Number(minPrice);
-      if (maxPrice) query.price.$lte = Number(maxPrice);
-    }
-    if (minSize || maxSize) {
-      query.size = {};
-      if (minSize) query.size.$gte = Number(minSize);
-      if (maxSize) query.size.$lte = Number(maxSize);
-    }
-    if (minYield || maxYield) {
-      query["financials.rentalYield"] = {};
-      if (minYield) query["financials.rentalYield"].$gte = Number(minYield);
-      if (maxYield) query["financials.rentalYield"].$lte = Number(maxYield);
-    }
+    applyPropertyFilters(query, { category, type, status, furnishing, city, minPrice, maxPrice, minSize, maxSize, minYield, maxYield });
 
     const skip = (Number(page) - 1) * Number(limit);
 
     const [properties, total] = await Promise.all([
       Property.find(query)
+        .select(PROPERTY_LIST_FIELDS)
         .sort(buildSort(sort))
-        .slice("images", 1)
         .skip(skip)
-        .limit(Number(limit)),
+        .limit(Number(limit))
+        .lean(),
       Property.countDocuments(query),
     ]);
 
-    return {
-      properties,
+    const normalized = properties.map(normalizePropertyListItem);
+    const result = {
+      properties: normalized,
       pagination: {
         currentPage: Number(page),
         totalPages: Math.ceil(total / Number(limit)),
@@ -162,13 +143,16 @@ const propertyService = {
         itemsPerPage: Number(limit),
       },
     };
+
+    setCached(cacheKey, result);
+    return result;
   },
 
   /**
    * Create a new property
    */
   async create(data, user) {
-    const payload = { ...data };
+    const payload = await applyCoverImage({ ...data });
 
     if (user) {
       if (!["seller", "admin"].includes(user.role)) {
@@ -184,7 +168,9 @@ const propertyService = {
       payload.listingStatus = payload.listingStatus || "published";
     }
 
-    return Property.create(payload);
+    const created = await Property.create(payload);
+    invalidatePrefix("properties");
+    return created;
   },
 
   async getSellerProperties(sellerId) {
@@ -206,8 +192,10 @@ const propertyService = {
       throw new ApiError(400, "Seller-created listings require exactly 3 images");
     }
 
-    Object.assign(property, data);
+    const nextData = data.images ? await applyCoverImage(data) : data;
+    Object.assign(property, nextData);
     await property.save();
+    invalidatePrefix("properties");
     return property;
   },
 
@@ -224,6 +212,7 @@ const propertyService = {
 
     await Enquiry.deleteMany({ propertyId: property._id });
     await property.deleteOne();
+    invalidatePrefix("properties");
     return { id };
   },
 };

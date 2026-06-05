@@ -10,6 +10,10 @@ const {
   createProperty,
   updateProperty,
   deleteProperty,
+  getCoworkingSpaces,
+  createCoworkingSpace,
+  updateCoworkingSpace,
+  deleteCoworkingSpace,
 } = require("../controllers/adminController");
 const { protect, authorizeAdmin } = require("../middleware/authMiddleware");
 
@@ -27,5 +31,9 @@ router.get("/properties", getProperties);
 router.post("/properties", createProperty);
 router.patch("/properties/:id", updateProperty);
 router.delete("/properties/:id", deleteProperty);
+router.get("/coworking", getCoworkingSpaces);
+router.post("/coworking", createCoworkingSpace);
+router.patch("/coworking/:id", updateCoworkingSpace);
+router.delete("/coworking/:id", deleteCoworkingSpace);
 
 module.exports = router;

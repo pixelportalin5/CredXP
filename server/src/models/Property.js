@@ -69,6 +69,10 @@ const propertySchema = new mongoose.Schema(
         message: "Seller-created listings require exactly 3 images",
       },
     },
+    coverImage: {
+      type: String,
+      default: "",
+    },
     status: {
       type: String,
       enum: ["Recently Posted", "Trending"],
@@ -123,5 +127,8 @@ propertySchema.index({ createdAt: -1 });
 propertySchema.index({ price: 1 });
 propertySchema.index({ size: 1 });
 propertySchema.index({ "financials.rentalYield": -1 });
+propertySchema.index({ isActive: 1, listingStatus: 1, createdAt: -1 });
+propertySchema.index({ type: 1, isActive: 1, listingStatus: 1 });
+propertySchema.index({ "location.city": 1, isActive: 1 });
 
 module.exports = mongoose.model("Property", propertySchema);

@@ -28,6 +28,17 @@ export const PROPERTY_TYPES: SelectOption[] = [
   { label: "Commercial Land", value: "Commercial Land" },
 ];
 
+export const INVEST_ASSET_TYPES: SelectOption[] = [
+  { label: "Pre-Leased Office", value: "Pre-Leased Office" },
+  { label: "Shop", value: "Shop" },
+  { label: "Retail / SCO", value: "Retail/SCO" },
+];
+
+export const LEASE_SPACE_TYPES: SelectOption[] = [
+  { label: "Office Space", value: "Office Space" },
+  { label: "Shop", value: "Shop" },
+];
+
 export const PROPERTY_CATEGORIES: SelectOption[] = [
   { label: "All Categories", value: "" },
   { label: "Pre-Leased", value: "pre-leased" },
@@ -38,12 +49,21 @@ export const PROPERTY_CATEGORIES: SelectOption[] = [
 
 export const PRICE_RANGES: { label: string; min: string; max: string }[] = [
   { label: "Any Budget", min: "", max: "" },
-  { label: "Under ₹25,000", min: "", max: "25000" },
-  { label: "₹25K – ₹50K", min: "25000", max: "50000" },
-  { label: "₹50K – ₹1 Lakh", min: "50000", max: "100000" },
-  { label: "₹1L – ₹3 Lakh", min: "100000", max: "300000" },
-  { label: "₹3L – ₹5 Lakh", min: "300000", max: "500000" },
-  { label: "Above ₹5 Lakh", min: "500000", max: "" },
+  { label: "Under ₹50 Lakh", min: "", max: "5000000" },
+  { label: "₹50L – ₹1 Cr", min: "5000000", max: "10000000" },
+  { label: "₹1 Cr – ₹3 Cr", min: "10000000", max: "30000000" },
+  { label: "₹3 Cr – ₹5 Cr", min: "30000000", max: "50000000" },
+  { label: "₹5 Cr – ₹10 Cr", min: "50000000", max: "100000000" },
+  { label: "Above ₹10 Cr", min: "100000000", max: "" },
+];
+
+export const LEASE_PRICE_RANGES: { label: string; min: string; max: string }[] = [
+  { label: "Any Rent", min: "", max: "" },
+  { label: "Under ₹50K / month", min: "", max: "50000" },
+  { label: "₹50K – ₹1L / month", min: "50000", max: "100000" },
+  { label: "₹1L – ₹2L / month", min: "100000", max: "200000" },
+  { label: "₹2L – ₹5L / month", min: "200000", max: "500000" },
+  { label: "Above ₹5L / month", min: "500000", max: "" },
 ];
 
 export const SIZE_RANGES: { label: string; min: string; max: string }[] = [
