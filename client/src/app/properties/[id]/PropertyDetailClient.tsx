@@ -21,6 +21,7 @@ import savedPropertyService from "@/services/saved-property.service";
 import { formatPrice, formatSize, formatPricePerSqft, formatDate, formatPriceCompact, formatYield } from "@/utils/format";
 import { getListingDirectoryPath } from "@/utils/propertyFilterParams";
 import type { Property } from "@/types/property";
+import { isStaff } from "@/utils/roles";
 
 /* ============================================================
    PropertyDetailClient — Decomposed Property Detail Page
@@ -259,9 +260,22 @@ export default function PropertyDetailClient() {
             </div>
 
             <div className="mt-auto pt-7">
-              <Button type="button" size="lg" fullWidth onClick={handleEnquireClick} className="h-[52px] shadow-lg shadow-accent-500/20">
-                Enquire Now
-              </Button>
+              {isStaff(user?.role) ? (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <Button type="button" size="lg" fullWidth onClick={handleEnquireClick} className="h-[52px] shadow-lg shadow-accent-500/20">
+                    Enquire Now
+                  </Button>
+                  <Link href={`/properties/${_id}/proposal`} className="block">
+                    <Button type="button" size="lg" fullWidth className="h-[52px] shadow-lg shadow-accent-500/20">
+                      Create Proposal
+                    </Button>
+                  </Link>
+                </div>
+              ) : (
+                <Button type="button" size="lg" fullWidth onClick={handleEnquireClick} className="h-[52px] shadow-lg shadow-accent-500/20">
+                  Enquire Now
+                </Button>
+              )}
               <div className="mt-3 grid gap-3 sm:grid-cols-2">
                 <Button type="button" variant="outline" size="md" icon={<Download className="h-4 w-4" />} className="border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50">
                   Download Brochure

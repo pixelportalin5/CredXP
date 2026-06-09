@@ -1,15 +1,13 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, BriefcaseBusiness, Landmark, TrendingUp } from "lucide-react";
 import { Container } from "@/components/ui/Container";
-import { Card } from "@/components/ui/Card";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { StatsBar } from "@/components/shared/StatCard";
+import CoworkingPartnerMarquee from "@/components/coworking/CoworkingPartnerMarquee";
 import HomeHeroSection from "./HomeHeroSection";
 import LeadCaptureBar from "@/components/lead/LeadCaptureBar";
 import HomePageClient from "./HomePageClient";
 import HomeInsightsSection from "@/components/insights/HomeInsightsSection";
-import { coworkingPartnerLogos } from "@/config/coworkingLogos";
 import { siteConfig } from "@/config/site";
 import type { Metadata } from "next";
 
@@ -26,21 +24,21 @@ export const metadata: Metadata = {
 export default function HomePage() {
   const goalCards = [
     {
-      icon: <TrendingUp className="h-5 w-5" />,
+      icon: <TrendingUp className="h-10 w-10" />,
       title: "Invest in Pre-Leased",
       description: "Secure income-producing assets with blue-chip occupiers.",
       href: "/invest",
       cta: "Explore Investments",
     },
     {
-      icon: <BriefcaseBusiness className="h-5 w-5" />,
+      icon: <BriefcaseBusiness className="h-10 w-10" />,
       title: "Lease Corporate Space",
       description: "Structured office solutions for enterprise teams and growth.",
       href: "/lease",
       cta: "Explore Leasing",
     },
     {
-      icon: <Landmark className="h-5 w-5" />,
+      icon: <Landmark className="h-10 w-10" />,
       title: "Book Partner Coworking",
       description: "Flexible workspace inventory across India’s leading operators.",
       href: "/coworking",
@@ -49,7 +47,7 @@ export default function HomePage() {
   ];
 
   return (
-    <main>
+    <>
       <HomeHeroSection />
 
       <section className="border-y border-slate-200 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.12),transparent_30%),linear-gradient(180deg,#f8fbff_0%,#eef5ff_100%)] py-12">
@@ -75,17 +73,19 @@ export default function HomePage() {
               <Link
                 key={item.title}
                 href={item.href}
-                className="group rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-accent-500/30 hover:shadow-lg"
+                className="group flex min-h-[148px] items-center gap-5 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
               >
-                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-500/10 text-accent-500">
+                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-accent-500/10 text-accent-500">
                   {item.icon}
                 </div>
-                <h3 className="text-lg font-semibold text-slate-900">{item.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-600">{item.description}</p>
-                <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-accent-500">
-                  {item.cta}
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                </span>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-lg font-semibold text-slate-900">{item.title}</h3>
+                  <p className="mt-1.5 text-sm leading-6 text-slate-600">{item.description}</p>
+                  <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-accent-500">
+                    {item.cta}
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  </span>
+                </div>
               </Link>
             ))}
           </div>
@@ -102,26 +102,7 @@ export default function HomePage() {
             action={{ label: "View Coworking", href: "/coworking" }}
           />
 
-          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-6">
-            {coworkingPartnerLogos.map((operator) => (
-              <Card key={operator.name} padding="none" className="flex min-h-[86px] items-center justify-center rounded-2xl border-slate-200 bg-white p-2 text-center shadow-sm">
-                <div className="flex h-16 w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-3 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
-                  <Image
-                    src={operator.src}
-                    alt={operator.name}
-                    width={180}
-                    height={64}
-                    className={operator.imageClassName}
-                  />
-                </div>
-              </Card>
-            ))}
-            <Card padding="none" className="flex min-h-[86px] items-center justify-center rounded-2xl border-slate-200 bg-white p-2 text-center shadow-sm">
-              <div className="flex h-14 w-full items-center justify-center rounded-xl border border-slate-200 bg-[linear-gradient(135deg,rgba(248,250,252,1),rgba(255,255,255,1))] px-4 text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">
-                And More
-              </div>
-            </Card>
-          </div>
+          <CoworkingPartnerMarquee />
         </Container>
       </section>
 
@@ -146,6 +127,6 @@ export default function HomePage() {
       </section>
 
       <LeadCaptureBar />
-    </main>
+    </>
   );
 }

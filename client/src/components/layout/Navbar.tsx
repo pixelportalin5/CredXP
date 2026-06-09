@@ -3,222 +3,185 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
-import { Menu, X, UserCircle, LogOut, KeyRound, History, ShieldCheck } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { UserCircle, LogOut, KeyRound, History, ShieldCheck, ChevronDown } from "lucide-react";
 import { mainNavLinks } from "@/config/navigation";
-import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { cn } from "@/utils/cn";
+import { isStaff } from "@/utils/roles";
+import { getDashboardPathForRole } from "@/utils/staffPortal";
 
-/* ============================================================
-   Navbar — Enterprise Navigation
-   ============================================================ */
+const menuItemClass =
+  "flex w-full items-center gap-2.5 px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 hover:text-slate-900";
 
 export default function Navbar() {
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [mobileOpenPath, setMobileOpenPath] = useState<string | null>(null);
-  const [scrolled, setScrolled] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const { user, logout } = useAuth();
 
-  // Track scroll for navbar background
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  const dashboardHref =
+    getDashboardPathForRole(user?.role) ??
+    (user?.role === "seller" ? "/seller/dashboard" : "/user/dashboard");
 
-  const isMobileMenuOpen = mobileOpen && mobileOpenPath === pathname;
-
-  // Prevent body scroll when mobile menu is open
   useEffect(() => {
-    document.body.style.overflow = isMobileMenuOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [isMobileMenuOpen]);
+    setProfileOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!profileOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setProfileOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [profileOpen]);
 
   const isActive = (href: string): boolean => {
     if (href === "/") return pathname === "/";
     return pathname.startsWith(href.split("?")[0]);
   };
 
-  const sellerLinks = user?.role === "seller" ? [
-    { href: "/list-property", label: "List Property" },
-    { href: "/seller/dashboard", label: "Dashboard" },
-  ] : [];
-  const dashboardHref = user?.role === "admin" ? "/admin/dashboard" : user?.role === "seller" ? "/seller/dashboard" : "/user/dashboard";
+  const sellerLinks =
+    user?.role === "seller"
+      ? [
+          { href: "/list-property", label: "List Property" },
+          { href: "/seller/dashboard", label: "Dashboard" },
+        ]
+      : [];
+
+  const linkClass = (href: string) =>
+    cn(
+      "relative py-2 text-[15px] font-semibold transition-colors",
+      isActive(href) ? "text-slate-900" : "text-slate-700 hover:text-slate-900"
+    );
+
+  const closeProfileMenu = () => setProfileOpen(false);
 
   return (
-    <nav
-      className={cn(
-        "sticky top-0 z-[var(--z-sticky)] border-b border-slate-200/45 transition-all duration-300",
-        scrolled
-          ? "bg-white/88 backdrop-blur-xl"
-          : "bg-white/82 backdrop-blur-lg"
-      )}
-    >
-      <div className="mx-auto flex h-24 w-full max-w-[1600px] items-center justify-between px-4 sm:px-6 lg:px-12">
-        {/* Logo */}
-        <Link
-          href="/"
-          className="flex items-center"
-          id="nav-logo"
-        >
-          <Image
-            src="/logos/Credxp.webp"
-            alt="CredXP"
-            width={260}
-            height={74}
-            priority
-            className="h-14 w-auto object-contain sm:h-16"
-          />
-        </Link>
+    <header className="pointer-events-none fixed top-4 inset-x-4 z-[var(--z-sticky)] mx-auto max-w-[1600px]">
+      <nav className="glass-nav-light pointer-events-auto relative rounded-2xl">
+        <div className="flex h-20 items-center justify-between px-4 sm:px-6 lg:px-8">
+          <Link href="/" className="flex shrink-0 items-center" id="nav-logo">
+            <Image
+              src="/logos/Credxp.webp"
+              alt="CredXP"
+              width={260}
+              height={74}
+              priority
+              className="h-12 w-auto object-contain sm:h-14"
+            />
+          </Link>
 
-        {/* Desktop Navigation */}
-        <div className="hidden flex-1 items-center justify-center gap-10 lg:flex">
-          {mainNavLinks.map((link) => (
-            <Link
-              key={link.href + link.label}
-              href={link.href}
-              className={cn(
-                "relative py-2 text-[15px] font-semibold transition-colors",
-                isActive(link.href)
-                  ? "text-slate-900"
-                  : "text-slate-700 hover:text-slate-900"
-              )}
-            >
-              {link.label}
-              {isActive(link.href) && (
-                <span className="absolute -bottom-1 left-1/2 h-0.5 w-5 -translate-x-1/2 rounded-full bg-accent-500" />
-              )}
-            </Link>
-          ))}
-          {sellerLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={cn(
-                "relative py-2 text-[15px] font-semibold transition-colors",
-                isActive(link.href)
-                  ? "text-slate-900"
-                  : "text-slate-700 hover:text-slate-900"
-              )}
-            >
-              {link.label}
-              {isActive(link.href) && (
-                <span className="absolute -bottom-1 left-1/2 h-0.5 w-5 -translate-x-1/2 rounded-full bg-accent-500" />
-              )}
-            </Link>
-          ))}
-        </div>
-
-        {/* Right Actions */}
-        <div className="flex items-center gap-6">
-          {user ? (
-            <div className="hidden items-center gap-3 lg:flex">
-              <Link href={dashboardHref} className="inline-flex items-center gap-2 text-[15px] font-semibold text-slate-700 hover:text-slate-900">
-                <UserCircle className="h-5 w-5" />
-                {user.name.split(" ")[0]}
+          <div className="hidden flex-1 items-center justify-center gap-8 lg:flex xl:gap-10">
+            {mainNavLinks.map((link) => (
+              <Link key={link.href + link.label} href={link.href} className={linkClass(link.href)}>
+                {link.label}
+                {isActive(link.href) && (
+                  <span className="absolute -bottom-1 left-1/2 h-0.5 w-5 -translate-x-1/2 rounded-full bg-accent-500" />
+                )}
               </Link>
-              <button
-                type="button"
-                onClick={logout}
-                className="inline-flex items-center gap-1.5 text-[15px] font-semibold text-slate-500 hover:text-slate-900"
+            ))}
+            {sellerLinks.map((link) => (
+              <Link key={link.href} href={link.href} className={linkClass(link.href)}>
+                {link.label}
+                {isActive(link.href) && (
+                  <span className="absolute -bottom-1 left-1/2 h-0.5 w-5 -translate-x-1/2 rounded-full bg-accent-500" />
+                )}
+              </Link>
+            ))}
+          </div>
+
+          <div className="flex items-center">
+            {user ? (
+              <div
+                ref={profileRef}
+                className="relative"
+                onMouseEnter={() => setProfileOpen(true)}
+                onMouseLeave={() => setProfileOpen(false)}
               >
-                <LogOut className="h-4 w-4" />
-                Logout
-              </button>
-            </div>
-          ) : (
-            <Link
-              href="/login"
-              className="hidden rounded-full bg-red-600 px-6 py-2.5 text-[15px] font-bold text-white shadow-lg shadow-red-600/25 transition-all hover:-translate-y-0.5 hover:bg-red-500 hover:shadow-red-600/35 lg:inline-flex"
-            >
-              Login
-            </Link>
-          )}
-
-          {/* Menu Button (Desktop & Mobile) */}
-          <button
-            onClick={() => {
-              if (isMobileMenuOpen) {
-                setMobileOpen(false);
-                setMobileOpenPath(null);
-                return;
-              }
-              setMobileOpen(true);
-              setMobileOpenPath(pathname);
-            }}
-            className="rounded-lg p-2 text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900"
-            aria-label="Toggle menu"
-            id="mobile-menu-toggle"
-          >
-            {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
-        </div>
-      </div>
-
-      {/* Menu Overlay */}
-      {isMobileMenuOpen && (
-        <div className="absolute right-4 top-full z-50 mt-2 w-[min(28rem,calc(100vw-2rem))]">
-          <div className="max-h-[calc(100vh-7rem)] overflow-y-auto rounded-3xl border border-slate-200 bg-white shadow-2xl">
-            <div className="p-6 space-y-1">
-              {user && (
-                <div className="space-y-2 rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                  {user.role === "admin" && (
-                    <Link
-                      href="/admin/dashboard"
-                      onClick={() => {
-                        setMobileOpen(false);
-                        setMobileOpenPath(null);
-                      }}
-                      className="flex items-center gap-3 rounded-xl bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900"
-                    >
-                      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-500/10 text-accent-500">
-                        <ShieldCheck className="h-3.5 w-3.5" />
-                      </span>
-                      Admin Dashboard
-                    </Link>
-                  )}
+                <div className="flex items-center">
                   <Link
-                    href="/user/credentials"
-                    onClick={() => {
-                      setMobileOpen(false);
-                      setMobileOpenPath(null);
-                    }}
-                    className="flex items-center gap-3 rounded-xl bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900"
+                    href={dashboardHref}
+                    className="inline-flex items-center gap-2 rounded-l-lg py-1.5 pl-1 pr-1 text-[15px] font-semibold text-slate-700 transition-colors hover:text-slate-900"
                   >
-                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-500/10 text-accent-500">
-                      <KeyRound className="h-3.5 w-3.5" />
-                    </span>
-                    User Credentials
+                    {user.avatar ? (
+                      <Image
+                        src={user.avatar}
+                        alt=""
+                        width={32}
+                        height={32}
+                        unoptimized
+                        className="h-8 w-8 rounded-full object-cover"
+                      />
+                    ) : (
+                      <UserCircle className="h-5 w-5" />
+                    )}
+                    {user.name.split(" ")[0]}
                   </Link>
-                  <Link
-                    href="/user/history"
-                    onClick={() => {
-                      setMobileOpen(false);
-                      setMobileOpenPath(null);
-                    }}
-                    className="flex items-center gap-3 rounded-xl bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900"
+                  <button
+                    type="button"
+                    aria-label="Open account menu"
+                    aria-expanded={profileOpen}
+                    onClick={() => setProfileOpen((open) => !open)}
+                    className="inline-flex items-center rounded-r-lg py-1.5 pr-1 pl-0.5 text-slate-500 transition-colors hover:text-slate-900"
                   >
-                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-500/10 text-accent-500">
-                      <History className="h-3.5 w-3.5" />
-                    </span>
-                    History
-                  </Link>
+                    <ChevronDown
+                      className={cn("h-4 w-4 transition-transform duration-200", profileOpen && "rotate-180")}
+                    />
+                  </button>
                 </div>
-              )}
 
-              {!user && (
-                <Link href="/login" className="block">
-                  <Button variant="danger" size="md" fullWidth>
-                    Login
-                  </Button>
-                </Link>
-              )}
-            </div>
+                <div
+                  className={cn(
+                    "absolute right-0 top-full z-50 pt-1.5 transition-all duration-150",
+                    profileOpen ? "visible translate-y-0 opacity-100" : "invisible -translate-y-1 opacity-0 pointer-events-none"
+                  )}
+                >
+                  <div className="min-w-[11.5rem] rounded-xl bg-white py-1 shadow-lg ring-1 ring-slate-900/5">
+                    {isStaff(user.role) && (
+                      <Link href={dashboardHref} onClick={closeProfileMenu} className={menuItemClass}>
+                        <ShieldCheck className="h-4 w-4 shrink-0 text-accent-500" />
+                        {user.role === "admin" ? "Admin Dashboard" : "Employee Dashboard"}
+                      </Link>
+                    )}
+                    <Link href="/user/credentials" onClick={closeProfileMenu} className={menuItemClass}>
+                      <KeyRound className="h-4 w-4 shrink-0 text-accent-500" />
+                      User Credentials
+                    </Link>
+                    <Link href="/user/history" onClick={closeProfileMenu} className={menuItemClass}>
+                      <History className="h-4 w-4 shrink-0 text-accent-500" />
+                      History
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        closeProfileMenu();
+                        logout();
+                      }}
+                      className={cn(menuItemClass, "text-accent-500 hover:text-accent-600")}
+                    >
+                      <LogOut className="h-4 w-4 shrink-0 text-accent-500" />
+                      Logout
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                className="inline-flex rounded-full bg-accent-500 px-6 py-2.5 text-[15px] font-bold text-white shadow-lg shadow-accent-500/25 transition-all hover:-translate-y-0.5 hover:bg-accent-400 hover:shadow-accent-500/35"
+              >
+                Login
+              </Link>
+            )}
           </div>
         </div>
-      )}
-    </nav>
+      </nav>
+    </header>
   );
 }

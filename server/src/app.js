@@ -5,6 +5,9 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 const errorHandler = require("./middleware/errorHandler");
 const adminRoutes = require("./routes/adminRoutes");
+const employeeRoutes = require("./routes/employeeRoutes");
+const buildStaffProposalRoutes = require("./routes/staffProposalRoutes");
+const { authorizeAdmin, authorizeEmployee } = require("./middleware/authMiddleware");
 const authRoutes = require("./routes/authRoutes");
 const contactRoutes = require("./routes/contactRoutes");
 const coworkingRoutes = require("./routes/coworkingRoutes");
@@ -12,6 +15,7 @@ const enquiryRoutes = require("./routes/enquiryRoutes");
 const propertyRoutes = require("./routes/propertyRoutes");
 const savedPropertyRoutes = require("./routes/savedPropertyRoutes");
 const insightsRoutes = require("./routes/insightsRoutes");
+const proposalRoutes = require("./routes/proposalRoutes");
 
 const app = express();
 
@@ -21,6 +25,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:3000",
+      "http://localhost:3001",
       "https://credxp-mvp.vercel.app",
       "https://aqua-goldfinch-370087.hostingersite.com",
     ],
@@ -38,12 +43,16 @@ app.get("/api/health", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/employee", employeeRoutes);
+app.use("/api/admin/proposals", buildStaffProposalRoutes(authorizeAdmin));
+app.use("/api/employee/proposals", buildStaffProposalRoutes(authorizeEmployee));
 app.use("/api/contact", contactRoutes);
 app.use("/api/coworking", coworkingRoutes);
 app.use("/api/properties", propertyRoutes);
 app.use("/api/enquiries", enquiryRoutes);
 app.use("/api/saved-properties", savedPropertyRoutes);
 app.use("/api/insights", insightsRoutes);
+app.use("/api/proposals", proposalRoutes);
 
 // --------------- Error Handling ---------------
 app.use(errorHandler);

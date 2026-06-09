@@ -19,14 +19,14 @@
   --navy-100: #111827;
   --navy-50: #0f172a;
 
-  /* ── Accent Palette (Premium Orange) ── */
-  --accent-700: #9a3412;
-  --accent-600: #c2410c;
-  --accent-500: #e85d0d;
-  --accent-400: #f97316;
-  --accent-300: #fb923c;
-  --accent-200: #fdba74;
-  --accent-100: #ffedd5;
+  /* ── Accent Palette (CredXP Red) ── */
+  --accent-700: #991b1b;
+  --accent-600: #b91c1c;
+  --accent-500: #dc2626;
+  --accent-400: #ef4444;
+  --accent-300: #f87171;
+  --accent-200: #fca5a5;
+  --accent-100: #fee2e2;
 
   /* ── Semantic Colors ── */
   --success: #16a34a;
@@ -50,8 +50,8 @@
   --border-subtle: rgba(15, 23, 42, 0.08);
   --border-default: rgba(15, 23, 42, 0.12);
   --border-hover: rgba(15, 23, 42, 0.2);
-  --border-accent: rgba(232, 93, 13, 0.28);
-  --border-focus: rgba(232, 93, 13, 0.45);
+  --border-accent: rgba(220, 38, 38, 0.28);
+  --border-focus: rgba(220, 38, 38, 0.45);
 
   /* ── Text System ── */
   --text-primary: var(--navy-50);
@@ -65,8 +65,8 @@
   --shadow-md: 0 6px 18px rgba(15, 23, 42, 0.06);
   --shadow-lg: 0 16px 32px rgba(15, 23, 42, 0.08);
   --shadow-xl: 0 24px 60px rgba(15, 23, 42, 0.1);
-  --shadow-accent: 0 8px 24px rgba(232, 93, 13, 0.12);
-  --shadow-accent-lg: 0 14px 36px rgba(232, 93, 13, 0.18);
+  --shadow-accent: 0 8px 24px rgba(220, 38, 38, 0.12);
+  --shadow-accent-lg: 0 14px 36px rgba(220, 38, 38, 0.18);
 
   /* ── Spacing Scale ── */
   --space-section: 5rem;
@@ -133,7 +133,7 @@ html {
 
 body {
   background:
-    radial-gradient(circle at top left, rgba(232, 93, 13, 0.05), transparent 28%),
+    radial-gradient(circle at top left, rgba(220, 38, 38, 0.05), transparent 28%),
     linear-gradient(180deg, #ffffff 0%, #f4f7fb 100%);
   color: var(--text-primary);
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
@@ -200,18 +200,116 @@ body {
 
 /* Skeleton shimmer animation */
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 /* Subtle fade-in animation */
 @keyframes fade-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-fade-in {
   animation: fade-in 0.5s var(--transition-base) forwards;
+}
+
+/* Minimal card surface */
+.surface-card {
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.surface-card-interactive {
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
+}
+
+.surface-card-interactive:hover,
+.surface-card-interactive:focus-visible {
+  border-color: rgba(203, 213, 225, 1);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+}
+
+/* Glassmorphism utilities — submerged, low-contrast borders */
+.glass-nav-dark {
+  background: rgba(15, 23, 42, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+}
+
+.glass-nav-light {
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08);
+}
+
+.glass-nav-muted {
+  background: rgba(248, 250, 252, 0.55);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.04);
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+.glass-input {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+@keyframes partner-marquee-scroll {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.partner-marquee-track {
+  animation: partner-marquee-scroll 36s linear infinite;
+}
+
+.partner-marquee:hover .partner-marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .partner-marquee-track {
+    animation: none;
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 /* Glass effect utility */
@@ -219,21 +317,6 @@ body {
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(16px);
-}
-
-/* Premium card surface */
-.surface-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-xl);
-  transition: border-color var(--transition-base), 
-              box-shadow var(--transition-base),
-              transform var(--transition-base);
-}
-
-.surface-card:hover {
-  border-color: var(--border-hover);
-  box-shadow: var(--shadow-md);
 }
 
 /* Pink placeholder surface for empty image and logo slots */

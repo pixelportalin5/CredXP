@@ -82,7 +82,7 @@ export default function PropertyCard({ property, variant = "default", initialSav
           openProperty();
         }
       }}
-      className="group cursor-pointer overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-accent-500/30 hover:shadow-xl focus:outline-none focus-visible:border-accent-500/30 focus-visible:shadow-xl"
+      className="group cursor-pointer overflow-hidden rounded-[1.75rem] border border-slate-200/80 bg-white shadow-sm transition-all duration-300 focus:outline-none hover:-translate-y-1 hover:shadow-md focus-visible:-translate-y-1 focus-visible:shadow-md"
     >
       <div className="relative overflow-hidden bg-pink-50/70">
         <div className="relative aspect-square w-full">

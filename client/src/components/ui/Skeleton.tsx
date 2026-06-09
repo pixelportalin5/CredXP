@@ -37,7 +37,7 @@ function Skeleton({ className, width, height, rounded = "lg" }: SkeletonProps) {
 /** Pre-composed card skeleton matching PropertyCard dimensions */
 function PropertyCardSkeleton() {
   return (
-    <div className="overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)]">
+    <div className="overflow-hidden rounded-[1.75rem] border border-slate-200/80 bg-[var(--bg-card)] shadow-sm">
       <Skeleton className="aspect-square w-full" rounded="sm" />
       <div className="space-y-3 p-5">
         <Skeleton className="h-5 w-3/4" />

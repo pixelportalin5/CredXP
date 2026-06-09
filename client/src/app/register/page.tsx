@@ -17,17 +17,29 @@ export default function RegisterPage() {
   const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [confirmPasswordError, setConfirmPasswordError] = useState("");
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
+    const password = String(formData.get("password"));
+    const confirmPassword = String(formData.get("confirmPassword"));
+
+    if (password !== confirmPassword) {
+      setConfirmPasswordError("Passwords do not match.");
+      showToast({ type: "error", title: "Passwords do not match", message: "Please make sure both password fields are identical." });
+      return;
+    }
+
+    setConfirmPasswordError("");
 
     try {
       setLoading(true);
       await register({
         name: String(formData.get("name")),
         email: String(formData.get("email")),
-        password: String(formData.get("password")),
+        password,
         phone: String(formData.get("phone") || ""),
         role: String(formData.get("role") || "buyer") as "buyer" | "seller",
       });
@@ -93,6 +105,30 @@ export default function RegisterPage() {
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
+          </FormField>
+          <FormField label="Confirm Password">
+            <div className="relative">
+              <EnterpriseInput
+                name="confirmPassword"
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder="Re-enter your password"
+                required
+                minLength={8}
+                className="pr-12"
+                onChange={() => setConfirmPasswordError("")}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword((current) => !current)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-700"
+                aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
+              >
+                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+            {confirmPasswordError && (
+              <p className="mt-1.5 text-xs font-medium text-red-600">{confirmPasswordError}</p>
+            )}
           </FormField>
           <Button type="submit" size="lg" fullWidth loading={loading} icon={<UserPlus className="h-4 w-4" />} className="h-13 shadow-lg shadow-accent-500/20">
             Register

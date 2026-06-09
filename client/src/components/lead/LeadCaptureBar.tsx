@@ -22,12 +22,11 @@ export default function LeadCaptureBar({
   return (
     <section className="relative overflow-hidden border-y border-slate-200 bg-white">
       <div className="absolute inset-0 enterprise-gradient" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.16),transparent_34%),radial-gradient(circle_at_right,rgba(59,130,246,0.12),transparent_30%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(220,38,38,0.16),transparent_34%),radial-gradient(circle_at_right,rgba(59,130,246,0.12),transparent_30%)]" />
 
       <Container
-        className={`relative flex flex-col items-center justify-between gap-6 sm:flex-row ${
-          variant === "compact" ? "py-6" : "py-10"
-        }`}
+        className={`relative flex flex-col items-center justify-between gap-6 sm:flex-row ${variant === "compact" ? "py-6" : "py-10"
+          }`}
       >
         <div>
           <h2 className="text-xl font-bold text-white sm:text-2xl">

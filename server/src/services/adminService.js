@@ -137,11 +137,15 @@ const adminService = {
   },
 
   async updateUser(actor, id, data) {
+    if (actor.role === "employee" && (data.role !== undefined || data.accountStatus !== undefined)) {
+      throw new ApiError(403, "Only admins can change roles or account status");
+    }
+
     const allowed = {};
     if (data.name !== undefined) allowed.name = data.name;
     if (data.phone !== undefined) allowed.phone = data.phone;
     if (data.role !== undefined) {
-      if (!["buyer", "seller", "admin"].includes(data.role)) {
+      if (!["buyer", "seller", "admin", "employee"].includes(data.role)) {
         throw new ApiError(400, "Invalid role");
       }
       allowed.role = data.role;

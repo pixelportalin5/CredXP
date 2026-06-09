@@ -150,7 +150,7 @@ export default function HomePageClient() {
             })}
           </div>
 
-          <div className="mt-6 rounded-[1.75rem] border border-slate-200 bg-white px-4 py-4 shadow-sm">
+          <div className="mt-6 rounded-[1.75rem] border border-slate-200/80 bg-white px-4 py-4 shadow-sm">
             <div className="mb-4 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2 text-sm font-medium text-slate-600">
                 <SlidersHorizontal className="h-4 w-4 text-accent-500" />
@@ -183,19 +183,19 @@ export default function HomePageClient() {
               >
                 {loading
                   ? Array.from({ length: 1 }).map((_, pageIndex) => (
-                      <div key={pageIndex} className="grid min-w-full grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
-                        {Array.from({ length: 4 }).map((_, i) => (
-                          <PropertyCardSkeleton key={i} />
-                        ))}
-                      </div>
-                    ))
+                    <div key={pageIndex} className="grid min-w-full grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+                      {Array.from({ length: 4 }).map((_, i) => (
+                        <PropertyCardSkeleton key={i} />
+                      ))}
+                    </div>
+                  ))
                   : featuredPages.map((page, pageIndex) => (
-                      <div key={pageIndex} className="grid min-w-full grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
-                        {page.map((property) => (
-                          <PropertyCard key={property._id} property={property} variant="featured" />
-                        ))}
-                      </div>
-                    ))}
+                    <div key={pageIndex} className="grid min-w-full grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+                      {page.map((property) => (
+                        <PropertyCard key={property._id} property={property} variant="featured" />
+                      ))}
+                    </div>
+                  ))}
               </div>
             </div>
 

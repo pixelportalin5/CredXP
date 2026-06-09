@@ -155,7 +155,7 @@ const propertyService = {
     const payload = await applyCoverImage({ ...data });
 
     if (user) {
-      if (!["seller", "admin"].includes(user.role)) {
+      if (!["seller", "admin", "employee"].includes(user.role)) {
         throw new ApiError(403, "Seller access required");
       }
 
@@ -184,7 +184,7 @@ const propertyService = {
     }
 
     const isOwner = property.seller?.toString() === user._id.toString();
-    if (!isOwner && user.role !== "admin") {
+    if (!isOwner && !["admin", "employee"].includes(user.role)) {
       throw new ApiError(403, "You can only update your own listings");
     }
 
@@ -206,7 +206,7 @@ const propertyService = {
     }
 
     const isOwner = property.seller?.toString() === user._id.toString();
-    if (!isOwner && user.role !== "admin") {
+    if (!isOwner && !["admin", "employee"].includes(user.role)) {
       throw new ApiError(403, "You can only delete your own listings");
     }
 

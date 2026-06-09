@@ -31,9 +31,8 @@ function Card({
   return (
     <Component
       className={cn(
-        "rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)] backdrop-blur-sm",
-        hover &&
-          "transition-all duration-300 hover:border-[var(--border-hover)] hover:shadow-lg hover:shadow-black/20 hover:-translate-y-0.5",
+        "rounded-2xl border border-slate-200/80 bg-[var(--bg-card)] shadow-sm",
+        hover && "surface-card-interactive hover:-translate-y-0.5 hover:shadow-md",
         paddingStyles[padding],
         className
       )}

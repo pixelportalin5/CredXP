@@ -63,9 +63,28 @@ const authorizeAdmin = (req, res, next) => {
   next();
 };
 
+const authorizeEmployee = (req, res, next) => {
+  if (!req.user || req.user.role !== "employee") {
+    return next(new ApiError(403, "Employee access required"));
+  }
+  next();
+};
+
+const authorizeStaff = (req, res, next) => {
+  if (!req.user || !["admin", "employee"].includes(req.user.role)) {
+    return next(new ApiError(403, "Staff access required"));
+  }
+  next();
+};
+
+const isStaffRole = (role) => ["admin", "employee"].includes(role);
+
 module.exports = {
   protect,
   optionalAuth,
   authorizeSeller,
   authorizeAdmin,
+  authorizeEmployee,
+  authorizeStaff,
+  isStaffRole,
 };

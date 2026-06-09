@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/Card";
 import { Container } from "@/components/ui/Container";
 import { EnterpriseInput, FormField } from "@/components/forms/EnterpriseForm";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { getDashboardPathForRole } from "@/utils/staffPortal";
 import { useToast } from "@/components/providers/ToastProvider";
 
 function LoginContent() {
@@ -26,7 +27,9 @@ function LoginContent() {
     try {
       setLoading(true);
       const user = await login(String(formData.get("email")), String(formData.get("password")));
-      const dashboardPath = user.role === "admin" ? "/admin/dashboard" : user.role === "seller" ? "/seller/dashboard" : "/user/dashboard";
+      const dashboardPath =
+        getDashboardPathForRole(user.role) ??
+        (user.role === "seller" ? "/seller/dashboard" : "/user/dashboard");
       showToast({ type: "success", title: "Welcome back", message: "You are signed in to CredXP." });
       router.push(searchParams.get("next") || dashboardPath);
     } catch (error) {

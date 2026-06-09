@@ -17,7 +17,7 @@ export default function InsightCard({ article, compact = false }: InsightCardPro
   const isExternal = href.startsWith("http");
 
   return (
-    <Card hover padding="md" className="flex h-full flex-col border-slate-200 bg-white backdrop-blur-none">
+    <Card hover padding="md" className="flex h-full flex-col bg-white backdrop-blur-none">
       <Badge variant="accent" size="sm" className="mb-4 w-fit">
         {article.category}
       </Badge>

@@ -91,7 +91,22 @@ const authService = {
     if (phone && !/^\d{8,15}$/.test(String(phone))) {
       throw new ApiError(400, "Phone must contain 8 to 15 digits");
     }
-    if (avatar !== undefined) updates.avatar = avatar;
+    if (avatar !== undefined) {
+      if (avatar === "" || avatar === null) {
+        updates.avatar = "";
+      } else {
+        const value = String(avatar);
+        const isDataUrl = value.startsWith("data:image/");
+        const isHttpUrl = /^https?:\/\//i.test(value);
+        if (!isDataUrl && !isHttpUrl) {
+          throw new ApiError(400, "Avatar must be an image data URL or http(s) URL");
+        }
+        if (value.length > 512000) {
+          throw new ApiError(400, "Avatar image is too large");
+        }
+        updates.avatar = value;
+      }
+    }
 
     const user = await User.findByIdAndUpdate(userId, updates, {
       new: true,

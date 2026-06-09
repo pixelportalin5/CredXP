@@ -116,7 +116,7 @@ const coworkingService = {
     if (!space) throw new ApiError(404, "Coworking space not found");
 
     const isOwner = space.seller?.toString() === user._id.toString();
-    if (!isOwner && user.role !== "admin") {
+    if (!isOwner && !["admin", "employee"].includes(user.role)) {
       throw new ApiError(403, "You can only update your own coworking spaces");
     }
 
@@ -132,7 +132,7 @@ const coworkingService = {
     if (!space) throw new ApiError(404, "Coworking space not found");
 
     const isOwner = space.seller?.toString() === user._id.toString();
-    if (!isOwner && user.role !== "admin") {
+    if (!isOwner && !["admin", "employee"].includes(user.role)) {
       throw new ApiError(403, "You can only delete your own coworking spaces");
     }
 

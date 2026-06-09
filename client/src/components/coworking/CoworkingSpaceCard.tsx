@@ -17,7 +17,7 @@ export default function CoworkingSpaceCard({ space, compact = false }: Coworking
   const coverImage = space.coverImage || space.images[0] || "/images/office1.png";
 
   return (
-    <Card hover padding="none" className="flex h-full flex-col overflow-hidden border-slate-200 bg-white shadow-sm">
+    <Card hover padding="none" className="flex h-full flex-col overflow-hidden bg-white">
       <Link href={`/coworking/${space._id}`} className="group block">
         <div className={`relative overflow-hidden bg-slate-100 ${compact ? "aspect-[4/3]" : "h-56"}`}>
           <Image

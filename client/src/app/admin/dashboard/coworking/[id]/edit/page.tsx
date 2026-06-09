@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Landmark, ShieldCheck } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
@@ -14,23 +14,31 @@ import CoworkingListingForm from "@/components/coworking/CoworkingListingForm";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useToast } from "@/components/providers/ToastProvider";
 import adminService from "@/services/admin.service";
+import employeeService from "@/services/employee.service";
 import coworkingService from "@/services/coworking.service";
 import type { CoworkingSpace } from "@/types/coworking";
+import { isAdmin } from "@/utils/roles";
+import { getDashboardPath, getStaffPortalFromPath } from "@/utils/staffPortal";
 
 export default function AdminEditCoworkingPage() {
   const { id } = useParams<{ id: string }>();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const portal = getStaffPortalFromPath(pathname);
+  const dashboardPath = getDashboardPath(portal);
+  const staffService = portal === "admin" ? adminService : employeeService;
   const dashboardHref = searchParams.get("from") === "coworking"
-    ? "/admin/dashboard?section=coworking"
-    : "/admin/dashboard";
+    ? `${dashboardPath}?section=coworking`
+    : dashboardPath;
   const { user, loading: authLoading } = useAuth();
+  const hasPortalAccess = portal === "admin" ? isAdmin(user?.role) : user?.role === "employee";
   const { showToast } = useToast();
   const [space, setSpace] = useState<CoworkingSpace | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user || user.role !== "admin" || !id) return;
+    if (!user || !hasPortalAccess || !id) return;
 
     async function fetchSpace() {
       try {
@@ -49,13 +57,13 @@ export default function AdminEditCoworkingPage() {
     }
 
     void fetchSpace();
-  }, [user, id, showToast]);
+  }, [user, hasPortalAccess, id, showToast]);
 
   const handleSubmit = async (data: Partial<CoworkingSpace>) => {
     if (!space) return;
 
     try {
-      await adminService.updateCoworkingSpace(space._id, data);
+      await staffService.updateCoworkingSpace(space._id, data);
       showToast({ type: "success", title: "Coworking space updated" });
       router.push(dashboardHref);
     } catch (error) {
@@ -71,14 +79,18 @@ export default function AdminEditCoworkingPage() {
     return <PageLoader label="Checking access…" />;
   }
 
-  if (!user || user.role !== "admin") {
+  if (!user || !hasPortalAccess) {
     return (
       <Container size="sm" className="py-16">
         <Card padding="lg" className="border-slate-200 bg-white text-center shadow-sm">
           <ShieldCheck className="mx-auto h-10 w-10 text-slate-400" />
-          <h1 className="mt-4 text-2xl font-semibold text-slate-900">Admin access required</h1>
-          <p className="mt-2 text-sm text-slate-600">Login with an admin account to edit coworking spaces.</p>
-          <Link href="/login?next=/admin/dashboard" className="mt-6 inline-block">
+          <h1 className="mt-4 text-2xl font-semibold text-slate-900">
+            {portal === "admin" ? "Admin access required" : "Employee access required"}
+          </h1>
+          <p className="mt-2 text-sm text-slate-600">
+            Login with a {portal === "admin" ? "admin" : "employee"} account to edit coworking spaces.
+          </p>
+          <Link href={`/login?next=${dashboardPath}`} className="mt-6 inline-block">
             <Button>Login</Button>
           </Link>
         </Card>
@@ -90,7 +102,9 @@ export default function AdminEditCoworkingPage() {
     <>
       <section className="blue-hero-bg border-b border-white/10 py-10 text-white lg:py-14">
         <Container size="lg">
-          <Badge variant="accent" icon={<ShieldCheck className="h-3 w-3" />}>Admin Console</Badge>
+          <Badge variant="accent" icon={<ShieldCheck className="h-3 w-3" />}>
+            {portal === "admin" ? "Admin Console" : "Employee Console"}
+          </Badge>
           <h1 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">Edit Coworking Space</h1>
           <p className="mt-3 max-w-2xl text-white/72">{space?.title || "Loading coworking details…"}</p>
         </Container>

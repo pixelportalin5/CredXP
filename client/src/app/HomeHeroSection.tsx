@@ -14,7 +14,6 @@ import {
   MapPin,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { Select } from "@/components/ui/Select";
 import { Container } from "@/components/ui/Container";
 import { CITIES, PROPERTY_TYPES, PRICE_RANGES, SIZE_RANGES, YIELD_RANGES } from "@/config/filters";
@@ -104,7 +103,7 @@ export default function HomeHeroSection() {
   };
 
   return (
-    <section className="relative overflow-hidden pt-16 pb-16 lg:min-h-[920px] lg:pt-24 lg:pb-24">
+    <section className="relative overflow-hidden pb-16 pt-28 lg:min-h-[920px] lg:pb-24">
       <Image
         key={selectedGoal}
         src={activeHeroBackground}
@@ -124,7 +123,7 @@ export default function HomeHeroSection() {
               Premium Commercial
               <br />
               Real Estate.
-              <span className="text-accent-300"> Delivered.</span>
+              <span className="text-accent-500"> Delivered.</span>
             </h1>
 
             <p className="max-w-[480px] text-lg leading-relaxed text-white/78">
@@ -185,93 +184,91 @@ export default function HomeHeroSection() {
         </div>
 
         {/* Search Bar */}
-          <div className="relative z-20 mt-12 w-full lg:mt-16">
-            <Card className="mx-auto max-w-6xl rounded-3xl border-white/20 bg-white/92 p-6 shadow-2xl backdrop-blur-xl sm:p-8">
-              {/* Tabs */}
-              <div className="mb-6 flex flex-wrap items-center gap-6 border-b border-slate-100 pb-2">
-                {searchTabs.map((tab) => (
+        <div className="relative z-20 mt-12 w-full lg:mt-16">
+          <div className="glass-panel mx-auto max-w-6xl rounded-3xl p-6 shadow-2xl sm:p-8">
+            <div className="mb-6 flex flex-wrap items-center gap-6 border-b border-white/20 pb-2">
+              {searchTabs.map((tab) => {
+                const isActiveTab = activeTab === tab;
+                return (
                   <button
                     key={tab}
                     type="button"
                     onClick={() => setActiveTab(tab)}
                     className={[
-                      "relative pb-2 text-sm font-semibold transition-colors",
-                      activeTab === tab ? "text-slate-900" : "text-slate-500 hover:text-slate-900",
+                      "relative rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors",
+                      isActiveTab
+                        ? "bg-slate-900 text-white shadow-sm"
+                        : "text-white/75 hover:bg-white/10 hover:text-white",
                     ].join(" ")}
                   >
                     {tab}
-                    {activeTab === tab && (
-                      <span className="absolute bottom-0 left-0 h-0.5 w-full bg-slate-900" />
-                    )}
-                    {activeTab === tab && tab === "All Properties" && (
-                      <span className="absolute -inset-x-3 -inset-y-1.5 -z-10 rounded-lg bg-slate-900" />
-                    )}
-                    {activeTab === tab && tab === "All Properties" && (
-                      <span className="pointer-events-none absolute inset-0 flex items-center justify-center pb-2 text-white">{tab}</span>
-                    )}
                   </button>
-                ))}
-              </div>
+                );
+              })}
+            </div>
 
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
-                <div className="grid flex-1 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Location</label>
-                    <Select options={CITIES} placeholder="Select Location" value={city} onChange={(event) => setCity(event.target.value)} />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Property Type</label>
-                    <Select options={heroPropertyTypes} placeholder="All Types" value={propertyType} onChange={(event) => setPropertyType(event.target.value)} />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Space / Size</label>
-                    <Select
-                      options={SIZE_RANGES.map((range) => ({
-                        label: range.label,
-                        value: `${range.min}:${range.max}`,
-                      }))}
-                      value={sizeRange}
-                      onChange={(event) => setSizeRange(event.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Budget / Price</label>
-                    <Select
-                      options={PRICE_RANGES.map((range) => ({
-                        label: range.label,
-                        value: `${range.min}:${range.max}`,
-                      }))}
-                      value={priceRange}
-                      onChange={(event) => setPriceRange(event.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Yield / IRR</label>
-                    <Select
-                      options={YIELD_RANGES.map((range) => ({
-                        label: range.label,
-                        value: `${range.min}:${range.max}`,
-                      }))}
-                      value={yieldRange}
-                      onChange={(event) => setYieldRange(event.target.value)}
-                    />
-                  </div>
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
+              <div className="grid flex-1 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold uppercase tracking-wider text-white/80">Location</label>
+                  <Select className="glass-input rounded-xl text-slate-900" options={CITIES} placeholder="Select Location" value={city} onChange={(event) => setCity(event.target.value)} />
                 </div>
-
-                <div className="mt-4 flex flex-col items-center gap-2 lg:mt-0 lg:w-48">
-                  <Button type="button" variant="primary" size="lg" onClick={handleHeroSearch} className="w-full text-base font-semibold shadow-md shadow-accent-500/20">
-                    Search Properties
-                  </Button>
-                  <Link
-                    href={activeTab === "Lease" ? "/lease" : "/invest"}
-                    className="flex items-center gap-1 text-[11px] font-semibold text-slate-600 hover:text-slate-900"
-                  >
-                    Advanced Search <ArrowRight className="h-3 w-3" />
-                  </Link>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold uppercase tracking-wider text-white/80">Property Type</label>
+                  <Select className="glass-input rounded-xl text-slate-900" options={heroPropertyTypes} placeholder="All Types" value={propertyType} onChange={(event) => setPropertyType(event.target.value)} />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold uppercase tracking-wider text-white/80">Space / Size</label>
+                  <Select
+                    className="glass-input rounded-xl text-slate-900"
+                    options={SIZE_RANGES.map((range) => ({
+                      label: range.label,
+                      value: `${range.min}:${range.max}`,
+                    }))}
+                    value={sizeRange}
+                    onChange={(event) => setSizeRange(event.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold uppercase tracking-wider text-white/80">Budget / Price</label>
+                  <Select
+                    className="glass-input rounded-xl text-slate-900"
+                    options={PRICE_RANGES.map((range) => ({
+                      label: range.label,
+                      value: `${range.min}:${range.max}`,
+                    }))}
+                    value={priceRange}
+                    onChange={(event) => setPriceRange(event.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold uppercase tracking-wider text-white/80">Yield / IRR</label>
+                  <Select
+                    className="glass-input rounded-xl text-slate-900"
+                    options={YIELD_RANGES.map((range) => ({
+                      label: range.label,
+                      value: `${range.min}:${range.max}`,
+                    }))}
+                    value={yieldRange}
+                    onChange={(event) => setYieldRange(event.target.value)}
+                  />
                 </div>
               </div>
-            </Card>
+
+              <div className="mt-4 flex flex-col items-center gap-2 lg:mt-0 lg:w-48">
+                <Button type="button" variant="primary" size="lg" onClick={handleHeroSearch} className="w-full text-base font-semibold shadow-md shadow-accent-500/20">
+                  Search Properties
+                </Button>
+                <Link
+                  href={activeTab === "Lease" ? "/lease" : "/invest"}
+                  className="flex items-center gap-1 text-[11px] font-semibold text-white/80 hover:text-white"
+                >
+                  Advanced Search <ArrowRight className="h-3 w-3" />
+                </Link>
+              </div>
+            </div>
           </div>
+        </div>
       </Container>
     </section>
   );

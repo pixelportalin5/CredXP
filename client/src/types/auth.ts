@@ -4,7 +4,7 @@ export interface User {
   email: string;
   phone?: string;
   avatar?: string;
-  role: "buyer" | "seller" | "admin";
+  role: "buyer" | "seller" | "admin" | "employee";
   accountStatus?: "active" | "disabled";
   createdAt?: string;
   updatedAt?: string;

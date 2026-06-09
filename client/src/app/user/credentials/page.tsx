@@ -1,8 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
-import { Eye, EyeOff, KeyRound, Save } from "lucide-react";
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { Eye, EyeOff, KeyRound, Save, UploadCloud, UserCircle, X } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -11,6 +12,7 @@ import { EnterpriseInput, FormField } from "@/components/forms/EnterpriseForm";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useToast } from "@/components/providers/ToastProvider";
 import authService from "@/services/auth.service";
+import { compressImageFile, MAX_IMAGE_SIZE_BYTES } from "@/utils/compressImage";
 
 export default function UserCredentialsPage() {
   const { user, loading: authLoading, refreshUser } = useAuth();
@@ -18,6 +20,41 @@ export default function UserCredentialsPage() {
   const [loading, setLoading] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | undefined>(undefined);
+  const [avatarDirty, setAvatarDirty] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (user) {
+      setAvatarPreview(user.avatar || undefined);
+      setAvatarDirty(false);
+    }
+  }, [user]);
+
+  const handleAvatarChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > MAX_IMAGE_SIZE_BYTES) {
+      showToast({ type: "error", title: "Image too large", message: "Please choose an image under 4MB." });
+      return;
+    }
+
+    try {
+      const compressed = await compressImageFile(file);
+      setAvatarPreview(compressed);
+      setAvatarDirty(true);
+    } catch {
+      showToast({ type: "error", title: "Upload failed", message: "Could not process the selected image." });
+    } finally {
+      event.target.value = "";
+    }
+  };
+
+  const handleRemoveAvatar = () => {
+    setAvatarPreview(undefined);
+    setAvatarDirty(true);
+  };
 
   const handleProfileSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -25,12 +62,24 @@ export default function UserCredentialsPage() {
 
     try {
       setLoading(true);
-      await authService.updateMe({
+      const payload: {
+        name: string;
+        email: string;
+        phone: string;
+        avatar?: string;
+      } = {
         name: String(formData.get("name") || ""),
         email: String(formData.get("email") || ""),
         phone: String(formData.get("phone") || ""),
-      });
+      };
+
+      if (avatarDirty) {
+        payload.avatar = avatarPreview || "";
+      }
+
+      await authService.updateMe(payload);
       await refreshUser();
+      setAvatarDirty(false);
       showToast({ type: "success", title: "Credentials updated" });
     } catch (error) {
       showToast({ type: "error", title: "Update failed", message: error instanceof Error ? error.message : "Please try again." });
@@ -90,6 +139,53 @@ export default function UserCredentialsPage() {
           <Card padding="lg" className="border-slate-200 bg-white shadow-sm">
             <h2 className="text-xl font-semibold text-slate-900">Profile Details</h2>
             <form onSubmit={handleProfileSubmit} className="mt-6 space-y-5">
+              <div className="flex items-center gap-4">
+                <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-100 text-slate-400">
+                  {avatarPreview ? (
+                    <Image
+                      src={avatarPreview}
+                      alt="Profile photo"
+                      width={64}
+                      height={64}
+                      unoptimized
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <UserCircle className="h-8 w-8" />
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleAvatarChange}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    icon={<UploadCloud className="h-4 w-4" />}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    Upload Photo
+                  </Button>
+                  {avatarPreview && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      icon={<X className="h-4 w-4" />}
+                      onClick={handleRemoveAvatar}
+                    >
+                      Remove
+                    </Button>
+                  )}
+                </div>
+              </div>
+              <p className="text-xs text-slate-500">Profile photo is optional. JPG or PNG, up to 4MB.</p>
+
               <FormField label="Name">
                 <EnterpriseInput name="name" defaultValue={user.name} required />
               </FormField>
