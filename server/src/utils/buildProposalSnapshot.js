@@ -169,8 +169,14 @@ function publicProposal(proposal) {
     _id: proposal._id,
     propertyId: proposal.propertyId,
     propertyTitle: proposal.propertyTitle,
+    propertyType: proposal.propertyType,
     agent: proposal.agent,
     propertySnapshot: proposal.propertySnapshot,
+    coverImage: proposal.coverImage,
+    preparedFor: proposal.preparedFor,
+    agentResearch: proposal.agentResearch,
+    overviewFields: proposal.overviewFields,
+    detailFields: proposal.detailFields,
     createdAt: proposal.createdAt,
   };
 }

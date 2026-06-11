@@ -1,13 +1,13 @@
 import api from "@/lib/api";
-import type { Proposal } from "@/types/proposal";
+import type { Proposal, ProposalCreatePayload } from "@/types/proposal";
 import type { StaffPortal } from "@/utils/staffPortal";
 
 export function getProposalService(portal: StaffPortal) {
   const base = `/${portal}/proposals`;
 
   return {
-    create: (propertyId: string): Promise<{ data: Proposal }> =>
-      api.post(base, { propertyId }),
+    create: (payload: ProposalCreatePayload): Promise<{ data: Proposal }> =>
+      api.post(base, payload),
 
     list: (): Promise<{ data: Proposal[] }> =>
       api.get(base),

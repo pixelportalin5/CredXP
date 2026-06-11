@@ -86,7 +86,9 @@ export interface Property {
   tenant?: PropertyTenant;
   amenities: string[];
   images: string[];
+  imagePublicIds?: string[];
   coverImage?: string;
+  coverImagePublicId?: string;
   status: PropertyStatus;
   isActive?: boolean;
   featured?: boolean;

@@ -37,3 +37,9 @@ export async function compressImageFile(file: File): Promise<string> {
   context.drawImage(image, 0, 0, width, height);
   return canvas.toDataURL("image/jpeg", JPEG_QUALITY);
 }
+
+export async function compressImageToBlob(file: File): Promise<Blob> {
+  const dataUrl = await compressImageFile(file);
+  const response = await fetch(dataUrl);
+  return response.blob();
+}

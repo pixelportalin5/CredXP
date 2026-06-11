@@ -1,0 +1,107 @@
+{
+  "phase": "5B-image-cutover",
+  "completedAt": "2026-06-11T07:58:45.617Z",
+  "dbProvider": "postgres",
+  "migration": {
+    "dryRun": false,
+    "migrated": 20,
+    "failed": 0,
+    "skipped": 20,
+    "collections": {
+      "properties": {
+        "scanned": 28,
+        "migrated": 20,
+        "skipped": 8,
+        "failed": 0
+      },
+      "coworking": {
+        "scanned": 2,
+        "migrated": 0,
+        "skipped": 2,
+        "failed": 0
+      },
+      "users": {
+        "scanned": 6,
+        "migrated": 0,
+        "skipped": 6,
+        "failed": 0
+      },
+      "proposals": {
+        "scanned": 4,
+        "migrated": 0,
+        "skipped": 4,
+        "failed": 0
+      }
+    }
+  },
+  "postgresSync": {
+    "synced": 40,
+    "failed": 0,
+    "missing": 0
+  },
+  "postgresInventory": {
+    "properties": {
+      "total": 28,
+      "coverBase64": 0,
+      "coverCloudinary": 20,
+      "coverEmpty": 5,
+      "coverPublicId": 20,
+      "imagesBase64": 0,
+      "imagesCloudinary": 60,
+      "avatarBase64": 0,
+      "avatarCloudinary": 0
+    },
+    "coworking": {
+      "total": 2,
+      "coverBase64": 0,
+      "coverCloudinary": 0,
+      "coverEmpty": 0,
+      "coverPublicId": 0,
+      "imagesBase64": 0,
+      "imagesCloudinary": 0,
+      "avatarBase64": 0,
+      "avatarCloudinary": 0
+    },
+    "users": {
+      "total": 6,
+      "coverBase64": 0,
+      "coverCloudinary": 0,
+      "coverEmpty": 0,
+      "coverPublicId": 0,
+      "imagesBase64": 0,
+      "imagesCloudinary": 0,
+      "avatarBase64": 0,
+      "avatarCloudinary": 0
+    },
+    "proposals": {
+      "total": 7,
+      "coverBase64": 0,
+      "coverCloudinary": 3,
+      "coverEmpty": 4,
+      "coverPublicId": 1,
+      "imagesBase64": 0,
+      "imagesCloudinary": 0,
+      "avatarBase64": 0,
+      "avatarCloudinary": 0
+    }
+  },
+  "remainingBase64": 0,
+  "http": {
+    "list": {
+      "status": "PASS",
+      "sizeKb": 14,
+      "hasBase64": false,
+      "propertyCount": 20,
+      "cloudinaryThumbnails": 17
+    },
+    "detail": {
+      "status": "PASS",
+      "propertyId": "6a1d5d953c0b9929d703270d",
+      "sizeKb": 1,
+      "hasBase64": false,
+      "hasCloudinary": true,
+      "imageCount": 3
+    }
+  },
+  "remainingBlockers": []
+}

@@ -22,6 +22,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "images.moneycontrol.com",
       },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+      },
     ],
   },
 };

@@ -1,0 +1,267 @@
+{
+  "sprint": "production-hardening",
+  "dbProvider": "postgres",
+  "completedAt": "2026-06-11T07:53:04.755Z",
+  "summary": {
+    "pass": 15,
+    "fail": 0,
+    "warn": 4,
+    "total": 19
+  },
+  "results": [
+    {
+      "area": "Admin Property List",
+      "name": "Service listProperties payload",
+      "status": "PASS",
+      "endpoint": "adminService.listProperties()",
+      "ms": 454,
+      "sizeKb": 18,
+      "notes": "count=28, base64=false, images[]=false",
+      "rootCause": null
+    },
+    {
+      "area": "Admin Property List",
+      "name": "HTTP GET /api/admin/properties",
+      "status": "PASS",
+      "endpoint": "GET /api/admin/properties",
+      "ms": 258,
+      "sizeKb": 18,
+      "rootCause": null
+    },
+    {
+      "area": "Cloudinary Image Migration",
+      "name": "PostgreSQL base64 image inventory",
+      "status": "WARN",
+      "notes": "properties cover base64=20, images base64=60; coworking cover=0; user avatars=0; proposals cover=1",
+      "rootCause": "81 base64 image field(s) remain in PostgreSQL"
+    },
+    {
+      "area": "Cloudinary Image Migration",
+      "name": "coverImagePublicId coverage (properties)",
+      "status": "WARN",
+      "notes": "0/28 properties have coverImagePublicId",
+      "rootCause": "No Cloudinary public IDs — list thumbnails rely on empty covers until migrate:images + re-sync"
+    },
+    {
+      "area": "Cloudinary Image Migration",
+      "name": "Mongo migrate:images:dry-run tooling",
+      "status": "PASS",
+      "notes": "scanned=40 wouldMigrate=20 skipped=20"
+    },
+    {
+      "area": "Authentication (Prisma)",
+      "name": "register",
+      "status": "PASS",
+      "endpoint": "authService.register",
+      "rootCause": null
+    },
+    {
+      "area": "Authentication (Prisma)",
+      "name": "register duplicate rejection",
+      "status": "PASS",
+      "rootCause": null
+    },
+    {
+      "area": "Authentication (Prisma)",
+      "name": "login",
+      "status": "PASS",
+      "endpoint": "authService.login"
+    },
+    {
+      "area": "Authentication (Prisma)",
+      "name": "login invalid password",
+      "status": "PASS",
+      "rootCause": null
+    },
+    {
+      "area": "Authentication (Prisma)",
+      "name": "getMe",
+      "status": "PASS",
+      "endpoint": "authService.getMe"
+    },
+    {
+      "area": "Authentication (Prisma)",
+      "name": "JWT role claim",
+      "status": "PASS",
+      "notes": "token role=buyer"
+    },
+    {
+      "area": "Authentication (Prisma)",
+      "name": "admin role token",
+      "status": "PASS",
+      "notes": "Role checks for admin routes rely on JWT middleware"
+    },
+    {
+      "area": "Authentication (Prisma)",
+      "name": "logout",
+      "status": "PASS",
+      "notes": "Client-side token removal; no server session invalidation required"
+    },
+    {
+      "area": "Authentication (Prisma)",
+      "name": "HTTP login E2E",
+      "status": "WARN",
+      "rootCause": "Set PHASE5A_TEST_EMAIL and PHASE5A_TEST_PASSWORD for password login E2E"
+    },
+    {
+      "area": "Proposal PDF",
+      "name": "Proposal record structure",
+      "status": "PASS",
+      "notes": "propertyTitle, agent, propertySnapshot present"
+    },
+    {
+      "area": "Proposal PDF",
+      "name": "Proposal cover image",
+      "status": "PASS",
+      "notes": "Cloudinary URL"
+    },
+    {
+      "area": "Proposal PDF",
+      "name": "Public proposal page",
+      "status": "PASS",
+      "endpoint": "GET /api/proposals/6a29352158a871c2bca6f14f/public",
+      "route": "/proposals/6a29352158a871c2bca6f14f",
+      "ms": 2156,
+      "sizeKb": 2,
+      "rootCause": null
+    },
+    {
+      "area": "Proposal PDF",
+      "name": "Proposal preview (staff)",
+      "status": "PASS",
+      "endpoint": "GET /api/admin/proposals/6a29352158a871c2bca6f14f",
+      "route": "/properties/[id]/proposal/preview",
+      "ms": 331,
+      "rootCause": null
+    },
+    {
+      "area": "Proposal PDF",
+      "name": "PDF generation",
+      "status": "WARN",
+      "route": "/properties/[id]/proposal/preview",
+      "notes": "Client-side html2canvas/jspdf — requires manual browser verification; lab() CSS fix in html2canvasSafeClone.ts"
+    }
+  ],
+  "imageMigration": {
+    "analyzedAt": "2026-06-11T07:52:48.111Z",
+    "dbProvider": "postgres",
+    "collections": {
+      "properties": {
+        "total": 28,
+        "coverBase64": 20,
+        "coverCloudinary": 0,
+        "coverEmpty": 5,
+        "coverPublicId": 0,
+        "imagesBase64": 60,
+        "imagesCloudinary": 0,
+        "imagesEmpty": 0,
+        "avatarBase64": 0,
+        "avatarCloudinary": 0,
+        "avatarEmpty": 0,
+        "sampleBase64Ids": [
+          "6a1d5d953c0b9929d703270b",
+          "6a1d5d953c0b9929d7032703",
+          "6a1d5d953c0b9929d7032708",
+          "6a1d5d953c0b9929d70326fc",
+          "6a1d5d953c0b9929d7032705"
+        ]
+      },
+      "coworking": {
+        "total": 2,
+        "coverBase64": 0,
+        "coverCloudinary": 0,
+        "coverEmpty": 0,
+        "coverPublicId": 0,
+        "imagesBase64": 0,
+        "imagesCloudinary": 0,
+        "imagesEmpty": 0,
+        "avatarBase64": 0,
+        "avatarCloudinary": 0,
+        "avatarEmpty": 0,
+        "sampleBase64Ids": []
+      },
+      "users": {
+        "total": 6,
+        "coverBase64": 0,
+        "coverCloudinary": 0,
+        "coverEmpty": 6,
+        "coverPublicId": 0,
+        "imagesBase64": 0,
+        "imagesCloudinary": 0,
+        "imagesEmpty": 0,
+        "avatarBase64": 0,
+        "avatarCloudinary": 0,
+        "avatarEmpty": 6,
+        "sampleBase64Ids": []
+      },
+      "proposals": {
+        "total": 7,
+        "coverBase64": 1,
+        "coverCloudinary": 2,
+        "coverEmpty": 4,
+        "coverPublicId": 0,
+        "imagesBase64": 0,
+        "imagesCloudinary": 0,
+        "imagesEmpty": 0,
+        "avatarBase64": 0,
+        "avatarCloudinary": 0,
+        "avatarEmpty": 0,
+        "sampleBase64Ids": [
+          "6a2931feb354a8779d4dd94a"
+        ]
+      }
+    },
+    "tooling": {
+      "mongoScript": "server/scripts/migrate-images-to-cloudinary.js",
+      "npmScripts": [
+        "migrate:images",
+        "migrate:images:dry-run"
+      ],
+      "note": "Migration script targets MongoDB source; PostgreSQL rows need migrate:mongo-to-postgres after image migration or a Prisma-targeted sync."
+    }
+  },
+  "migrateDryRun": {
+    "startedAt": "2026-06-11T07:52:48.461Z",
+    "dryRun": true,
+    "collections": {
+      "properties": {
+        "scanned": 28,
+        "migrated": 20,
+        "skipped": 8,
+        "failed": 0
+      },
+      "coworking": {
+        "scanned": 2,
+        "migrated": 0,
+        "skipped": 2,
+        "failed": 0
+      },
+      "users": {
+        "scanned": 6,
+        "migrated": 0,
+        "skipped": 6,
+        "failed": 0
+      },
+      "proposals": {
+        "scanned": 4,
+        "migrated": 0,
+        "skipped": 4,
+        "failed": 0
+      }
+    },
+    "totals": {
+      "scanned": 40,
+      "migrated": 20,
+      "skipped": 20,
+      "failed": 0
+    },
+    "failures": [],
+    "finishedAt": "2026-06-11T07:52:59.941Z"
+  },
+  "remainingBlockers": [
+    "Run npm run migrate:images on MongoDB, then re-sync images to PostgreSQL",
+    "Configure PHASE5A_TEST_EMAIL/PASSWORD for login E2E against running API",
+    "Manual proposal PDF download verification in browser",
+    "Migrate remaining base64 images to Cloudinary"
+  ]
+}

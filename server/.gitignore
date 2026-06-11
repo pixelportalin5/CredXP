@@ -1,2 +1,8 @@
 node_modules/
 .env
+.env.local
+scripts/migrate-images-report.json
+scripts/migrate-mongo-report.json
+scripts/validate-migration-report.json
+scripts/validate-service-modules-report.json
+scripts/compare-service-modules-report.json

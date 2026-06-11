@@ -6,7 +6,9 @@ import { CheckCircle2, Eye, ImagePlus, UploadCloud, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { EnterpriseInput, EnterpriseSelect, EnterpriseTextarea, FormField, FormSection } from "@/components/forms/EnterpriseForm";
 import { useToast } from "@/components/providers/ToastProvider";
-import { MAX_IMAGE_SIZE_BYTES, MAX_IMAGE_SIZE_MB, compressImageFile } from "@/utils/compressImage";
+import { MAX_IMAGE_SIZE_BYTES, MAX_IMAGE_SIZE_MB } from "@/utils/compressImage";
+import uploadService from "@/services/upload.service";
+import { shouldUseUnoptimizedImage } from "@/utils/imageUrl";
 import type { Property } from "@/types/property";
 
 type ListingFormValues = Partial<Property> & {
@@ -70,6 +72,10 @@ export default function PropertyListingForm({
     [initialProperty]
   );
   const [images, setImages] = useState<string[]>(initialValues.images || []);
+  const [imagePublicIds, setImagePublicIds] = useState<string[]>(
+    initialValues.imagePublicIds || []
+  );
+  const [imageUploading, setImageUploading] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,13 +103,30 @@ export default function PropertyListingForm({
       return;
     }
 
-    const encoded = await Promise.all(files.map((file) => compressImageFile(file)));
-    setImages((current) => [...current, ...encoded].slice(0, 3));
-    event.target.value = "";
+    try {
+      setImageUploading(true);
+      const uploaded = await Promise.all(
+        files.map((file) => uploadService.uploadImageFile(file, "property"))
+      );
+      setImages((current) => [...current, ...uploaded.map((item) => item.imageUrl)].slice(0, 3));
+      setImagePublicIds((current) =>
+        [...current, ...uploaded.map((item) => item.publicId)].slice(0, 3)
+      );
+    } catch {
+      showToast({
+        type: "error",
+        title: "Image upload failed",
+        message: "Could not upload one or more images. Please try again.",
+      });
+    } finally {
+      setImageUploading(false);
+      event.target.value = "";
+    }
   };
 
   const handleRemoveImage = (index: number) => {
     setImages((current) => current.filter((_, imageIndex) => imageIndex !== index));
+    setImagePublicIds((current) => current.filter((_, imageIndex) => imageIndex !== index));
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -158,6 +181,8 @@ export default function PropertyListingForm({
       },
       amenities: splitList(formData.get("amenities")),
       images,
+      imagePublicIds,
+      coverImagePublicId: imagePublicIds[0],
       status: formData.get("status") as Property["status"],
       grade: formData.get("grade") as Property["grade"],
       occupancy: toOptionalNumber(formData.get("occupancy")),
@@ -354,7 +379,7 @@ export default function PropertyListingForm({
               {images.length === 3 ? "All 3 property images are ready" : `Upload ${3 - images.length} more property image${3 - images.length === 1 ? "" : "s"}`}
             </span>
             <span className="max-w-md text-sm leading-6 text-slate-500">JPEG, PNG, or WebP. Keep each file under 4MB for faster listing performance.</span>
-            <input type="file" accept="image/*" multiple className="sr-only" onChange={handleImageChange} disabled={images.length >= 3} />
+            <input type="file" accept="image/*" multiple className="sr-only" onChange={handleImageChange} disabled={images.length >= 3 || imageUploading} />
           </label>
           {images.length > 0 && (
             <div className="mt-6 grid gap-4 sm:grid-cols-3">
@@ -374,7 +399,7 @@ export default function PropertyListingForm({
                     width={360}
                     height={180}
                     className="h-36 w-full rounded-xl object-cover"
-                    unoptimized={image.startsWith("data:")}
+                    unoptimized={shouldUseUnoptimizedImage(image)}
                   />
                   <p className="mt-2 flex items-center gap-1.5 px-1 text-xs font-semibold text-emerald-600">
                     <CheckCircle2 className="h-3.5 w-3.5" />

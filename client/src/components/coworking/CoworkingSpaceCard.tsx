@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import type { CoworkingSpace } from "@/types/coworking";
+import { shouldUseUnoptimizedImage } from "@/utils/imageUrl";
 
 interface CoworkingSpaceCardProps {
   space: CoworkingSpace;
@@ -26,7 +27,7 @@ export default function CoworkingSpaceCard({ space, compact = false }: Coworking
             fill
             sizes="(max-width: 768px) 100vw, 33vw"
             className="object-cover transition-transform duration-500 group-hover:scale-105"
-            unoptimized={coverImage.startsWith("data:")}
+            unoptimized={shouldUseUnoptimizedImage(coverImage)}
           />
           <div className="absolute left-4 top-4">
             <Badge variant="accent" size="sm">{space.featured ? "Featured" : "Verified"}</Badge>

@@ -1,0 +1,38 @@
+{
+  "startedAt": "2026-06-11T07:57:19.876Z",
+  "dryRun": false,
+  "collections": {
+    "properties": {
+      "scanned": 28,
+      "synced": 28,
+      "missing": 0,
+      "failed": 0
+    },
+    "coworking": {
+      "scanned": 2,
+      "synced": 2,
+      "missing": 0,
+      "failed": 0
+    },
+    "users": {
+      "scanned": 6,
+      "synced": 6,
+      "missing": 0,
+      "failed": 0
+    },
+    "proposals": {
+      "scanned": 4,
+      "synced": 4,
+      "missing": 0,
+      "failed": 0
+    }
+  },
+  "totals": {
+    "scanned": 40,
+    "synced": 40,
+    "missing": 0,
+    "failed": 0
+  },
+  "failures": [],
+  "finishedAt": "2026-06-11T07:57:28.408Z"
+}

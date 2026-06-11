@@ -3,6 +3,7 @@ const AdmZip = require("adm-zip");
 const ExcelJS = require("exceljs");
 const xlsx = require("xlsx");
 const propertyService = require("./propertyService");
+const imageUploadService = require("./imageUploadService");
 
 const TEMPLATE_COLUMNS = [
   "title",
@@ -185,23 +186,25 @@ function validateEnum(field, value, errors) {
   return next;
 }
 
-function dataUrlFromEntry(entry) {
+async function uploadEntry(entry) {
   const ext = path.extname(entry.entryName).toLowerCase();
   const mime = IMAGE_MIME_BY_EXT[ext];
   if (!mime) return null;
-  return `data:${mime};base64,${entry.getData().toString("base64")}`;
+
+  const buffer = entry.getData();
+  return imageUploadService.uploadBuffer(buffer, mime, "property");
 }
 
-function buildImageMap(zipFile) {
+async function buildImageMap(zipFile) {
   const zip = new AdmZip(zipFile.buffer);
   const images = new Map();
 
-  zip.getEntries().forEach((entry) => {
-    if (entry.isDirectory) return;
+  for (const entry of zip.getEntries()) {
+    if (entry.isDirectory) continue;
     const basename = path.basename(entry.entryName).toLowerCase();
-    const dataUrl = dataUrlFromEntry(entry);
-    if (dataUrl) images.set(basename, dataUrl);
-  });
+    const uploaded = await uploadEntry(entry);
+    if (uploaded) images.set(basename, uploaded);
+  }
 
   return images;
 }
@@ -220,6 +223,14 @@ function findImage(row, column, imageMap, errors) {
   }
 
   return image;
+}
+
+function imageUrlsFromRow(image1, image2, image3) {
+  return [image1.imageUrl, image2.imageUrl, image3.imageUrl];
+}
+
+function imagePublicIdsFromRow(image1, image2, image3) {
+  return [image1.publicId, image2.publicId, image3.publicId];
 }
 
 function rowToProperty(row, imageMap) {
@@ -292,7 +303,9 @@ function rowToProperty(row, imageMap) {
         lockInPeriod: optionalString(row.lockInPeriod),
       },
       amenities: splitList(row.amenities),
-      images: [image1, image2, image3],
+      images: imageUrlsFromRow(image1, image2, image3),
+      imagePublicIds: imagePublicIdsFromRow(image1, image2, image3),
+      coverImagePublicId: image1.publicId,
       status,
       grade,
       occupancy: numberValue(row.occupancy, "occupancy", errors),
@@ -430,7 +443,7 @@ const bulkPropertyService = {
 
   async importProperties({ excelFile, zipFile, user }) {
     const rows = parseWorkbookRows(excelFile);
-    const imageMap = buildImageMap(zipFile);
+    const imageMap = await buildImageMap(zipFile);
     const results = [];
 
     for (const [index, row] of rows.entries()) {

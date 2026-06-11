@@ -16,6 +16,7 @@ const propertyRoutes = require("./routes/propertyRoutes");
 const savedPropertyRoutes = require("./routes/savedPropertyRoutes");
 const insightsRoutes = require("./routes/insightsRoutes");
 const proposalRoutes = require("./routes/proposalRoutes");
+const uploadRoutes = require("./routes/uploadRoutes");
 
 const app = express();
 
@@ -53,6 +54,7 @@ app.use("/api/enquiries", enquiryRoutes);
 app.use("/api/saved-properties", savedPropertyRoutes);
 app.use("/api/insights", insightsRoutes);
 app.use("/api/proposals", proposalRoutes);
+app.use("/api/uploads", uploadRoutes);
 
 // --------------- Error Handling ---------------
 app.use(errorHandler);

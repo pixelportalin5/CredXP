@@ -1,0 +1,356 @@
+{
+  "phase": "5B-production-deployment",
+  "completedAt": "2026-06-11T08:15:49.795Z",
+  "urls": {
+    "frontend": "https://credxp-mvp.vercel.app",
+    "api": "https://credxp-mvp.onrender.com/api"
+  },
+  "readiness": "CONDITIONAL GO — Render API live; redeploy Vercel for /compare; confirm Render DB_PROVIDER=postgres",
+  "summary": {
+    "pass": 16,
+    "fail": 0,
+    "warn": 4,
+    "checklist": 9,
+    "total": 34
+  },
+  "envChecks": [
+    {
+      "platform": "Render",
+      "variable": "PORT",
+      "status": "CHECKLIST",
+      "notes": "Set on Render dashboard → 10000"
+    },
+    {
+      "platform": "Render",
+      "variable": "NODE_ENV",
+      "status": "CHECKLIST",
+      "notes": "Set on Render dashboard → production"
+    },
+    {
+      "platform": "Render",
+      "variable": "DB_PROVIDER",
+      "status": "PASS (local ref)",
+      "notes": "Local .env confirms postgres; verify Render env matches"
+    },
+    {
+      "platform": "Render",
+      "variable": "DATABASE_URL",
+      "status": "PASS (local ref)",
+      "notes": "Set on Render dashboard → Neon pooled URL"
+    },
+    {
+      "platform": "Render",
+      "variable": "JWT_SECRET",
+      "status": "CHECKLIST",
+      "notes": "Set on Render dashboard → long random secret"
+    },
+    {
+      "platform": "Render",
+      "variable": "CLIENT_URL",
+      "status": "CHECKLIST",
+      "notes": "Set on Render dashboard → https://credxp-mvp.vercel.app"
+    },
+    {
+      "platform": "Render",
+      "variable": "CLOUDINARY_CLOUD_NAME",
+      "status": "PASS (local ref)",
+      "notes": "Local credentials present — mirror on Render"
+    },
+    {
+      "platform": "Render",
+      "variable": "CLOUDINARY_API_KEY",
+      "status": "PASS (local ref)",
+      "notes": "Local credentials present — mirror on Render"
+    },
+    {
+      "platform": "Render",
+      "variable": "CLOUDINARY_API_SECRET",
+      "status": "PASS (local ref)",
+      "notes": "Local credentials present — mirror on Render"
+    },
+    {
+      "platform": "Render",
+      "variable": "MONGODB_URI",
+      "status": "CHECKLIST",
+      "notes": "Set on Render dashboard → optional when DB_PROVIDER=postgres"
+    },
+    {
+      "platform": "Vercel",
+      "variable": "NEXT_PUBLIC_API_URL",
+      "status": "VERIFY_ON_VERCEL",
+      "notes": "Must be https://credxp-mvp.onrender.com/api"
+    },
+    {
+      "platform": "Vercel",
+      "variable": "NEXT_PUBLIC_APP_URL",
+      "status": "VERIFY_ON_VERCEL",
+      "notes": "Must be https://credxp-mvp.vercel.app"
+    },
+    {
+      "platform": "Vercel",
+      "variable": "NEXT_PUBLIC_USE_CLOUDINARY_UPLOADS",
+      "status": "VERIFY_ON_VERCEL",
+      "notes": "Must be true"
+    },
+    {
+      "platform": "Neon",
+      "variable": "DATABASE_URL",
+      "status": "PASS",
+      "notes": "Neon connection string in Render"
+    }
+  ],
+  "results": [
+    {
+      "area": "Environment",
+      "name": "Render: PORT",
+      "status": "CHECKLIST",
+      "notes": "Set on Render dashboard → 10000"
+    },
+    {
+      "area": "Environment",
+      "name": "Render: NODE_ENV",
+      "status": "CHECKLIST",
+      "notes": "Set on Render dashboard → production"
+    },
+    {
+      "area": "Environment",
+      "name": "Render: DB_PROVIDER",
+      "status": "PASS (local ref)",
+      "notes": "Local .env confirms postgres; verify Render env matches"
+    },
+    {
+      "area": "Environment",
+      "name": "Render: DATABASE_URL",
+      "status": "PASS (local ref)",
+      "notes": "Set on Render dashboard → Neon pooled URL"
+    },
+    {
+      "area": "Environment",
+      "name": "Render: JWT_SECRET",
+      "status": "CHECKLIST",
+      "notes": "Set on Render dashboard → long random secret"
+    },
+    {
+      "area": "Environment",
+      "name": "Render: CLIENT_URL",
+      "status": "CHECKLIST",
+      "notes": "Set on Render dashboard → https://credxp-mvp.vercel.app"
+    },
+    {
+      "area": "Environment",
+      "name": "Render: CLOUDINARY_CLOUD_NAME",
+      "status": "PASS (local ref)",
+      "notes": "Local credentials present — mirror on Render"
+    },
+    {
+      "area": "Environment",
+      "name": "Render: CLOUDINARY_API_KEY",
+      "status": "PASS (local ref)",
+      "notes": "Local credentials present — mirror on Render"
+    },
+    {
+      "area": "Environment",
+      "name": "Render: CLOUDINARY_API_SECRET",
+      "status": "PASS (local ref)",
+      "notes": "Local credentials present — mirror on Render"
+    },
+    {
+      "area": "Environment",
+      "name": "Render: MONGODB_URI",
+      "status": "CHECKLIST",
+      "notes": "Set on Render dashboard → optional when DB_PROVIDER=postgres"
+    },
+    {
+      "area": "Environment",
+      "name": "Vercel: NEXT_PUBLIC_API_URL",
+      "status": "CHECKLIST",
+      "notes": "Vercel dashboard → https://credxp-mvp.onrender.com/api"
+    },
+    {
+      "area": "Environment",
+      "name": "Vercel: NEXT_PUBLIC_APP_URL",
+      "status": "CHECKLIST",
+      "notes": "Vercel dashboard → https://credxp-mvp.vercel.app"
+    },
+    {
+      "area": "Environment",
+      "name": "Vercel: NEXT_PUBLIC_USE_CLOUDINARY_UPLOADS",
+      "status": "CHECKLIST",
+      "notes": "Vercel dashboard → true"
+    },
+    {
+      "area": "Environment",
+      "name": "Neon DATABASE_URL",
+      "status": "PASS",
+      "notes": "Reachable from validation scripts"
+    },
+    {
+      "area": "Environment",
+      "name": "Neon connectivity",
+      "status": "PASS",
+      "endpoint": "validate-neon-connection.js"
+    },
+    {
+      "area": "Environment",
+      "name": "Cloudinary connectivity",
+      "status": "PASS",
+      "endpoint": "validate-cloudinary.js"
+    },
+    {
+      "area": "Environment",
+      "name": "Prisma migrations",
+      "status": "PASS",
+      "notes": " Database schema is up to date! "
+    },
+    {
+      "area": "Environment",
+      "name": "DB_PROVIDER=postgres (local)",
+      "status": "PASS",
+      "notes": "Local DB_PROVIDER=postgres — Render must be postgres"
+    },
+    {
+      "area": "Environment",
+      "name": "Render startup",
+      "status": "CHECKLIST",
+      "notes": "Root: server | Build: npm install && npx prisma generate | Start: npx prisma migrate deploy && node src/server.js"
+    },
+    {
+      "area": "Render API",
+      "name": "Health check",
+      "status": "PASS",
+      "route": "/api/health",
+      "endpoint": "https://credxp-mvp.onrender.com/api/health",
+      "ms": 168
+    },
+    {
+      "area": "Vercel Frontend",
+      "name": "Homepage",
+      "status": "PASS",
+      "route": "/",
+      "ms": 83,
+      "screenshot": "docs/staging-screenshots/production/production_homepage.html"
+    },
+    {
+      "area": "Property listing",
+      "name": "Render investment API",
+      "status": "PASS",
+      "route": "/invest",
+      "endpoint": "GET /api/properties?category=investment",
+      "ms": 111,
+      "notes": "20 properties, 17 Cloudinary thumbnails"
+    },
+    {
+      "area": "Property listing",
+      "name": "Vercel /invest page",
+      "status": "PASS",
+      "route": "/invest",
+      "ms": 78,
+      "screenshot": "docs/staging-screenshots/production/production_invest.html"
+    },
+    {
+      "area": "Property detail",
+      "name": "Render detail API",
+      "status": "PASS",
+      "route": "/properties/6a1d5d953c0b9929d703270b",
+      "endpoint": "GET /api/properties/6a1d5d953c0b9929d703270b",
+      "ms": 185,
+      "notes": "base64=false"
+    },
+    {
+      "area": "Property detail",
+      "name": "Vercel detail page",
+      "status": "PASS",
+      "route": "/properties/6a1d5d953c0b9929d703270b",
+      "ms": 322,
+      "screenshot": "docs/staging-screenshots/production/production_property_detail.html"
+    },
+    {
+      "area": "Comparison page",
+      "name": "Vercel /compare",
+      "status": "WARN",
+      "route": "/compare",
+      "ms": 93,
+      "rootCause": "Not deployed — push latest client to Vercel"
+    },
+    {
+      "area": "Login",
+      "name": "Vercel login page",
+      "status": "PASS",
+      "route": "/login",
+      "ms": 87,
+      "screenshot": "docs/staging-screenshots/production/production_login.html"
+    },
+    {
+      "area": "Login",
+      "name": "Render login API E2E",
+      "status": "WARN",
+      "rootCause": "Set STAGING_TEST_EMAIL/PASSWORD to validate login against Render"
+    },
+    {
+      "area": "Seller dashboard",
+      "name": "Seller dashboard page",
+      "status": "PASS",
+      "route": "/seller/dashboard",
+      "ms": 78,
+      "screenshot": "docs/staging-screenshots/production/Seller_dashboard_page.html"
+    },
+    {
+      "area": "Admin dashboard",
+      "name": "Admin dashboard page",
+      "status": "PASS",
+      "route": "/admin/dashboard",
+      "ms": 80,
+      "screenshot": "docs/staging-screenshots/production/Admin_dashboard_page.html"
+    },
+    {
+      "area": "Proposal pages",
+      "name": "Public proposal API",
+      "status": "WARN",
+      "route": "/proposals/6a29352158a871c2bca6f14f",
+      "endpoint": "GET /api/proposals/6a29352158a871c2bca6f14f/public",
+      "ms": 180,
+      "rootCause": "Proposal in Neon not found on Render — verify DB_PROVIDER=postgres and DATABASE_URL on Render"
+    },
+    {
+      "area": "Proposal pages",
+      "name": "Vercel public proposal",
+      "status": "PASS",
+      "route": "/proposals/6a29352158a871c2bca6f14f",
+      "ms": 313,
+      "screenshot": "docs/staging-screenshots/production/production_proposal.html"
+    },
+    {
+      "area": "Proposal PDF",
+      "name": "PDF generation",
+      "status": "WARN",
+      "notes": "Client-side html2canvas — manual browser verification on Vercel"
+    },
+    {
+      "area": "Image rendering",
+      "name": "Cloudinary list thumbnails",
+      "status": "PASS",
+      "endpoint": "GET /api/properties",
+      "ms": 106,
+      "notes": "cloudinary=true"
+    }
+  ],
+  "knownLimitations": [
+    "Hostinger VPS not in use — temporary production on Vercel + Render",
+    "Vercel `/compare` route not on deployed build until latest client is pushed",
+    "Proposal PDF requires manual browser verification",
+    "Render free tier cold starts (~15–25s on first request)",
+    "Login E2E requires STAGING_TEST_EMAIL/PASSWORD in env"
+  ],
+  "remainingBlockers": [
+    "Deploy latest client to Vercel (includes /compare, comparison buttons)",
+    "Confirm Render/Vercel dashboard env vars match checklist",
+    "Large uncommitted local diff — commit and push to trigger Render/Vercel auto-deploy"
+  ],
+  "deploySteps": [
+    "Commit and push `main` to GitHub remote connected to Render + Vercel",
+    "Render: root directory `server`, build `npm install && npx prisma generate`, start `npx prisma migrate deploy && node src/server.js`",
+    "Render env: DB_PROVIDER=postgres, DATABASE_URL, JWT_SECRET, CLIENT_URL=https://credxp-mvp.vercel.app, Cloudinary keys",
+    "Vercel: root `client`, env NEXT_PUBLIC_API_URL=https://credxp-mvp.onrender.com/api",
+    "Re-run: npm run validate:production-deployment"
+  ]
+}

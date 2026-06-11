@@ -7,6 +7,7 @@ import { useState, useEffect, useRef } from "react";
 import { UserCircle, LogOut, KeyRound, History, ShieldCheck, ChevronDown } from "lucide-react";
 import { mainNavLinks } from "@/config/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { shouldUseUnoptimizedImage } from "@/utils/imageUrl";
 import { cn } from "@/utils/cn";
 import { isStaff } from "@/utils/roles";
 import { getDashboardPathForRole } from "@/utils/staffPortal";
@@ -115,7 +116,7 @@ export default function Navbar() {
                         alt=""
                         width={32}
                         height={32}
-                        unoptimized
+                        unoptimized={shouldUseUnoptimizedImage(user.avatar)}
                         className="h-8 w-8 rounded-full object-cover"
                       />
                     ) : (

@@ -1,0 +1,305 @@
+{
+  "phase": "5A-P0",
+  "title": "Stabilization Testing",
+  "dbProvider": "postgres",
+  "completedAt": "2026-06-11T07:17:33.265Z",
+  "summary": {
+    "pass": 24,
+    "fail": 0,
+    "warn": 2,
+    "total": 26
+  },
+  "results": [
+    {
+      "area": "Homepage",
+      "name": "Investment tab properties",
+      "status": "PASS",
+      "route": "/",
+      "endpoint": "GET /api/properties?category=investment",
+      "rootCause": null,
+      "notes": null,
+      "ms": 2,
+      "sizeKb": 12
+    },
+    {
+      "area": "Homepage",
+      "name": "Lease tab properties",
+      "status": "PASS",
+      "route": "/",
+      "endpoint": "GET /api/properties?category=lease",
+      "rootCause": null,
+      "notes": null,
+      "ms": 342,
+      "sizeKb": 3
+    },
+    {
+      "area": "Homepage",
+      "name": "Featured properties",
+      "status": "PASS",
+      "route": "/",
+      "endpoint": "GET /api/properties (featured)",
+      "rootCause": null,
+      "notes": null,
+      "ms": 1,
+      "sizeKb": null
+    },
+    {
+      "area": "Homepage",
+      "name": "Featured coworking",
+      "status": "PASS",
+      "route": "/",
+      "endpoint": "GET /api/coworking?limit=4&sort=featured",
+      "rootCause": null,
+      "notes": null,
+      "ms": 0,
+      "sizeKb": null
+    },
+    {
+      "area": "Homepage",
+      "name": "Insights feed",
+      "status": "PASS",
+      "route": "/",
+      "endpoint": "GET /api/insights?limit=3",
+      "rootCause": null,
+      "notes": null,
+      "ms": 1,
+      "sizeKb": null
+    },
+    {
+      "area": "Authentication",
+      "name": "Login",
+      "status": "WARN",
+      "route": "/login",
+      "endpoint": "POST /api/auth/login",
+      "rootCause": "PHASE5A_TEST_EMAIL/PASSWORD not set — password login not exercised",
+      "notes": null,
+      "ms": null,
+      "sizeKb": null
+    },
+    {
+      "area": "Authentication",
+      "name": "GET /api/auth/me",
+      "status": "PASS",
+      "route": "/user/credentials",
+      "endpoint": "GET /api/auth/me",
+      "rootCause": null,
+      "notes": null,
+      "ms": 229,
+      "sizeKb": null
+    },
+    {
+      "area": "Authentication",
+      "name": "Logout",
+      "status": "PASS",
+      "route": "/login",
+      "endpoint": "Client-side (localStorage)",
+      "rootCause": null,
+      "notes": "Logout is client-only token removal; no server endpoint required",
+      "ms": null,
+      "sizeKb": null
+    },
+    {
+      "area": "Authentication",
+      "name": "Profile page data",
+      "status": "PASS",
+      "route": "/user/credentials",
+      "endpoint": "GET /api/auth/me",
+      "rootCause": null,
+      "notes": "Profile page depends on auth/me response",
+      "ms": null,
+      "sizeKb": null
+    },
+    {
+      "area": "Property Pages",
+      "name": "Property listing",
+      "status": "PASS",
+      "route": "/properties",
+      "endpoint": "GET /api/properties",
+      "rootCause": null,
+      "notes": null,
+      "ms": 2,
+      "sizeKb": 6
+    },
+    {
+      "area": "Property Pages",
+      "name": "Property details",
+      "status": "PASS",
+      "route": "/properties/6a1d5d953c0b9929d703270b",
+      "endpoint": "GET /api/properties/6a1d5d953c0b9929d703270b",
+      "rootCause": null,
+      "notes": "Detail includes base64 images (expected for unmigrated covers)",
+      "ms": 582,
+      "sizeKb": 159
+    },
+    {
+      "area": "Property Pages",
+      "name": "Property search",
+      "status": "PASS",
+      "route": "/properties",
+      "endpoint": "GET /api/properties/search",
+      "rootCause": null,
+      "notes": null,
+      "ms": 231,
+      "sizeKb": null
+    },
+    {
+      "area": "Property Pages",
+      "name": "Property filters",
+      "status": "PASS",
+      "route": "/invest",
+      "endpoint": "GET /api/properties?city=Gurugram&category=investment",
+      "rootCause": null,
+      "notes": null,
+      "ms": 1,
+      "sizeKb": null
+    },
+    {
+      "area": "Property Pages",
+      "name": "Property pagination",
+      "status": "PASS",
+      "route": "/properties",
+      "endpoint": "GET /api/properties?page=2",
+      "rootCause": null,
+      "notes": null,
+      "ms": null,
+      "sizeKb": null
+    },
+    {
+      "area": "Coworking",
+      "name": "Coworking list",
+      "status": "PASS",
+      "route": "/coworking",
+      "endpoint": "GET /api/coworking",
+      "rootCause": null,
+      "notes": null,
+      "ms": 1,
+      "sizeKb": null
+    },
+    {
+      "area": "Coworking",
+      "name": "Coworking details",
+      "status": "PASS",
+      "route": "/coworking/6a1d5c101c1b768a50bfd0e2",
+      "endpoint": "GET /api/coworking/6a1d5c101c1b768a50bfd0e2",
+      "rootCause": null,
+      "notes": null,
+      "ms": 230,
+      "sizeKb": null
+    },
+    {
+      "area": "Proposals",
+      "name": "Public proposal URL",
+      "status": "PASS",
+      "route": "/proposals/6a27a94cd987e7398bcdb057",
+      "endpoint": "GET /api/proposals/6a27a94cd987e7398bcdb057/public",
+      "rootCause": null,
+      "notes": null,
+      "ms": 1070,
+      "sizeKb": null
+    },
+    {
+      "area": "Proposals",
+      "name": "Proposal preview (staff)",
+      "status": "PASS",
+      "route": "/properties/[id]/proposal/preview",
+      "endpoint": "GET /api/employee/proposals/6a27a94cd987e7398bcdb057",
+      "rootCause": null,
+      "notes": "Preview UI uses local draft; staff GET requires proposal creator token",
+      "ms": 461,
+      "sizeKb": null
+    },
+    {
+      "area": "Proposals",
+      "name": "PDF generation",
+      "status": "WARN",
+      "route": "/properties/[id]/proposal/preview",
+      "endpoint": "Client-side html2canvas",
+      "rootCause": null,
+      "notes": "Requires manual browser verification; prior lab() color issue may persist in some builds",
+      "ms": null,
+      "sizeKb": null
+    },
+    {
+      "area": "Uploads",
+      "name": "Property image upload",
+      "status": "PASS",
+      "route": null,
+      "endpoint": "POST /api/uploads/image",
+      "rootCause": null,
+      "notes": null,
+      "ms": 3479,
+      "sizeKb": null
+    },
+    {
+      "area": "Uploads",
+      "name": "Avatar upload",
+      "status": "PASS",
+      "route": null,
+      "endpoint": "POST /api/uploads/image",
+      "rootCause": null,
+      "notes": null,
+      "ms": 1109,
+      "sizeKb": null
+    },
+    {
+      "area": "Uploads",
+      "name": "Coworking image upload",
+      "status": "PASS",
+      "route": null,
+      "endpoint": "POST /api/uploads/image",
+      "rootCause": null,
+      "notes": null,
+      "ms": 1146,
+      "sizeKb": null
+    },
+    {
+      "area": "Dashboards",
+      "name": "Buyer dashboard",
+      "status": "PASS",
+      "route": "/user/dashboard",
+      "endpoint": "GET /api/saved-properties + GET /api/enquiries/me",
+      "rootCause": null,
+      "notes": null,
+      "ms": null,
+      "sizeKb": null
+    },
+    {
+      "area": "Dashboards",
+      "name": "Seller dashboard",
+      "status": "PASS",
+      "route": "/seller/dashboard",
+      "endpoint": "GET /api/properties/seller/my-properties",
+      "rootCause": null,
+      "notes": null,
+      "ms": null,
+      "sizeKb": null
+    },
+    {
+      "area": "Dashboards",
+      "name": "Employee dashboard",
+      "status": "PASS",
+      "route": "/employee/dashboard",
+      "endpoint": "GET /api/employee/summary",
+      "rootCause": null,
+      "notes": null,
+      "ms": null,
+      "sizeKb": null
+    },
+    {
+      "area": "Dashboards",
+      "name": "Admin dashboard",
+      "status": "PASS",
+      "route": "/admin/dashboard",
+      "endpoint": "GET /api/admin/summary",
+      "rootCause": null,
+      "notes": null,
+      "ms": null,
+      "sizeKb": null
+    }
+  ],
+  "remainingBlockers": [
+    "Set PHASE5A_TEST_EMAIL/PASSWORD for password login E2E",
+    "Manual PDF download verification in browser",
+    "Run migrate:images to restore list thumbnails (0 coverImagePublicId in DB)"
+  ]
+}

@@ -1,0 +1,70 @@
+# CredXP — local Docker skeleton (Phase 1)
+# Mongo remains the runtime database; Postgres service is for Neon parity / local Prisma tests.
+
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - credxp_mongo_data:/data/db
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: credxp
+      POSTGRES_PASSWORD: credxp_local
+      POSTGRES_DB: credxp
+    ports:
+      - "5432:5432"
+    volumes:
+      - credxp_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U credxp -d credxp"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      MONGODB_URI: mongodb://mongo:27017/credxp
+      DATABASE_URL: postgresql://credxp:credxp_local@postgres:5432/credxp?sslmode=disable
+      JWT_SECRET: docker-dev-secret-change-in-production
+      CLIENT_URL: http://localhost:3000
+      DB_PRIMARY: mongo
+      DB_DUAL_WRITE: "false"
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME:-}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY:-}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET:-}
+    depends_on:
+      mongo:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.web
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:5000/api
+        NEXT_PUBLIC_APP_URL: http://localhost:3000
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+volumes:
+  credxp_mongo_data:
+  credxp_pg_data:

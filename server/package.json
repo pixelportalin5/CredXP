@@ -6,6 +6,27 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate:dev": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:studio": "prisma studio",
+    "validate:env": "node scripts/validate-env.js",
+    "validate:neon": "node scripts/validate-neon-connection.js",
+    "validate:cloudinary": "node scripts/validate-cloudinary.js",
+    "migrate:images": "node scripts/migrate-images-to-cloudinary.js",
+    "migrate:images:dry-run": "node scripts/migrate-images-to-cloudinary.js --dry-run",
+    "sync:images:postgres": "node scripts/sync-images-mongo-to-postgres.js",
+    "migrate:images:postgres": "node scripts/migrate-postgres-images-to-cloudinary.js",
+    "validate:image-cutover": "node scripts/validate-image-cutover.js",
+    "validate:staging-smoke": "node scripts/validate-staging-smoke.js",
+    "validate:production-deployment": "node scripts/validate-production-deployment.js",
+    "migrate:mongo-to-postgres": "node scripts/migrate-mongo-to-postgres.js",
+    "migrate:mongo-to-postgres:dry-run": "node scripts/migrate-mongo-to-postgres.js --dry-run",
+    "validate:migration": "node scripts/validate-migration.js",
+    "validate:service-modules": "node scripts/validate-service-modules.js",
+    "compare:service-modules": "node scripts/compare-service-modules.js",
+    "validate:phase5a": "node scripts/validate-phase5a-cutover.js",
+    "validate:hardening": "node scripts/validate-production-hardening.js",
     "seed": "node src/seed/importPreleasedProperties.js",
     "seed:demo": "node src/seed/seed.js",
     "seed:coworking": "node src/seed/seedCoworkingSpaces.js",
@@ -18,8 +39,10 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@prisma/client": "^5.22.0",
     "adm-zip": "^0.5.17",
     "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.10.0",
     "compression": "^1.8.1",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
@@ -35,6 +58,7 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "nodemon": "^3.1.14",
+    "prisma": "^5.22.0"
   }
 }

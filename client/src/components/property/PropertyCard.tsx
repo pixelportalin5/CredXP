@@ -11,6 +11,8 @@ import savedPropertyService from "@/services/saved-property.service";
 import { cn } from "@/utils/cn";
 import { formatPriceCompact, formatSize, formatYield } from "@/utils/format";
 import { getPropertySectionCoverImage } from "@/utils/propertySections";
+import { shouldUseUnoptimizedImage } from "@/utils/imageUrl";
+import ComparePropertyButton from "@/components/property/ComparePropertyButton";
 import type { Property } from "@/types/property";
 
 interface PropertyCardProps {
@@ -97,7 +99,7 @@ export default function PropertyCard({ property, variant = "default", initialSav
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-              unoptimized={imageUrl.startsWith("data:")}
+              unoptimized={shouldUseUnoptimizedImage(imageUrl)}
               onError={() => setImgError(true)}
             />
           )}
@@ -106,6 +108,8 @@ export default function PropertyCard({ property, variant = "default", initialSav
         <div className="absolute left-3 top-3 z-10">
           <Badge variant={statusBadge.variant} icon={statusBadge.icon} size="sm">{status}</Badge>
         </div>
+
+        <ComparePropertyButton propertyId={_id} variant="card" className="right-14 top-3 left-auto" />
 
         <button
           type="button"

@@ -53,6 +53,14 @@ const coworkingSpaceSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    imagePublicIds: {
+      type: [{ type: String }],
+      default: undefined,
+    },
+    coverImagePublicId: {
+      type: String,
+      default: "",
+    },
     amenities: [{ type: String }],
     highlights: [{ type: String }],
     description: {

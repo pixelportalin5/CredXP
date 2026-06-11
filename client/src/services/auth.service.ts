@@ -22,6 +22,7 @@ const authService = {
     email?: string;
     phone?: string;
     avatar?: string;
+    avatarPublicId?: string;
   }): Promise<{ data: User }> => api.patch("/auth/me", data),
 
   updatePassword: (data: {

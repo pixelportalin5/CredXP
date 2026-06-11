@@ -6,7 +6,9 @@ import { CheckCircle2, UploadCloud, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { EnterpriseInput, EnterpriseSelect, EnterpriseTextarea, FormField, FormSection } from "@/components/forms/EnterpriseForm";
 import { useToast } from "@/components/providers/ToastProvider";
-import { MAX_IMAGE_SIZE_BYTES, MAX_IMAGE_SIZE_MB, compressImageFile } from "@/utils/compressImage";
+import { MAX_IMAGE_SIZE_BYTES, MAX_IMAGE_SIZE_MB } from "@/utils/compressImage";
+import uploadService from "@/services/upload.service";
+import { shouldUseUnoptimizedImage } from "@/utils/imageUrl";
 import type { CoworkingSpace } from "@/types/coworking";
 
 const MAX_IMAGES = 3;
@@ -25,10 +27,15 @@ export default function CoworkingListingForm({
   const { showToast } = useToast();
   const initialImages = useMemo(() => initialSpace?.images || [], [initialSpace]);
   const [images, setImages] = useState<string[]>(initialImages);
+  const [imagePublicIds, setImagePublicIds] = useState<string[]>(
+    initialSpace?.imagePublicIds || []
+  );
+  const [imageUploading, setImageUploading] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setImages(initialSpace?.images || []);
+    setImagePublicIds(initialSpace?.imagePublicIds || []);
   }, [initialSpace]);
 
   const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,17 +64,25 @@ export default function CoworkingListingForm({
     }
 
     try {
-      const encoded = await Promise.all(files.map((file) => compressImageFile(file)));
-      setImages((current) => [...current, ...encoded].slice(0, MAX_IMAGES));
+      setImageUploading(true);
+      const uploaded = await Promise.all(
+        files.map((file) => uploadService.uploadImageFile(file, "coworking"))
+      );
+      setImages((current) => [...current, ...uploaded.map((item) => item.imageUrl)].slice(0, MAX_IMAGES));
+      setImagePublicIds((current) =>
+        [...current, ...uploaded.map((item) => item.publicId)].slice(0, MAX_IMAGES)
+      );
     } catch {
       showToast({ type: "error", title: "Image upload failed", message: "Please try another image file." });
     } finally {
+      setImageUploading(false);
       event.target.value = "";
     }
   };
 
   const handleRemoveImage = (index: number) => {
     setImages((current) => current.filter((_, imageIndex) => imageIndex !== index));
+    setImagePublicIds((current) => current.filter((_, imageIndex) => imageIndex !== index));
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -100,6 +115,8 @@ export default function CoworkingListingForm({
         amenities: String(formData.get("amenities") || "").split(",").map((item) => item.trim()).filter(Boolean),
         highlights: String(formData.get("highlights") || "").split(",").map((item) => item.trim()).filter(Boolean),
         images,
+        imagePublicIds,
+        coverImagePublicId: imagePublicIds[0],
         specs: {
           seatsFrom: Number(formData.get("seatsFrom") || 1),
           privateCabins: formData.get("privateCabins") === "on",
@@ -204,7 +221,7 @@ export default function CoworkingListingForm({
                 : `Upload ${MAX_IMAGES - images.length} more image${MAX_IMAGES - images.length === 1 ? "" : "s"}`}
             </span>
             <span className="max-w-md text-sm leading-6 text-slate-500">JPEG, PNG, or WebP. Images are optimized automatically for faster loading.</span>
-            <input type="file" accept="image/*" multiple className="sr-only" onChange={handleImageChange} disabled={images.length >= MAX_IMAGES} />
+            <input type="file" accept="image/*" multiple className="sr-only" onChange={handleImageChange} disabled={images.length >= MAX_IMAGES || imageUploading} />
           </label>
           {images.length > 0 && (
             <div className="mt-6 grid gap-4 sm:grid-cols-3">
@@ -224,7 +241,7 @@ export default function CoworkingListingForm({
                     width={360}
                     height={180}
                     className="h-36 w-full rounded-xl object-cover"
-                    unoptimized={image.startsWith("data:")}
+                    unoptimized={shouldUseUnoptimizedImage(image)}
                   />
                   <p className="mt-2 flex items-center gap-1.5 px-1 text-xs font-semibold text-emerald-600">
                     <CheckCircle2 className="h-3.5 w-3.5" />

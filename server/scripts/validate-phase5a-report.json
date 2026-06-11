@@ -1,0 +1,261 @@
+{
+  "phase": "5A",
+  "title": "Staged PostgreSQL Cutover Validation",
+  "dbProvider": "postgres",
+  "productionCutover": false,
+  "startedAt": "2026-06-11T07:15:46.233Z",
+  "environment": "development",
+  "modules": {
+    "Authentication": {
+      "status": "WARN",
+      "checks": [
+        {
+          "op": "resolveAuthUser(admin)",
+          "ok": true
+        },
+        {
+          "op": "jwt+resolveAuthUser",
+          "ok": true
+        },
+        {
+          "op": "authService.getMe",
+          "ok": true
+        }
+      ],
+      "warnings": [
+        "Set PHASE5A_TEST_EMAIL + PHASE5A_TEST_PASSWORD to validate login flow"
+      ],
+      "rootCause": null,
+      "notes": null
+    },
+    "Users": {
+      "status": "PASS",
+      "checks": [
+        {
+          "op": "authService.list",
+          "ok": true
+        },
+        {
+          "op": "authService.getById",
+          "ok": true
+        }
+      ],
+      "warnings": [],
+      "rootCause": null,
+      "notes": null
+    },
+    "Properties": {
+      "status": "PASS",
+      "checks": [
+        {
+          "op": "getAll",
+          "ok": true
+        },
+        {
+          "op": "pagination",
+          "ok": true
+        },
+        {
+          "op": "getById",
+          "ok": true
+        },
+        {
+          "op": "search",
+          "ok": true
+        }
+      ],
+      "warnings": [],
+      "rootCause": null,
+      "notes": null
+    },
+    "Coworking": {
+      "status": "PASS",
+      "checks": [
+        {
+          "op": "getAll",
+          "ok": true
+        },
+        {
+          "op": "getById",
+          "ok": true
+        }
+      ],
+      "warnings": [],
+      "rootCause": null,
+      "notes": null
+    },
+    "Saved Properties": {
+      "status": "PASS",
+      "checks": [
+        {
+          "op": "list",
+          "ok": true
+        }
+      ],
+      "warnings": [],
+      "rootCause": null,
+      "notes": null
+    },
+    "Contact Messages": {
+      "status": "PASS",
+      "checks": [
+        {
+          "op": "list",
+          "ok": true
+        },
+        {
+          "op": "getById",
+          "ok": true
+        }
+      ],
+      "warnings": [],
+      "rootCause": null,
+      "notes": null
+    },
+    "Proposals": {
+      "status": "PASS",
+      "checks": [
+        {
+          "op": "getPublic",
+          "ok": true
+        },
+        {
+          "op": "getByIdForUser",
+          "ok": true
+        },
+        {
+          "op": "listByUser",
+          "ok": true
+        }
+      ],
+      "warnings": [],
+      "rootCause": null,
+      "notes": null
+    },
+    "Audit Logs": {
+      "status": "PASS",
+      "checks": [
+        {
+          "op": "list",
+          "ok": true
+        },
+        {
+          "op": "getById",
+          "ok": true
+        }
+      ],
+      "warnings": [],
+      "rootCause": null,
+      "notes": null
+    },
+    "Admin Dashboard": {
+      "status": "PASS",
+      "checks": [
+        {
+          "op": "summary",
+          "ok": true
+        },
+        {
+          "op": "summary.dataQuality",
+          "ok": true
+        },
+        {
+          "op": "listUsers",
+          "ok": true
+        },
+        {
+          "op": "listProperties",
+          "ok": true
+        },
+        {
+          "op": "listEnquiries",
+          "ok": true
+        },
+        {
+          "op": "listLogs",
+          "ok": true
+        },
+        {
+          "op": "listCoworkingSpaces",
+          "ok": true
+        }
+      ],
+      "warnings": [],
+      "rootCause": null,
+      "notes": null
+    },
+    "Seller Dashboard": {
+      "status": "PASS",
+      "checks": [
+        {
+          "op": "getSellerProperties",
+          "ok": true
+        },
+        {
+          "op": "getSellerSpaces",
+          "ok": true
+        },
+        {
+          "op": "getForSeller",
+          "ok": true
+        }
+      ],
+      "warnings": [],
+      "rootCause": null,
+      "notes": null
+    },
+    "Employee Dashboard": {
+      "status": "PASS",
+      "checks": [
+        {
+          "op": "summary",
+          "ok": true
+        },
+        {
+          "op": "listProperties",
+          "ok": true
+        },
+        {
+          "op": "listEnquiries",
+          "ok": true
+        },
+        {
+          "op": "listLogs",
+          "ok": true
+        },
+        {
+          "op": "listCoworkingSpaces",
+          "ok": true
+        },
+        {
+          "op": "updateProperty",
+          "ok": true
+        }
+      ],
+      "warnings": [],
+      "rootCause": null,
+      "notes": null
+    }
+  },
+  "issuesFixed": [
+    "authMiddleware: resolveAuthUser() reads PostgreSQL users when DB_PROVIDER=postgres",
+    "adminService: Prisma twin (adminService.prisma.js) + factory; Mongo implementation preserved"
+  ],
+  "remainingIssues": [
+    {
+      "module": "Authentication",
+      "severity": "WARN",
+      "notes": [
+        "Set PHASE5A_TEST_EMAIL + PHASE5A_TEST_PASSWORD to validate login flow"
+      ]
+    }
+  ],
+  "cutoverReadinessScore": 95,
+  "readinessAssessment": "READY — staging cutover approved; production switch pending sign-off",
+  "finishedAt": "2026-06-11T07:16:29.743Z",
+  "summary": {
+    "PASS": 10,
+    "WARN": 1,
+    "FAIL": 0
+  }
+}

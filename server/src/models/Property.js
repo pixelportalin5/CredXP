@@ -73,6 +73,14 @@ const propertySchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    imagePublicIds: {
+      type: [{ type: String }],
+      default: undefined,
+    },
+    coverImagePublicId: {
+      type: String,
+      default: "",
+    },
     status: {
       type: String,
       enum: ["Recently Posted", "Trending"],

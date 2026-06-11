@@ -12,7 +12,9 @@ import { EnterpriseInput, FormField } from "@/components/forms/EnterpriseForm";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useToast } from "@/components/providers/ToastProvider";
 import authService from "@/services/auth.service";
-import { compressImageFile, MAX_IMAGE_SIZE_BYTES } from "@/utils/compressImage";
+import { MAX_IMAGE_SIZE_BYTES } from "@/utils/compressImage";
+import uploadService from "@/services/upload.service";
+import { shouldUseUnoptimizedImage } from "@/utils/imageUrl";
 
 export default function UserCredentialsPage() {
   const { user, loading: authLoading, refreshUser } = useAuth();
@@ -22,6 +24,8 @@ export default function UserCredentialsPage() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | undefined>(undefined);
   const [avatarDirty, setAvatarDirty] = useState(false);
+  const [avatarPublicId, setAvatarPublicId] = useState<string | undefined>(undefined);
+  const [avatarUploading, setAvatarUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -41,18 +45,26 @@ export default function UserCredentialsPage() {
     }
 
     try {
-      const compressed = await compressImageFile(file);
-      setAvatarPreview(compressed);
+      setAvatarUploading(true);
+      const uploaded = await uploadService.uploadImageFile(
+        file,
+        "avatar",
+        avatarPublicId
+      );
+      setAvatarPreview(uploaded.imageUrl);
+      setAvatarPublicId(uploaded.publicId);
       setAvatarDirty(true);
     } catch {
-      showToast({ type: "error", title: "Upload failed", message: "Could not process the selected image." });
+      showToast({ type: "error", title: "Upload failed", message: "Could not upload the selected image." });
     } finally {
+      setAvatarUploading(false);
       event.target.value = "";
     }
   };
 
   const handleRemoveAvatar = () => {
     setAvatarPreview(undefined);
+    setAvatarPublicId(undefined);
     setAvatarDirty(true);
   };
 
@@ -67,6 +79,7 @@ export default function UserCredentialsPage() {
         email: string;
         phone: string;
         avatar?: string;
+        avatarPublicId?: string;
       } = {
         name: String(formData.get("name") || ""),
         email: String(formData.get("email") || ""),
@@ -75,6 +88,7 @@ export default function UserCredentialsPage() {
 
       if (avatarDirty) {
         payload.avatar = avatarPreview || "";
+        payload.avatarPublicId = avatarPublicId || "";
       }
 
       await authService.updateMe(payload);
@@ -147,7 +161,7 @@ export default function UserCredentialsPage() {
                       alt="Profile photo"
                       width={64}
                       height={64}
-                      unoptimized
+                      unoptimized={shouldUseUnoptimizedImage(avatarPreview)}
                       className="h-full w-full object-cover"
                     />
                   ) : (
@@ -168,8 +182,9 @@ export default function UserCredentialsPage() {
                     size="sm"
                     icon={<UploadCloud className="h-4 w-4" />}
                     onClick={() => fileInputRef.current?.click()}
+                    disabled={avatarUploading}
                   >
-                    Upload Photo
+                    {avatarUploading ? "Uploading..." : "Upload Photo"}
                   </Button>
                   {avatarPreview && (
                     <Button

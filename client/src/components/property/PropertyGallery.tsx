@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { ImageOff, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/utils/cn";
+import { shouldUseUnoptimizedImage } from "@/utils/imageUrl";
 
 /* ============================================================
    PropertyGallery — Image Gallery with Thumbnails
@@ -47,7 +48,7 @@ function PropertyImage({
       sizes={sizes}
       className={className}
       priority={priority}
-      unoptimized={src.startsWith("data:")}
+      unoptimized={shouldUseUnoptimizedImage(src)}
       onError={() => setError(true)}
     />
   );

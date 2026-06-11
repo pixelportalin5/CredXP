@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models/User");
 const ApiError = require("../utils/ApiError");
+const { resolveAuthUser } = require("../lib/resolveAuthUser");
 
 const protect = async (req, res, next) => {
   try {
@@ -12,7 +12,7 @@ const protect = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id);
+    const user = await resolveAuthUser(decoded.id);
     if (!user) {
       throw new ApiError(401, "User no longer exists");
     }
@@ -38,7 +38,7 @@ const optionalAuth = async (req, res, next) => {
     if (!token) return next();
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id);
+    const user = await resolveAuthUser(decoded.id);
     if (user?.accountStatus === "disabled") {
       throw new ApiError(403, "Account is disabled");
     }

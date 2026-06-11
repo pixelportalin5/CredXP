@@ -1,0 +1,357 @@
+// CredXP — Full PostgreSQL schema (Phase 3A)
+// Mapped from Mongoose models. Runtime still uses MongoDB until Phase 4+.
+// Primary key: UUID. legacyMongoId preserves Mongo _id for migration/cutover.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums (values match Mongoose exactly via @map)
+// ---------------------------------------------------------------------------
+
+enum UserRole {
+  buyer
+  seller
+  admin
+  employee
+}
+
+enum AccountStatus {
+  active
+  disabled
+}
+
+enum PropertyListingType {
+  Pre_Leased_Office  @map("Pre-Leased Office")
+  Office_Space       @map("Office Space")
+  Retail_SCO         @map("Retail/SCO")
+  Coworking
+  Coworking_Space    @map("Coworking Space")
+  Shop
+  Warehouse
+  Commercial_Land    @map("Commercial Land")
+}
+
+enum PriceUnit {
+  month
+  year
+  sqft
+  total
+}
+
+enum SizeUnit {
+  sqft
+  sqm
+}
+
+enum FurnishingType {
+  Fully_Furnished  @map("Fully Furnished")
+  Semi_Furnished   @map("Semi Furnished")
+  Bare_Shell       @map("Bare Shell")
+  Warm_Shell       @map("Warm Shell")
+}
+
+enum PropertyDisplayStatus {
+  Recently_Posted @map("Recently Posted")
+  Trending
+}
+
+enum PropertyGrade {
+  A
+  A_Plus @map("A+")
+  B
+  B_Plus @map("B+")
+}
+
+enum PropertyListingStatus {
+  draft
+  published
+  paused
+  sold
+}
+
+enum CoworkingListingStatus {
+  draft
+  published
+  paused
+}
+
+enum EnquiryStatus {
+  open
+  closed
+}
+
+enum ContactEnquiryType {
+  Investment_Advisory @map("Investment Advisory")
+  Office_Leasing      @map("Office Leasing")
+  Coworking
+  Partnership
+  General_Enquiry     @map("General Enquiry")
+}
+
+// ---------------------------------------------------------------------------
+// Models
+// ---------------------------------------------------------------------------
+
+model User {
+  id             String        @id @default(uuid()) @db.Uuid
+  legacyMongoId  String        @unique @map("legacy_mongo_id")
+  name           String
+  email          String        @unique
+  password       String
+  phone          String?
+  avatar         String?
+  avatarPublicId String?       @default("") @map("avatar_public_id")
+  role           UserRole      @default(buyer)
+  accountStatus  AccountStatus @default(active) @map("account_status")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+
+  properties      Property[]      @relation("PropertySeller")
+  coworkingSpaces CoworkingSpace[] @relation("CoworkingSeller")
+  enquiries       Enquiry[]       @relation("EnquiryUser")
+  sellerEnquiries Enquiry[]       @relation("EnquirySeller")
+  proposals       Proposal[]
+  savedProperties SavedProperty[]
+  auditLogs       AuditLog[]
+
+  @@index([role])
+  @@index([accountStatus])
+  @@map("users")
+}
+
+model Property {
+  id               String                @id @default(uuid()) @db.Uuid
+  legacyMongoId    String                @unique @map("legacy_mongo_id")
+  title            String
+  type             PropertyListingType
+  sellerId         String?               @map("seller_id") @db.Uuid
+  locationAddress  String                @map("location_address")
+  locationCity     String                @map("location_city")
+  locationState    String                @map("location_state")
+  locationPincode  String?               @map("location_pincode")
+  locationMicromarket String?            @map("location_micromarket")
+  locationLandmark String?               @map("location_landmark")
+  price            Float
+  size             Float
+  financialPrice         Float?          @map("financial_price")
+  financialPriceUnit     PriceUnit?      @map("financial_price_unit")
+  financialSecurityDeposit Float?        @map("financial_security_deposit")
+  financialMaintenanceCharges Float?     @map("financial_maintenance_charges")
+  financialRentalYield   Float?          @map("financial_rental_yield")
+  financialCapRate       Float?          @map("financial_cap_rate")
+  financialEscalation    String?         @map("financial_escalation")
+  specSize           Float?              @map("spec_size")
+  specSizeUnit       SizeUnit?           @map("spec_size_unit")
+  specFloors         Int?                @map("spec_floors")
+  specTotalFloors    Int?                @map("spec_total_floors")
+  specFurnishing     FurnishingType?     @map("spec_furnishing")
+  specParking        Int?                @map("spec_parking")
+  specCabins         Int?                @map("spec_cabins")
+  specWorkstations   Int?                @map("spec_workstations")
+  specMeetingRooms   Int?                @map("spec_meeting_rooms")
+  specPantry         Boolean?            @map("spec_pantry")
+  specWashrooms      Int?                @map("spec_washrooms")
+  tenantName         String?             @map("tenant_name")
+  tenantIndustry     String?             @map("tenant_industry")
+  tenantLeaseExpiry  String?             @map("tenant_lease_expiry")
+  tenantLockInPeriod String?             @map("tenant_lock_in_period")
+  amenities          String[]
+  highlights         String[]
+  images             String[]
+  imagePublicIds     String[]            @map("image_public_ids")
+  coverImage         String?             @default("") @map("cover_image")
+  coverImagePublicId String?             @default("") @map("cover_image_public_id")
+  status             PropertyDisplayStatus @default(Recently_Posted)
+  grade              PropertyGrade?
+  occupancy          Float?
+  reraId             String?             @map("rera_id")
+  buildingName       String?             @map("building_name")
+  description        String
+  isActive           Boolean             @default(true) @map("is_active")
+  featured           Boolean             @default(false)
+  views              Int                 @default(0)
+  enquiryCount       Int                 @default(0) @map("enquiry_count")
+  listingStatus      PropertyListingStatus @default(published) @map("listing_status")
+  createdAt          DateTime            @default(now()) @map("created_at")
+  updatedAt          DateTime            @updatedAt @map("updated_at")
+
+  seller      User?           @relation("PropertySeller", fields: [sellerId], references: [id], onDelete: SetNull)
+  enquiries   Enquiry[]
+  proposals   Proposal[]
+  savedBy     SavedProperty[]
+
+  @@index([createdAt(sort: Desc)])
+  @@index([price])
+  @@index([size])
+  @@index([financialRentalYield(sort: Desc)])
+  @@index([isActive, listingStatus, createdAt(sort: Desc)])
+  @@index([type, isActive, listingStatus])
+  @@index([locationCity, isActive])
+  @@map("properties")
+}
+
+model CoworkingSpace {
+  id               String                 @id @default(uuid()) @db.Uuid
+  legacyMongoId    String                 @unique @map("legacy_mongo_id")
+  title            String
+  operator         String
+  website          String?
+  sellerId         String?                @map("seller_id") @db.Uuid
+  locationAddress  String                 @map("location_address")
+  locationCity     String                 @map("location_city")
+  locationState    String                 @map("location_state")
+  locationMicromarket String?               @map("location_micromarket")
+  locationLandmark String?                @map("location_landmark")
+  monthlySeatPrice Float                  @map("monthly_seat_price")
+  priceLabel       String                 @map("price_label")
+  workspaceType    String                 @default("Coworking Space") @map("workspace_type")
+  images           String[]
+  imagePublicIds   String[]               @map("image_public_ids")
+  coverImage       String?                @default("") @map("cover_image")
+  coverImagePublicId String?              @default("") @map("cover_image_public_id")
+  amenities        String[]
+  highlights       String[]
+  description      String
+  specSeatsFrom    Int?                   @map("spec_seats_from")
+  specPrivateCabins Boolean?              @map("spec_private_cabins")
+  specMeetingRooms Boolean?               @map("spec_meeting_rooms")
+  specInternet     Boolean?               @map("spec_internet")
+  specParking      Boolean?               @map("spec_parking")
+  isActive         Boolean                @default(true) @map("is_active")
+  featured         Boolean                @default(false)
+  views            Int                    @default(0)
+  enquiryCount     Int                    @default(0) @map("enquiry_count")
+  listingStatus    CoworkingListingStatus @default(published) @map("listing_status")
+  createdAt        DateTime               @default(now()) @map("created_at")
+  updatedAt        DateTime               @updatedAt @map("updated_at")
+
+  seller    User?     @relation("CoworkingSeller", fields: [sellerId], references: [id], onDelete: SetNull)
+  enquiries Enquiry[]
+
+  @@index([isActive, listingStatus, featured(sort: Desc), createdAt(sort: Desc)])
+  @@index([locationCity, isActive])
+  @@index([operator, isActive])
+  @@map("coworking_spaces")
+}
+
+model Enquiry {
+  id               String         @id @default(uuid()) @db.Uuid
+  legacyMongoId    String         @unique @map("legacy_mongo_id")
+  customerName     String         @map("customer_name")
+  email            String
+  phone            String?
+  message          String?
+  propertyId       String?        @map("property_id") @db.Uuid
+  coworkingSpaceId String?        @map("coworking_space_id") @db.Uuid
+  sellerId         String?        @map("seller_id") @db.Uuid
+  userId           String?        @map("user_id") @db.Uuid
+  userArchived     Boolean        @default(false) @map("user_archived")
+  status           EnquiryStatus  @default(open)
+  closedAt         DateTime?      @map("closed_at")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+
+  property       Property?       @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  coworkingSpace CoworkingSpace? @relation(fields: [coworkingSpaceId], references: [id], onDelete: SetNull)
+  seller         User?           @relation("EnquirySeller", fields: [sellerId], references: [id], onDelete: SetNull)
+  user           User?           @relation("EnquiryUser", fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([propertyId])
+  @@index([coworkingSpaceId])
+  @@index([userId])
+  @@map("enquiries")
+}
+
+model Proposal {
+  id                String   @id @default(uuid()) @db.Uuid
+  legacyMongoId     String   @unique @map("legacy_mongo_id")
+  createdById       String   @map("created_by_id") @db.Uuid
+  propertyId        String   @map("property_id") @db.Uuid
+  propertyTitle     String   @map("property_title")
+  propertyType      String?  @map("property_type")
+  agent             Json
+  propertySnapshot  Json     @map("property_snapshot")
+  coverImage        String?  @map("cover_image")
+  coverImagePublicId String? @default("") @map("cover_image_public_id")
+  preparedFor       Json?    @map("prepared_for")
+  agentResearch     Json?    @map("agent_research")
+  overviewFields    Json?    @map("overview_fields")
+  detailFields      Json?    @map("detail_fields")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  createdBy User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  property  Property @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+
+  @@index([createdById])
+  @@index([propertyId])
+  @@map("proposals")
+}
+
+model SavedProperty {
+  id            String   @id @default(uuid()) @db.Uuid
+  legacyMongoId String   @unique @map("legacy_mongo_id")
+  userId        String   @map("user_id") @db.Uuid
+  propertyId    String   @map("property_id") @db.Uuid
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, propertyId])
+  @@index([userId])
+  @@map("saved_properties")
+}
+
+model ContactMessage {
+  id            String             @id @default(uuid()) @db.Uuid
+  legacyMongoId String             @unique @map("legacy_mongo_id")
+  fullName      String             @map("full_name")
+  email         String
+  phone         String
+  company       String
+  enquiryType   ContactEnquiryType @map("enquiry_type")
+  message       String
+  createdAt     DateTime           @default(now()) @map("created_at")
+  updatedAt     DateTime           @updatedAt @map("updated_at")
+
+  @@index([createdAt(sort: Desc)])
+  @@map("contact_messages")
+}
+
+model AuditLog {
+  id                   String   @id @default(uuid()) @db.Uuid
+  legacyMongoId        String   @unique @map("legacy_mongo_id")
+  actorId              String?  @map("actor_id") @db.Uuid
+  action               String
+  entityType           String   @map("entity_type")
+  entityLegacyMongoId  String?  @map("entity_legacy_mongo_id")
+  metadata             Json     @default("{}")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([actorId])
+  @@index([entityType, entityLegacyMongoId])
+  @@index([createdAt(sort: Desc)])
+  @@map("audit_logs")
+}
+
+model MigrationCheckpoint {
+  id        String   @id @default(uuid()) @db.Uuid
+  phase     String
+  note      String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("migration_checkpoints")
+}

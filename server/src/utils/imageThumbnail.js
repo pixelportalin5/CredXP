@@ -4,8 +4,15 @@ const THUMB_WIDTH = 720;
 const THUMB_HEIGHT = 720;
 const JPEG_QUALITY = 82;
 
+function isCloudinaryUrl(value) {
+  return typeof value === "string" && value.includes("res.cloudinary.com/");
+}
+
 function isStaticPath(value) {
-  return typeof value === "string" && (value.startsWith("/") || /^https?:\/\//i.test(value));
+  return (
+    typeof value === "string" &&
+    (value.startsWith("/") || /^https?:\/\//i.test(value) || isCloudinaryUrl(value))
+  );
 }
 
 async function generateCoverImage(source) {
@@ -41,8 +48,22 @@ async function applyCoverImage(payload) {
 
   if (Array.isArray(next.images) && next.images.length > 0) {
     next.coverImage = await generateCoverImage(next.images[0]);
+    if (Array.isArray(next.imagePublicIds) && next.imagePublicIds[0]) {
+      next.coverImagePublicId = next.imagePublicIds[0];
+    } else if (isCloudinaryUrl(next.images[0])) {
+      const { extractPublicIdFromUrl } = require("../services/imageUploadService");
+      const derived = extractPublicIdFromUrl(next.images[0]);
+      if (derived) next.coverImagePublicId = derived;
+    }
   } else if (next.coverImage) {
     next.coverImage = await generateCoverImage(next.coverImage);
+    if (next.coverImagePublicId) {
+      // keep explicit value
+    } else if (isCloudinaryUrl(next.coverImage)) {
+      const { extractPublicIdFromUrl } = require("../services/imageUploadService");
+      const derived = extractPublicIdFromUrl(next.coverImage);
+      if (derived) next.coverImagePublicId = derived;
+    }
   }
 
   return next;

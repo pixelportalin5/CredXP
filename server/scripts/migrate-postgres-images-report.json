@@ -1,0 +1,17 @@
+{
+  "startedAt": "2026-06-11T07:58:25.725Z",
+  "dryRun": false,
+  "migrated": 1,
+  "failed": 0,
+  "items": [
+    {
+      "collection": "proposals",
+      "id": "6a2931feb354a8779d4dd94a",
+      "fields": [
+        "coverImage",
+        "coverImagePublicId"
+      ]
+    }
+  ],
+  "finishedAt": "2026-06-11T07:58:30.571Z"
+}

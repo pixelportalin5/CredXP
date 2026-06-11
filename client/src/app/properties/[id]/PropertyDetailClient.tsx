@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
 import PropertyGallery from "@/components/property/PropertyGallery";
 import PropertyEnquiryForm from "@/components/property/PropertyEnquiryForm";
+import ComparePropertyButton from "@/components/property/ComparePropertyButton";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useToast } from "@/components/providers/ToastProvider";
 import propertyService from "@/services/property.service";
@@ -276,7 +277,7 @@ export default function PropertyDetailClient() {
                   Enquire Now
                 </Button>
               )}
-              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 <Button type="button" variant="outline" size="md" icon={<Download className="h-4 w-4" />} className="border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50">
                   Download Brochure
                 </Button>
@@ -291,6 +292,7 @@ export default function PropertyDetailClient() {
                 >
                   {saved ? "Saved" : "Add to Shortlist"}
                 </Button>
+                {property ? <ComparePropertyButton propertyId={property._id} variant="detail" /> : null}
               </div>
             </div>
           </div>
