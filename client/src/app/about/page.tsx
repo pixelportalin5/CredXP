@@ -1,11 +1,11 @@
 import { Container } from "@/components/ui/Container";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { StatsBar } from "@/components/shared/StatCard";
 import LeadCaptureBar from "@/components/lead/LeadCaptureBar";
-import { siteConfig } from "@/config/site";
+import AboutStatsSection from "./AboutStatsSection";
+import AboutMissionCards from "./AboutMissionCards";
 import {
-  Building2, Target, Users, ShieldCheck,
+  Building2, Users,
   TrendingUp, Globe, Award, Handshake,
 } from "lucide-react";
 import type { Metadata } from "next";
@@ -35,14 +35,7 @@ export default function AboutPage() {
 
       <section className="border-b border-slate-200 bg-slate-50 py-14">
         <Container size="md">
-          <StatsBar
-            stats={[
-              { value: "50M+", label: "Sq. Ft. Portfolio" },
-              { value: "200+", label: "Assets" },
-              { value: "150+", label: "Blue-Chip Tenants" },
-              { value: "15+", label: "Coworking Partners" },
-            ]}
-          />
+          <AboutStatsSection />
         </Container>
       </section>
 
@@ -58,38 +51,7 @@ export default function AboutPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-              {[
-                {
-                  icon: <Target className="h-6 w-6" />,
-                  title: "Investment Intelligence",
-                  description: "Data-driven insights and yield analytics for pre-leased investments and commercial assets.",
-                },
-                {
-                  icon: <Handshake className="h-6 w-6" />,
-                  title: "Enterprise Leasing",
-                  description: "End-to-end corporate leasing solutions for Grade A office spaces across India's top markets.",
-                },
-                {
-                  icon: <Globe className="h-6 w-6" />,
-                  title: "Coworking Aggregation",
-                  description: "India's largest flex-space aggregation platform — compare and book from 15+ operators.",
-                },
-                {
-                  icon: <ShieldCheck className="h-6 w-6" />,
-                  title: "Trust & Transparency",
-                  description: "RERA-compliant, verified properties with complete due-diligence documentation.",
-                },
-              ].map((value) => (
-                <Card key={value.title} hover padding="md">
-                  <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-accent-500/10 text-accent-500">
-                    {value.icon}
-                  </div>
-                  <h3 className="mb-2 text-lg font-semibold text-slate-900">{value.title}</h3>
-                  <p className="text-sm leading-relaxed text-slate-600">{value.description}</p>
-                </Card>
-              ))}
-            </div>
+            <AboutMissionCards />
           </div>
         </Container>
       </section>

@@ -6,6 +6,8 @@ import { BarChart3 } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import InsightCard from "@/components/insights/InsightCard";
+import ScrollReveal from "@/components/motion/ScrollReveal";
+import { InsightCardSkeleton } from "@/components/ui/Skeleton";
 import insightsService, { type InsightArticle } from "@/services/insights.service";
 
 export default function HomeInsightsSection() {
@@ -27,26 +29,28 @@ export default function HomeInsightsSection() {
   return (
     <section className="border-t border-slate-200 py-16 lg:py-20">
       <Container size="xl">
-        <SectionHeader
-          eyebrow="Insights"
-          eyebrowIcon={<BarChart3 className="h-4 w-4" />}
-          title="Market Insights & Updates"
-          subtitle="A structured market feed for investors, occupiers, and broker teams."
-          action={{ label: "View Insights", href: "/insights" }}
-        />
+        <ScrollReveal>
+          <SectionHeader
+            eyebrow="Insights"
+            eyebrowIcon={<BarChart3 className="h-4 w-4" />}
+            title="Market Insights & Updates"
+            subtitle="A structured market feed for investors, occupiers, and broker teams."
+            action={{ label: "View Insights", href: "/insights" }}
+          />
+        </ScrollReveal>
 
         {loading ? (
           <div className="grid gap-6 md:grid-cols-3">
             {Array.from({ length: 3 }).map((_, index) => (
-              <div key={index} className="h-72 animate-pulse rounded-3xl border border-slate-200/80 bg-white shadow-sm" />
+              <InsightCardSkeleton key={index} />
             ))}
           </div>
         ) : (
-          <div className="grid gap-6 md:grid-cols-3">
+          <ScrollReveal stagger className="grid gap-6 md:grid-cols-3">
             {articles.map((article) => (
               <InsightCard key={article.id} article={article} compact />
             ))}
-          </div>
+          </ScrollReveal>
         )}
 
         <div className="mt-6 text-center sm:hidden">

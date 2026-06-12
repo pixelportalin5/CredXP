@@ -10,9 +10,10 @@ interface SkeletonProps {
   width?: string;
   height?: string;
   rounded?: "sm" | "md" | "lg" | "xl" | "2xl" | "full";
+  variant?: "light" | "dark";
 }
 
-function Skeleton({ className, width, height, rounded = "lg" }: SkeletonProps) {
+function Skeleton({ className, width, height, rounded = "lg", variant = "dark" }: SkeletonProps) {
   const roundedStyles: Record<string, string> = {
     sm: "rounded-sm",
     md: "rounded-md",
@@ -25,12 +26,31 @@ function Skeleton({ className, width, height, rounded = "lg" }: SkeletonProps) {
   return (
     <div
       className={cn(
-        "animate-pulse bg-navy-800/60",
+        "animate-pulse",
+        variant === "light"
+          ? "bg-gradient-to-r from-slate-200/80 via-slate-100 to-slate-200/80 bg-[length:200%_100%]"
+          : "bg-navy-800/60",
+        variant === "light" && "animate-[shimmer_1.5s_ease-in-out_infinite]",
         roundedStyles[rounded],
         className
       )}
       style={{ width, height }}
     />
+  );
+}
+
+function InsightCardSkeleton() {
+  return (
+    <div className="flex h-full flex-col rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm">
+      <Skeleton variant="light" className="mb-4 h-6 w-24" rounded="full" />
+      <Skeleton variant="light" className="mb-4 aspect-[5/3] w-full" rounded="2xl" />
+      <Skeleton variant="light" className="mb-2 h-5 w-full" />
+      <Skeleton variant="light" className="mb-4 h-5 w-4/5" />
+      <div className="mt-auto flex items-center justify-between pt-3">
+        <Skeleton variant="light" className="h-3 w-20" />
+        <Skeleton variant="light" className="h-3 w-16" />
+      </div>
+    </div>
   );
 }
 
@@ -84,5 +104,5 @@ function FormSkeleton() {
   );
 }
 
-export { Skeleton, PropertyCardSkeleton, AdminRowSkeleton, AdminSectionSkeleton, FormSkeleton };
+export { Skeleton, PropertyCardSkeleton, InsightCardSkeleton, AdminRowSkeleton, AdminSectionSkeleton, FormSkeleton };
 export type { SkeletonProps };

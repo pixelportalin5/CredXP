@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { MapPin, TrendingUp, Clock, ImageOff, Building2, Heart } from "lucide-react";
+import { MapPin, TrendingUp, Clock, Building2, Heart } from "lucide-react";
+import ImageWithSkeleton from "@/components/ui/ImageWithSkeleton";
 import { Badge } from "@/components/ui/Badge";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useToast } from "@/components/providers/ToastProvider";
@@ -11,7 +11,6 @@ import savedPropertyService from "@/services/saved-property.service";
 import { cn } from "@/utils/cn";
 import { formatPriceCompact, formatSize, formatYield } from "@/utils/format";
 import { getPropertySectionCoverImage } from "@/utils/propertySections";
-import { shouldUseUnoptimizedImage } from "@/utils/imageUrl";
 import ComparePropertyButton from "@/components/property/ComparePropertyButton";
 import type { Property } from "@/types/property";
 
@@ -20,6 +19,7 @@ interface PropertyCardProps {
   variant?: "default" | "compact" | "featured";
   initialSaved?: boolean;
   onSavedChange?: (propertyId: string, saved: boolean) => void;
+  className?: string;
 }
 
 const STATUS_BADGE_MAP: Record<string, { variant: "warning" | "success" | "accent" | "info"; icon: React.ReactNode }> = {
@@ -29,10 +29,9 @@ const STATUS_BADGE_MAP: Record<string, { variant: "warning" | "success" | "accen
   "Available": { variant: "info", icon: null },
 };
 
-export default function PropertyCard({ property, variant = "default", initialSaved = false, onSavedChange }: PropertyCardProps) {
+export default function PropertyCard({ property, variant = "default", initialSaved = false, onSavedChange, className }: PropertyCardProps) {
   const { _id, title, type, location, price, size, status, financials, grade, tenant } = property;
   const imageUrl = getPropertySectionCoverImage(property);
-  const [imgError, setImgError] = useState(false);
   const [saved, setSaved] = useState(initialSaved);
   const [saving, setSaving] = useState(false);
   const router = useRouter();
@@ -84,25 +83,21 @@ export default function PropertyCard({ property, variant = "default", initialSav
           openProperty();
         }
       }}
-      className="group cursor-pointer overflow-hidden rounded-[1.75rem] border border-slate-200/80 bg-white shadow-sm transition-all duration-300 focus:outline-none hover:-translate-y-1 hover:shadow-md focus-visible:-translate-y-1 focus-visible:shadow-md"
+      className={cn(
+        "hover-expand-card group relative cursor-pointer overflow-hidden rounded-[1.75rem] border border-slate-200/80 bg-white shadow-sm focus:outline-none hover:z-10 hover:border-accent-500/25 hover:shadow-xl hover:shadow-slate-900/8 focus-visible:border-accent-500/25 focus-visible:shadow-xl",
+        className
+      )}
     >
       <div className="relative overflow-hidden bg-pink-50/70">
         <div className="relative aspect-square w-full">
-          {imgError || !imageUrl ? (
-            <div className="placeholder-surface flex h-full w-full items-center justify-center text-pink-400">
-              <ImageOff className="h-10 w-10" />
-            </div>
-          ) : (
-            <Image
-              src={imageUrl}
-              alt={title}
-              fill
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-              unoptimized={shouldUseUnoptimizedImage(imageUrl)}
-              onError={() => setImgError(true)}
-            />
-          )}
+          <ImageWithSkeleton
+            src={imageUrl || ""}
+            alt={title}
+            fill
+            variant="light"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+          />
         </div>
 
         <div className="absolute left-3 top-3 z-10">

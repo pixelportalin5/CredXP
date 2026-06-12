@@ -60,7 +60,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           "inline-flex items-center justify-center rounded-xl font-semibold transition-all duration-200",
           "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500",
           "disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none",
-          "active:scale-[0.98]",
+          "active:scale-[0.97]",
           variantStyles[variant],
           sizeStyles[size],
           fullWidth && "w-full",

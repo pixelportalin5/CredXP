@@ -131,6 +131,11 @@ html {
   scroll-behavior: smooth;
 }
 
+section,
+[id] {
+  scroll-margin-top: 5.5rem;
+}
+
 body {
   background:
     radial-gradient(circle at top left, rgba(220, 38, 38, 0.05), transparent 28%),
@@ -209,6 +214,13 @@ body {
   }
 }
 
+@keyframes ripple-expand {
+  to {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
 /* Subtle fade-in animation */
 @keyframes fade-in {
   from {
@@ -224,6 +236,95 @@ body {
 
 .animate-fade-in {
   animation: fade-in 0.5s var(--transition-base) forwards;
+}
+
+/* Scroll-triggered reveal animations */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
+  transition-delay: calc(var(--stagger, 0) * 80ms);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-stagger > .reveal {
+  transition-delay: calc(var(--stagger, 0) * 80ms);
+}
+
+/* WhatsApp floating button pulse */
+@keyframes whatsapp-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.45);
+  }
+
+  50% {
+    box-shadow: 0 0 0 12px rgba(37, 211, 102, 0);
+  }
+}
+
+.whatsapp-pulse {
+  animation: whatsapp-pulse 2.4s ease-in-out infinite;
+}
+
+/* Mobile nav drawer link stagger */
+@keyframes nav-drawer-in {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes nav-link-in {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.nav-drawer-link {
+  animation: nav-link-in 0.35s ease forwards;
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .whatsapp-pulse {
+    animation: none;
+  }
+
+  .nav-drawer-link {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  [class*="nav-drawer-in"] {
+    animation: none;
+  }
 }
 
 /* Minimal card surface */
@@ -244,6 +345,27 @@ body {
 .surface-card-interactive:focus-visible {
   border-color: rgba(203, 213, 225, 1);
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+}
+
+.hover-expand-card {
+  transition:
+    transform 0.35s ease,
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
+  transform-origin: center center;
+}
+
+.hover-expand-card:hover,
+.hover-expand-card:focus-visible {
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hover-expand-card:hover,
+  .hover-expand-card:focus-visible {
+    transform: none;
+  }
 }
 
 /* Glassmorphism utilities — submerged, low-contrast borders */

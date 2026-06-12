@@ -143,8 +143,8 @@ export default function HomeHeroSection() {
                       className={[
                         "group flex min-h-[120px] flex-col items-start justify-center rounded-2xl border p-4 text-left transition-all duration-300",
                         isSelected
-                          ? "border-white/20 bg-white text-slate-900 shadow-lg shadow-black/20"
-                          : "border-white/15 bg-white/8 text-white hover:border-white/30 hover:bg-white/12",
+                          ? "scale-[1.02] border-white/20 bg-white text-slate-900 shadow-lg shadow-black/20 ring-2 ring-accent-500"
+                          : "border-white/15 bg-white/8 text-white opacity-80 hover:border-white/30 hover:bg-white/12 hover:opacity-100",
                       ].join(" ")}
                     >
                       <div

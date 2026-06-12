@@ -9,6 +9,7 @@ import { PropertyCardSkeleton } from "@/components/ui/Skeleton";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
+import ScrollReveal from "@/components/motion/ScrollReveal";
 import propertyService from "@/services/property.service";
 import coworkingService from "@/services/coworking.service";
 import { FEATURED_TAB_QUERY, featuredTabHref } from "@/utils/propertyFilterParams";
@@ -110,7 +111,7 @@ export default function HomePageClient() {
       {/* Featured / Trending */}
       <section className="py-16 lg:py-20">
         <Container>
-          <div className="mb-6 flex items-end justify-between gap-4">
+          <ScrollReveal className="mb-6 flex items-end justify-between gap-4">
             <SectionHeader
               eyebrow="Trending Now"
               eyebrowIcon={<TrendingUp className="h-4 w-4" />}
@@ -123,7 +124,7 @@ export default function HomePageClient() {
               View All
               <ChevronRight className="h-4 w-4" />
             </Link>
-          </div>
+          </ScrollReveal>
 
           <div className="mb-5 flex flex-wrap items-center gap-2">
             {featuredTabs.map((tab) => {
@@ -190,11 +191,15 @@ export default function HomePageClient() {
                     </div>
                   ))
                   : featuredPages.map((page, pageIndex) => (
-                    <div key={pageIndex} className="grid min-w-full grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+                    <ScrollReveal
+                      key={pageIndex}
+                      stagger
+                      className="grid min-w-full grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4"
+                    >
                       {page.map((property) => (
                         <PropertyCard key={property._id} property={property} variant="featured" />
                       ))}
-                    </div>
+                    </ScrollReveal>
                   ))}
               </div>
             </div>
@@ -220,7 +225,7 @@ export default function HomePageClient() {
       {/* Top Coworking Spaces */}
       <section className="border-t border-slate-200 bg-slate-50 py-16 lg:py-20">
         <Container>
-          <div className="mb-6 flex items-end justify-between gap-4">
+          <ScrollReveal className="mb-6 flex items-end justify-between gap-4">
             <SectionHeader
               eyebrow="Coworking"
               title="Top Coworking Spaces"
@@ -232,7 +237,7 @@ export default function HomePageClient() {
               View All
               <ChevronRight className="h-4 w-4" />
             </Link>
-          </div>
+          </ScrollReveal>
 
           {coworkingLoading ? (
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -245,11 +250,11 @@ export default function HomePageClient() {
               Coworking spaces coming soon. <Link href="/coworking" className="font-medium text-accent-500 hover:text-accent-600">Browse coworking</Link>
             </p>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <ScrollReveal stagger className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               {coworkingSpaces.map((space) => (
                 <CoworkingSpaceCard key={space._id} space={space} compact />
               ))}
-            </div>
+            </ScrollReveal>
           )}
         </Container>
       </section>

@@ -1,33 +1,34 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import ImageWithSkeleton from "@/components/ui/ImageWithSkeleton";
 import { ArrowRight, ExternalLink, MapPin, Users, Wifi } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import type { CoworkingSpace } from "@/types/coworking";
-import { shouldUseUnoptimizedImage } from "@/utils/imageUrl";
+import { cn } from "@/utils/cn";
 
 interface CoworkingSpaceCardProps {
   space: CoworkingSpace;
   compact?: boolean;
+  className?: string;
 }
 
-export default function CoworkingSpaceCard({ space, compact = false }: CoworkingSpaceCardProps) {
+export default function CoworkingSpaceCard({ space, compact = false, className }: CoworkingSpaceCardProps) {
   const coverImage = space.coverImage || space.images[0] || "/images/office1.png";
 
   return (
-    <Card hover padding="none" className="flex h-full flex-col overflow-hidden bg-white">
+    <Card hover padding="none" className={cn("flex h-full flex-col overflow-hidden bg-white", className)}>
       <Link href={`/coworking/${space._id}`} className="group block">
         <div className={`relative overflow-hidden bg-slate-100 ${compact ? "aspect-[4/3]" : "h-56"}`}>
-          <Image
+          <ImageWithSkeleton
             src={coverImage}
             alt={space.title}
             fill
+            variant="light"
             sizes="(max-width: 768px) 100vw, 33vw"
             className="object-cover transition-transform duration-500 group-hover:scale-105"
-            unoptimized={shouldUseUnoptimizedImage(coverImage)}
           />
           <div className="absolute left-4 top-4">
             <Badge variant="accent" size="sm">{space.featured ? "Featured" : "Verified"}</Badge>

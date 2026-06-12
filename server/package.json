@@ -32,7 +32,9 @@
     "seed:coworking": "node src/seed/seedCoworkingSpaces.js",
     "seed:reclassify": "node src/seed/reclassifyProperties.js",
     "seed:covers": "node src/seed/generateCoverImages.js",
-    "seed:lease": "node src/seed/seedLeaseSamples.js"
+    "seed:lease": "node src/seed/seedLeaseSamples.js",
+    "seed:june2026": "node src/seed/seedJune2026PdfListings.js",
+    "validate:june2026-listings": "node scripts/validate-june2026-listings.js"
   },
   "keywords": [],
   "author": "",

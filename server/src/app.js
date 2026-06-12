@@ -38,8 +38,22 @@ app.use(express.json({ limit: "8mb" }));
 app.use(express.urlencoded({ extended: true, limit: "8mb" }));
 
 // --------------- Routes ---------------
+const { getDatabaseUrlDiagnostic } = require("./lib/databaseUrlDiagnostics");
+const { getDbProvider } = require("./lib/dbProvider");
+
 app.get("/api/health", (req, res) => {
-  res.json({ success: true, message: "CredXP API is running" });
+  const db = getDatabaseUrlDiagnostic();
+  res.json({
+    success: true,
+    message: "CredXP API is running",
+    dbProvider: getDbProvider(),
+    database: {
+      urlConfigured: db.isSet,
+      protocol: db.protocol,
+      postgresUrlValid: db.isValidPostgres,
+      hasWrappingQuotes: db.hasWrappingQuotes,
+    },
+  });
 });
 
 app.use("/api/auth", authRoutes);

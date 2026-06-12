@@ -11,6 +11,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
+import AnimatedStatsGrid, { type AnimatedStatItem } from "@/components/shared/AnimatedStatsGrid";
 import { Select } from "@/components/ui/Select";
 import { SORT_OPTIONS } from "@/config/filters";
 import propertyService from "@/services/property.service";
@@ -87,12 +88,29 @@ export default function PropertyDirectoryShell({ mode, basePath, hero }: Propert
   };
 
   const sortLabel = SORT_OPTIONS.find((option) => option.value === (filters.sort || "newest"))?.label || "Newest First";
-  const stats = hero.stats || [
-    { label: "Results", value: pagination?.totalItems ?? "—" },
-    { label: "Markets", value: "8+" },
-    { label: mode === "invest" ? "Yields" : "Operators", value: mode === "invest" ? "7%+" : "15+" },
-    { label: "Cities", value: "10+" },
-  ];
+  const totalItems = pagination?.totalItems;
+  const stats: AnimatedStatItem[] = hero.stats
+    ? hero.stats.map((item) => ({
+        label: item.label,
+        value: String(item.value),
+        numericValue: typeof item.value === "number" ? item.value : undefined,
+      }))
+    : [
+        {
+          label: "Results",
+          numericValue: typeof totalItems === "number" ? totalItems : undefined,
+          value: totalItems != null ? String(totalItems) : "—",
+        },
+        { label: "Markets", value: "8+", prefix: "", suffix: "+", numericValue: 8 },
+        {
+          label: mode === "invest" ? "Yields" : "Operators",
+          value: mode === "invest" ? "7%+" : "15+",
+          prefix: "",
+          suffix: mode === "invest" ? "%+" : "+",
+          numericValue: mode === "invest" ? 7 : 15,
+        },
+        { label: "Cities", value: "10+", prefix: "", suffix: "+", numericValue: 10 },
+      ];
 
   return (
     <>
@@ -107,18 +125,7 @@ export default function PropertyDirectoryShell({ mode, basePath, hero }: Propert
               <p className="mt-3 max-w-2xl text-white/72">{hero.description}</p>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:min-w-[560px]">
-              {stats.map((item) => (
-                <Card
-                  key={item.label}
-                  padding="sm"
-                  className="border-blue-100/80 bg-[linear-gradient(135deg,rgba(255,255,255,0.98),rgba(240,247,255,0.94))] text-center shadow-sm"
-                >
-                  <p className="text-xs uppercase tracking-[0.18em] text-slate-500">{item.label}</p>
-                  <p className="mt-2 text-lg font-semibold text-slate-900">{item.value}</p>
-                </Card>
-              ))}
-            </div>
+            <AnimatedStatsGrid stats={stats} variant="dark-card" columns={4} className="lg:min-w-[560px]" />
           </div>
 
           <Card

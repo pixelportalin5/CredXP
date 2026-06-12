@@ -32,7 +32,7 @@ function Card({
     <Component
       className={cn(
         "rounded-2xl border border-slate-200/80 bg-[var(--bg-card)] shadow-sm",
-        hover && "surface-card-interactive hover:-translate-y-0.5 hover:shadow-md",
+        hover && "hover-expand-card relative hover:z-10",
         paddingStyles[padding],
         className
       )}
