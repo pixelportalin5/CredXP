@@ -25,6 +25,8 @@ const {
 const { purgeTempListings } = require("./purgeTempListings");
 const { invalidatePrefix } = require("../utils/queryCache");
 
+const ADMIN_EMAIL = "admin@gmail.com";
+
 const FORCE_ALL = process.argv.includes("--force");
 const FORCE_SHOPS = FORCE_ALL || process.argv.includes("--force-shops");
 const FORCE_OFFICES = FORCE_ALL || process.argv.includes("--force-offices");
@@ -52,9 +54,9 @@ function normalizeListing(raw, batchTag) {
   };
 }
 
-async function insertListing(listing, batchTag) {
+async function insertListing(listing, batchTag, sellerUuid) {
   const payload = normalizeListing(listing, batchTag);
-  const data = propertyDataToPrisma(payload);
+  const data = propertyDataToPrisma(payload, { sellerUuid });
 
   return prisma.property.create({
     data: {
@@ -66,7 +68,7 @@ async function insertListing(listing, batchTag) {
   });
 }
 
-async function seedBatch({ batchTag, listings, force, label }) {
+async function seedBatch({ batchTag, listings, force, label, sellerUuid }) {
   const existing = await prisma.property.count({
     where: { highlights: { has: batchTag } },
   });
@@ -94,7 +96,7 @@ async function seedBatch({ batchTag, listings, force, label }) {
     }
     let inserted = 0;
     for (const listing of toInsert) {
-      await insertListing(listing, batchTag);
+      await insertListing(listing, batchTag, sellerUuid);
       inserted += 1;
     }
     console.log(`[seed-rent-pdf] ${label}: inserted ${inserted} missing row(s)`);
@@ -103,7 +105,7 @@ async function seedBatch({ batchTag, listings, force, label }) {
 
   let inserted = 0;
   for (const listing of listings) {
-    await insertListing(listing, batchTag);
+    await insertListing(listing, batchTag, sellerUuid);
     inserted += 1;
   }
 
@@ -165,6 +167,15 @@ async function main() {
     process.exit(1);
   }
 
+  const admin = await prisma.user.findFirst({
+    where: { email: ADMIN_EMAIL },
+    select: { id: true, email: true, role: true },
+  });
+  if (!admin) {
+    console.error(`[seed-rent-pdf] Admin user not found: ${ADMIN_EMAIL}`);
+    process.exit(1);
+  }
+
   const purged = await purgeTempListings({ keepRentPdfSeeds: true });
   console.log(`[seed-rent-pdf] Purged ${purged} legacy temporary listing(s)`);
 
@@ -173,6 +184,7 @@ async function main() {
     listings: rentShopListings,
     force: FORCE_SHOPS,
     label: "Shops",
+    sellerUuid: admin.id,
   });
 
   await seedBatch({
@@ -180,6 +192,7 @@ async function main() {
     listings: rentOfficeListings,
     force: FORCE_OFFICES,
     label: "Offices",
+    sellerUuid: admin.id,
   });
 
   invalidatePrefix("properties");
