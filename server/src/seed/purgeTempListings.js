@@ -10,8 +10,9 @@ const prisma = require("../lib/prisma");
 const { invalidatePrefix } = require("../utils/queryCache");
 const { SEED_BUILDING_NAMES: OLD_JUNE_BUILDINGS, LEGACY_SEED_TAG } = require("./data/june2026PdfListings");
 const { SEED_BATCH: RENT_SHOPS_BATCH } = require("./data/june2026RentShops");
+const { SEED_BATCH: RENT_OFFICES_BATCH } = require("./data/june2026RentOffices");
 
-async function purgeTempListings({ keepRentShops = false } = {}) {
+async function purgeTempListings({ keepRentPdfSeeds = false } = {}) {
   const orClauses = [
     { buildingName: { in: OLD_JUNE_BUILDINGS } },
     { title: { startsWith: LEGACY_SEED_TAG } },
@@ -21,8 +22,9 @@ async function purgeTempListings({ keepRentShops = false } = {}) {
     { title: { startsWith: "Lease - " } },
   ];
 
-  if (!keepRentShops) {
+  if (!keepRentPdfSeeds) {
     orClauses.push({ highlights: { has: RENT_SHOPS_BATCH } });
+    orClauses.push({ highlights: { has: RENT_OFFICES_BATCH } });
   }
 
   const result = await prisma.property.deleteMany({
