@@ -23,6 +23,7 @@ const {
   SEED_BATCH: OFFICE_BATCH,
 } = require("./data/june2026RentOffices");
 const { purgeTempListings } = require("./purgeTempListings");
+const { listingImages } = require("./data/june2026RentImageAssignments");
 const { invalidatePrefix } = require("../utils/queryCache");
 
 const ADMIN_EMAIL = "admin@gmail.com";
@@ -38,13 +39,15 @@ function normalizeListing(raw, batchTag) {
     highlights.push(`Broker: ${brokerContact}`);
   }
 
+  const imageBundle = listingImages(rest);
+
   return {
     ...rest,
     highlights,
-    images: [],
-    imagePublicIds: [],
-    coverImage: "",
-    coverImagePublicId: "",
+    images: imageBundle.images,
+    imagePublicIds: imageBundle.imagePublicIds,
+    coverImage: imageBundle.coverImage,
+    coverImagePublicId: imageBundle.coverImagePublicId,
     status: "Recently Posted",
     grade: rest.grade || "A",
     isActive: true,

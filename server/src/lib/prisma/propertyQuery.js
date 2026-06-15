@@ -1,5 +1,5 @@
 const { CATEGORY_TYPE_MAP, resolveCategory, parseTypes } = require("../../utils/propertyFilters");
-const { PROPERTY_TYPE_FROM_API, FURNISHING_FROM_API } = require("./mappers");
+const { PROPERTY_TYPE_FROM_API, FURNISHING_FROM_API, DISPLAY_STATUS_FROM_API } = require("./mappers");
 
 const LISTING_STATUS_VALUES = new Set(["Recently Posted", "Trending"]);
 const LEASE_PRICE_UNITS = ["month", "year"];
@@ -61,7 +61,7 @@ function buildPropertyWhere(filters = {}) {
   }
 
   if (status && status !== "Pre-Leased" && LISTING_STATUS_VALUES.has(status)) {
-    where.status = status === "Recently Posted" ? "Recently_Posted" : status;
+    where.status = DISPLAY_STATUS_FROM_API[status] || status;
   }
 
   if (furnishing) where.specFurnishing = FURNISHING_FROM_API[furnishing] || furnishing;

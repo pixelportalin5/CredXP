@@ -38,6 +38,35 @@ const FURNISHING_TO_API = Object.fromEntries(
   Object.entries(FURNISHING_FROM_API).map(([api, prisma]) => [prisma, api])
 );
 
+/** API / Mongo display labels ↔ Prisma PropertyDisplayStatus enum keys */
+const DISPLAY_STATUS_FROM_API = {
+  "Recently Posted": "Recently_Posted",
+  Recently_Posted: "Recently_Posted",
+  Trending: "Trending",
+};
+
+const DISPLAY_STATUS_TO_API = {
+  Recently_Posted: "Recently Posted",
+  Trending: "Trending",
+};
+
+/** API grade labels ↔ Prisma PropertyGrade enum keys */
+const GRADE_FROM_API = {
+  A: "A",
+  "A+": "A_Plus",
+  A_Plus: "A_Plus",
+  B: "B",
+  "B+": "B_Plus",
+  B_Plus: "B_Plus",
+};
+
+const GRADE_TO_API = {
+  A: "A",
+  A_Plus: "A+",
+  B: "B",
+  B_Plus: "B+",
+};
+
 function apiId(record) {
   if (!record) return null;
   return record.legacyMongoId || record.id;
@@ -152,8 +181,8 @@ function toApiProperty(record, { includeAll = true } = {}) {
     imagePublicIds: record.imagePublicIds || [],
     coverImage: record.coverImage || "",
     coverImagePublicId: record.coverImagePublicId || "",
-    status: record.status,
-    grade: record.grade || undefined,
+    status: mapEnumToApi(DISPLAY_STATUS_TO_API, record.status),
+    grade: mapEnumToApi(GRADE_TO_API, record.grade) || undefined,
     occupancy: record.occupancy ?? undefined,
     reraId: record.reraId || undefined,
     buildingName: record.buildingName || undefined,
@@ -228,8 +257,8 @@ function propertyDataToPrisma(data, { sellerUuid } = {}) {
     imagePublicIds: data.imagePublicIds || [],
     coverImage: data.coverImage || "",
     coverImagePublicId: data.coverImagePublicId || "",
-    status: data.status || "Recently_Posted",
-    grade: data.grade || null,
+    status: mapEnumFromApi(DISPLAY_STATUS_FROM_API, data.status) || "Recently_Posted",
+    grade: data.grade ? mapEnumFromApi(GRADE_FROM_API, data.grade) : null,
     occupancy: data.occupancy ?? null,
     reraId: data.reraId || null,
     buildingName: data.buildingName || null,
@@ -394,4 +423,8 @@ module.exports = {
   PROPERTY_TYPE_TO_API,
   FURNISHING_FROM_API,
   FURNISHING_TO_API,
+  DISPLAY_STATUS_FROM_API,
+  DISPLAY_STATUS_TO_API,
+  GRADE_FROM_API,
+  GRADE_TO_API,
 };

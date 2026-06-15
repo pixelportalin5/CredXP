@@ -38,7 +38,9 @@
     "validate:june2026-listings": "node scripts/validate-june2026-rent-shops.js",
     "validate:june2026-rent-shops": "node scripts/validate-june2026-rent-shops.js",
     "audit:properties": "node scripts/audit-property-listings.js",
-    "assign:properties-admin": "node scripts/assign-properties-to-admin.js"
+    "assign:properties-admin": "node scripts/assign-properties-to-admin.js",
+    "validate:property-status": "node scripts/validate-property-status-enum.js",
+    "backfill:june2026-images": "node scripts/backfill-june2026-rent-images.js"
   },
   "keywords": [],
   "author": "",

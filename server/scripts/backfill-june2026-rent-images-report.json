@@ -1,0 +1,298 @@
+{
+  "startedAt": "2026-06-15T12:23:42.194Z",
+  "dryRun": false,
+  "force": false,
+  "updated": [
+    {
+      "id": "d73a0eba-9ee2-48da-b53d-3a42530daa35",
+      "title": "DLF Phase 1 — A-26/12C — 2,000 sq ft SF Commercial @8.50L",
+      "buildingName": "DLF Phase 1 — A-26/12C",
+      "theme": "corporate-headquarters",
+      "matchedBy": "buildingName",
+      "images": [
+        "/images/TempImages/magnific__corporate-headquarters-professional-commercial-rea__91867.jpg",
+        "/images/TempImages/magnific__corporate-headquarters-professional-commercial-rea__91866.jpg",
+        "/images/TempImages/magnific__corporate-headquarters-professional-commercial-rea__91868.jpg"
+      ]
+    },
+    {
+      "id": "5dc54384-63c8-416e-841b-bc2e6f1a1878",
+      "title": "DLF Phase 1 — A-55/16 — 2,200 sq ft BMT @1.20L",
+      "buildingName": "DLF Phase 1 — A-55/16",
+      "theme": "enterprise-operations-center",
+      "matchedBy": "buildingName",
+      "images": [
+        "/images/TempImages/magnific__enterprise-operations-center-professional-commerci__91903.jpg",
+        "/images/TempImages/magnific__enterprise-operations-center-professional-commerci__91902.jpg",
+        "/images/TempImages/magnific__enterprise-operations-center-professional-commerci__91904.jpg"
+      ]
+    },
+    {
+      "id": "d0017b47-b82c-4ee8-8520-9cfb26bcab6e",
+      "title": "DLF Phase 1 — C-5/1 — 4,032 sq ft Multi-Floor Hall @4L",
+      "buildingName": "DLF Phase 1 — C-5/1",
+      "theme": "corporate-headquarters",
+      "matchedBy": "buildingName",
+      "images": [
+        "/images/TempImages/magnific__corporate-headquarters-professional-commercial-rea__91867.jpg",
+        "/images/TempImages/magnific__corporate-headquarters-professional-commercial-rea__91866.jpg",
+        "/images/TempImages/magnific__corporate-headquarters-professional-commercial-rea__91868.jpg"
+      ]
+    },
+    {
+      "id": "b0ba03de-6fa0-440f-97f6-49e3e04fe986",
+      "title": "DLF Phase 1 — E-5/16 — 2,200 sq ft BMT Hall @1.50L",
+      "buildingName": "DLF Phase 1 — E-5/16",
+      "theme": "startup-office",
+      "matchedBy": "buildingName",
+      "images": [
+        "/images/TempImages/magnific__startup-office-professional-commercial-real-estate__91864.jpg",
+        "/images/TempImages/magnific__startup-office-professional-commercial-real-estate__91863.jpg",
+        "/images/TempImages/magnific__startup-office-professional-commercial-real-estate__91865.jpg"
+      ]
+    },
+    {
+      "id": "cd94432a-a0eb-4380-b88f-fc241f9b97ee",
+      "title": "DLF Phase 1 — H-1/21 — 2,000 sq ft BMT Hall @85K",
+      "buildingName": "DLF Phase 1 — H-1/21",
+      "theme": "coworking-space",
+      "matchedBy": "buildingName",
+      "images": [
+        "/images/TempImages/magnific__coworking-space-professional-commercial-real-estat__91873.jpg",
+        "/images/TempImages/magnific__coworking-space-professional-commercial-real-estat__91872.jpg",
+        "/images/TempImages/magnific__coworking-space-professional-commercial-real-estat__91874.jpg"
+      ]
+    },
+    {
+      "id": "8f449f9a-5357-4fca-9b78-5ddec707e501",
+      "title": "DLF Phase 1 — MGF Megacity Mall — 850 sq ft GF @70K+M",
+      "buildingName": "MGF Megacity Mall — 25",
+      "theme": "luxury-multibrand-retail-store",
+      "matchedBy": "buildingName",
+      "images": [
+        "/images/TempImages/magnific__luxury-multibrand-retail-store-professional-commer__91860.jpg",
+        "/images/TempImages/magnific__luxury-multibrand-retail-store-professional-commer__91861.jpg",
+        "/images/TempImages/magnific__luxury-multibrand-retail-store-professional-commer__91862.jpg"
+      ]
+    },
+    {
+      "id": "769830e6-048d-4aa8-9f0d-c2dc911420bd",
+      "title": "DLF Phase 2 — K-1/12 — 2,200 sq ft FF @1.20L",
+      "buildingName": "DLF Phase 2 — K-1/12",
+      "theme": "executive-office-suite",
+      "matchedBy": "buildingName",
+      "images": [
+        "/images/TempImages/magnific__executive-office-suite-professional-commercial-rea__91875.jpg",
+        "/images/TempImages/magnific__executive-office-suite-professional-commercial-rea__91876.jpg",
+        "/images/TempImages/magnific__executive-office-suite-professional-commercial-rea__91877.jpg"
+      ]
+    },
+    {
+      "id": "ba9ef901-9447-4835-9142-79953496c1b1",
+      "title": "DLF Phase 2 — K-7/5 — 2,200 sq ft FF Semi Furnished @1.20L",
+      "buildingName": "DLF Phase 2 — K-7/5",
+      "theme": "executive-office-suite",
+      "matchedBy": "buildingName",
+      "images": [
+        "/images/TempImages/magnific__executive-office-suite-professional-commercial-rea__91875.jpg",
+        "/images/TempImages/magnific__executive-office-suite-professional-commercial-rea__91876.jpg",
+        "/images/TempImages/magnific__executive-office-suite-professional-commercial-rea__91877.jpg"
+      ]
+    },
+    {
+      "id": "91ba94c0-d9da-4725-80a3-a810f3497086",
+      "title": "DLF Phase 4 — 3102 — 3,000 sq ft FF Hall @3L",
+      "buildingName": "DLF Phase 4 — 3102",
+      "theme": "boardroom-meeting-center",
+      "matchedBy": "buildingName",
+      "images": [
+        "/images/TempImages/magnific__boardroom-meeting-center-professional-commercial-r__91900.jpg",
+        "/images/TempImages/magnific__boardroom-meeting-center-professional-commercial-r__91899.jpg",
+        "/images/TempImages/magnific__boardroom-meeting-center-professional-commercial-r__91901.jpg"
+      ]
+    },
+    {
+      "id": "e1050216-ab5d-40a5-8fa1-051bd372002f",
+      "title": "DLF Phase 4 — 4101 — 2,900 sq ft FF @1.75L",
+      "buildingName": "DLF Phase 4 — 4101",
+      "theme": "executive-office-suite",
+      "matchedBy": "buildingName",
+      "images": [
+        "/images/TempImages/magnific__executive-office-suite-professional-commercial-rea__91875.jpg",
+        "/images/TempImages/magnific__executive-office-suite-professional-commercial-rea__91876.jpg",
+        "/images/TempImages/magnific__executive-office-suite-professional-commercial-rea__91877.jpg"
+      ]
+    },
+    {
+      "id": "3ca3a3c6-5428-4394-aa15-9d812d493fff",
+      "title": "DLF Phase 4 — Cross Point — 1,350 sq ft GF Main Road @300/sqft",
+      "buildingName": "Cross Point — 1,350 sq ft GF",
+      "theme": "luxury-multibrand-retail-store",
+      "matchedBy": "buildingName",
+      "images": [
+        "/images/TempImages/magnific__luxury-multibrand-retail-store-professional-commer__91860.jpg",
+        "/images/TempImages/magnific__luxury-multibrand-retail-store-professional-commer__91861.jpg",
+        "/images/TempImages/magnific__luxury-multibrand-retail-store-professional-commer__91862.jpg"
+      ]
+    },
+    {
+      "id": "ffdcd66f-6ca9-4caa-8155-616ef72e1781",
+      "title": "DLF Phase 4 — DLF Super Mart-1 — 1,700 sq ft UGF (B-246)",
+      "buildingName": "DLF Super Mart-1 — B-246",
+      "theme": "neighborhood-grocery-store",
+      "matchedBy": "buildingName",
+      "images": [
+        "/images/TempImages/magnific__neighborhood-grocery-store-professional-commercial__91824.jpg",
+        "/images/TempImages/magnific__neighborhood-grocery-store-professional-commercial__91825.jpg",
+        "/images/TempImages/magnific__neighborhood-grocery-store-professional-commercial__91826.jpg"
+      ]
+    },
+    {
+      "id": "1968c4af-8a91-45a4-89a3-def21bbd7287",
+      "title": "Palam Vihar — Vyapaar Kendra — C-100, 750 sq ft FF Shop @35K",
+      "buildingName": "Vyapaar Kendra — C-100",
+      "theme": "bookstore",
+      "matchedBy": "buildingName",
+      "images": [
+        "/images/TempImages/magnific__bookstore-professional-commercial-real-estate-phot__91830.jpg",
+        "/images/TempImages/magnific__bookstore-professional-commercial-real-estate-phot__91831.jpg",
+        "/images/TempImages/magnific__bookstore-professional-commercial-real-estate-phot__91832.jpg"
+      ]
+    },
+    {
+      "id": "fbaf7b52-b2e9-4b49-8bc3-f98e12e3064c",
+      "title": "Palam Vihar — Vyapar Kendra — P-100, 750 sq ft FF @50K",
+      "buildingName": "Vyapar Kendra — P-100",
+      "theme": "electronics-store",
+      "matchedBy": "buildingName",
+      "images": [
+        "/images/TempImages/magnific__electronics-store-professional-commercial-real-est__91822.jpg",
+        "/images/TempImages/magnific__electronics-store-professional-commercial-real-est__91821.jpg",
+        "/images/TempImages/magnific__electronics-store-professional-commercial-real-est__91823.jpg"
+      ]
+    },
+    {
+      "id": "57c7462a-f2b9-49b4-b8f9-c74d11de281b",
+      "title": "Sector 18 — SCO-36 — 144 sq yd SF @60K",
+      "buildingName": "SCO-36, Sector 18",
+      "theme": "home-decor-store",
+      "matchedBy": "buildingName",
+      "images": [
+        "/images/TempImages/magnific__home-decor-store-professional-commercial-real-esta__91855.jpg",
+        "/images/TempImages/magnific__home-decor-store-professional-commercial-real-esta__91854.jpg",
+        "/images/TempImages/magnific__home-decor-store-professional-commercial-real-esta__91856.jpg"
+      ]
+    },
+    {
+      "id": "05b1dad5-7c48-4372-a7ee-0eae64c6e0f9",
+      "title": "Sector 28 — MGF Metro Polish — 1,650 sq ft GF Showroom @200/sqft",
+      "buildingName": "MGF Metro Polish — 27",
+      "theme": "furniture-showroom",
+      "matchedBy": "buildingName",
+      "images": [
+        "/images/TempImages/magnific__furniture-showroom-professional-commercial-real-es__91836.jpg",
+        "/images/TempImages/magnific__furniture-showroom-professional-commercial-real-es__91837.jpg",
+        "/images/TempImages/magnific__furniture-showroom-professional-commercial-real-es__91838.jpg"
+      ]
+    },
+    {
+      "id": "3dbb2ddd-e8c8-4972-9aaa-12c8105b7195",
+      "title": "Sector 28 — MGF Metropolis Mall — SHOP NO-48, 1,380 sq ft @1.25L",
+      "buildingName": "MGF Metropolis Mall — Shop 48",
+      "theme": "luxury-multibrand-retail-store",
+      "matchedBy": "buildingName",
+      "images": [
+        "/images/TempImages/magnific__luxury-multibrand-retail-store-professional-commer__91860.jpg",
+        "/images/TempImages/magnific__luxury-multibrand-retail-store-professional-commer__91861.jpg",
+        "/images/TempImages/magnific__luxury-multibrand-retail-store-professional-commer__91862.jpg"
+      ]
+    },
+    {
+      "id": "81bc0b24-9d2d-4669-9f89-7b653291cf39",
+      "title": "Sector 28 — MGF Metropolitan Mall — FF-23, 850 sq ft FF Shop @2.75L",
+      "buildingName": "MGF Metropolitan Mall — FF-23",
+      "theme": "modern-fashion-boutique",
+      "matchedBy": "buildingName",
+      "images": [
+        "/images/TempImages/magnific__modern-fashion-boutique-professional-commercial-re__91819.jpg",
+        "/images/TempImages/magnific__modern-fashion-boutique-professional-commercial-re__91818.jpg",
+        "/images/TempImages/magnific__modern-fashion-boutique-professional-commercial-re__91820.jpg"
+      ]
+    },
+    {
+      "id": "44c06deb-660c-45df-9005-9d3b19e95b6a",
+      "title": "Sector 37D — Signature Global The Millenia-3 — 336 sq ft SF Shop @40K",
+      "buildingName": "Signature Global The Millenia-3 — 24",
+      "theme": "coffee-shop",
+      "matchedBy": "buildingName",
+      "images": [
+        "/images/TempImages/magnific__coffee-shop-professional-commercial-real-estate-ph__91843.jpg",
+        "/images/TempImages/magnific__coffee-shop-professional-commercial-real-estate-ph__91842.jpg",
+        "/images/TempImages/magnific__coffee-shop-professional-commercial-real-estate-ph__91844.jpg"
+      ]
+    },
+    {
+      "id": "9d0ac4e3-ec51-413e-8878-d108a37efcdf",
+      "title": "Sector 3A — Apna Enclave — B-8, 250 sq ft UGF Shop @30K",
+      "buildingName": "Apna Enclave — B-8",
+      "theme": "pharmacy",
+      "matchedBy": "buildingName",
+      "images": [
+        "/images/TempImages/magnific__pharmacy-professional-commercial-real-estate-photo__91834.jpg",
+        "/images/TempImages/magnific__pharmacy-professional-commercial-real-estate-photo__91833.jpg",
+        "/images/TempImages/magnific__pharmacy-professional-commercial-real-estate-photo__91835.jpg"
+      ]
+    },
+    {
+      "id": "90003eb8-66f1-4656-bb03-f5ab19afd7fc",
+      "title": "South City-2 — Rodeo Drive — DG-57, 642 sq ft GF Shop @70K",
+      "buildingName": "Rodeo Drive — DG-57",
+      "theme": "modern-fashion-boutique",
+      "matchedBy": "buildingName",
+      "images": [
+        "/images/TempImages/magnific__modern-fashion-boutique-professional-commercial-re__91819.jpg",
+        "/images/TempImages/magnific__modern-fashion-boutique-professional-commercial-re__91818.jpg",
+        "/images/TempImages/magnific__modern-fashion-boutique-professional-commercial-re__91820.jpg"
+      ]
+    },
+    {
+      "id": "f2054bfd-5229-4f87-b73b-b45b51eba67d",
+      "title": "Sushant Lok-1 — A-570 — 2,200 sq ft BMT Hall @65K",
+      "buildingName": "Sushant Lok-1 — A-570",
+      "theme": "real-estate-office",
+      "matchedBy": "buildingName",
+      "images": [
+        "/images/TempImages/magnific__real-estate-office-professional-commercial-real-es__91891.jpg",
+        "/images/TempImages/magnific__real-estate-office-professional-commercial-real-es__91890.jpg",
+        "/images/TempImages/magnific__real-estate-office-professional-commercial-real-es__91892.jpg"
+      ]
+    },
+    {
+      "id": "0f522339-8d9a-42da-9ef8-86e86b83c083",
+      "title": "Udyog Vihar Phase 1 — Plot 29 — 3,000 sq ft BMT @1.50L",
+      "buildingName": "Udyog Vihar Phase 1 — Plot 29",
+      "theme": "tech-company-workspace",
+      "matchedBy": "buildingName",
+      "images": [
+        "/images/TempImages/magnific__tech-company-workspace-professional-commercial-rea__91870.jpg",
+        "/images/TempImages/magnific__tech-company-workspace-professional-commercial-rea__91869.jpg",
+        "/images/TempImages/magnific__tech-company-workspace-professional-commercial-rea__91871.jpg"
+      ]
+    },
+    {
+      "id": "da916146-ae4b-4bdc-9f18-2de400f83b03",
+      "title": "Udyog Vihar Phase 1 — Plot 62 — 3,000 sq ft FF @1.50L",
+      "buildingName": "Udyog Vihar Phase 1 — Plot 62",
+      "theme": "design-studio",
+      "matchedBy": "buildingName",
+      "images": [
+        "/images/TempImages/magnific__design-studio-professional-commercial-real-estate-__91888.jpg",
+        "/images/TempImages/magnific__design-studio-professional-commercial-real-estate-__91887.jpg",
+        "/images/TempImages/magnific__design-studio-professional-commercial-real-estate-__91889.jpg"
+      ]
+    }
+  ],
+  "skipped": [],
+  "failed": [],
+  "finishedAt": "2026-06-15T12:23:44.417Z"
+}
