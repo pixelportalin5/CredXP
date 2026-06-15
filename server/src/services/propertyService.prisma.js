@@ -8,7 +8,7 @@ const { externalIdWhere, newLegacyMongoId, newUuid } = require("../lib/prisma/le
 const { findUser, findProperty } = require("../lib/prisma/resolveEntity");
 const { toApiProperty, propertyDataToPrisma } = require("../lib/prisma/mappers");
 
-/** List-view projection — card fields only; excludes coverImage blob (use coverImagePublicId). */
+/** List-view projection — card fields; coverImage path or Cloudinary publicId for thumbnails. */
 const PROPERTY_PRISMA_LIST_SELECT = {
   id: true,
   legacyMongoId: true,
@@ -38,6 +38,7 @@ const PROPERTY_PRISMA_LIST_SELECT = {
   listingStatus: true,
   isActive: true,
   createdAt: true,
+  coverImage: true,
   coverImagePublicId: true,
 };
 

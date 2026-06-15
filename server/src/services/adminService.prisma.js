@@ -41,6 +41,7 @@ const ADMIN_PROPERTY_PRISMA_LIST_SELECT = {
   isActive: true,
   buildingName: true,
   createdAt: true,
+  coverImage: true,
   coverImagePublicId: true,
   seller: {
     select: { legacyMongoId: true, name: true, email: true, role: true },
