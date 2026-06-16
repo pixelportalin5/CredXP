@@ -203,6 +203,13 @@ body {
   overflow: hidden;
 }
 
+.line-clamp-4 {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 /* Skeleton shimmer animation */
 @keyframes shimmer {
   0% {
@@ -426,12 +433,26 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .partner-marquee {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
   .partner-marquee-track {
     animation: none;
-    flex-wrap: wrap;
-    width: 100%;
-    justify-content: center;
+    flex-wrap: nowrap;
+    width: max-content;
   }
+}
+
+/* Hide scrollbars for horizontal tab menus / marquees */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
 
 /* Glass effect utility */

@@ -28,7 +28,7 @@ export default function HomePage() {
 
       <GoalCardsSection />
 
-      <section className="border-t border-slate-200 bg-slate-50 py-12 lg:py-14">
+      <section className="border-t border-slate-200 bg-slate-50 py-10 lg:py-14">
         <Container size="xl">
           <ScrollReveal>
             <SectionHeader

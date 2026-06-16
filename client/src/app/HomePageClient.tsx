@@ -109,9 +109,9 @@ export default function HomePageClient() {
   return (
     <>
       {/* Featured / Trending */}
-      <section className="py-16 lg:py-20">
+      <section className="py-10 lg:py-20">
         <Container>
-          <ScrollReveal className="mb-6 flex items-end justify-between gap-4">
+          <ScrollReveal className="mb-4 flex items-end justify-between gap-4 lg:mb-6">
             <SectionHeader
               eyebrow="Trending Now"
               eyebrowIcon={<TrendingUp className="h-4 w-4" />}
@@ -126,32 +126,64 @@ export default function HomePageClient() {
             </Link>
           </ScrollReveal>
 
-          <div className="mb-5 flex flex-wrap items-center gap-2">
-            {featuredTabs.map((tab) => {
-              const isActive = activeFeaturedTab === tab.key;
+          {/* Mobile / tablet: sticky horizontal tab menu */}
+          <div className="sticky top-[4.75rem] z-30 -mx-4 border-b border-slate-200/90 bg-[var(--bg-primary)]/95 px-4 py-3 backdrop-blur-md sm:top-[5.25rem] lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:px-0 lg:py-0 lg:backdrop-blur-none">
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide snap-x snap-mandatory">
+              {featuredTabs.map((tab) => {
+                const isActive = activeFeaturedTab === tab.key;
 
-              return (
-                <button
-                  key={tab.key}
-                  type="button"
-                  onClick={() => {
-                    setActiveFeaturedTab(tab.key);
-                    setFeaturedPage(0);
-                  }}
-                  className={[
-                    "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-all",
-                    isActive
-                      ? "border-slate-900 bg-slate-900 text-white shadow-sm"
-                      : "border-slate-200 bg-white text-slate-700 hover:border-accent-500/30 hover:text-slate-900",
-                  ].join(" ")}
-                >
-                  {tab.label}
-                </button>
-              );
-            })}
+                return (
+                  <button
+                    key={tab.key}
+                    type="button"
+                    onClick={() => {
+                      setActiveFeaturedTab(tab.key);
+                      setFeaturedPage(0);
+                    }}
+                    className={[
+                      "inline-flex shrink-0 snap-start items-center gap-2 whitespace-nowrap rounded-full border px-3.5 py-2 text-xs font-semibold transition-all sm:px-4 sm:text-sm",
+                      isActive
+                        ? "border-slate-900 bg-slate-900 text-white shadow-sm"
+                        : "border-slate-200 bg-white text-slate-700 hover:border-accent-500/30 hover:text-slate-900",
+                    ].join(" ")}
+                  >
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          <div className="mt-6 rounded-[1.75rem] border border-slate-200/80 bg-white px-4 py-4 shadow-sm">
+          {/* Mobile: vertical property list */}
+          <div className="mt-4 space-y-4 lg:hidden">
+            {loading ? (
+              Array.from({ length: 4 }).map((_, i) => <PropertyCardSkeleton key={i} />)
+            ) : allProperties.length === 0 ? (
+              <p className="rounded-2xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-600">
+                No properties found for this filter.{" "}
+                <Link href={featuredTabHref(activeFeaturedTab)} className="font-medium text-accent-500 hover:text-accent-600">
+                  Browse all
+                </Link>
+              </p>
+            ) : (
+              allProperties.slice(0, 8).map((property) => (
+                <PropertyCard key={property._id} property={property} variant="featured" />
+              ))
+            )}
+
+            {!loading && allProperties.length > 0 && (
+              <Link
+                href={featuredTabHref(activeFeaturedTab)}
+                className="flex items-center justify-center gap-1 py-2 text-sm font-semibold text-accent-500 hover:text-accent-600"
+              >
+                View all {featuredTabs.find((tab) => tab.key === activeFeaturedTab)?.label}
+                <ChevronRight className="h-4 w-4" />
+              </Link>
+            )}
+          </div>
+
+          {/* Desktop: paginated carousel */}
+          <div className="mt-6 hidden rounded-[1.75rem] border border-slate-200/80 bg-white px-4 py-4 shadow-sm lg:block">
             <div className="mb-4 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2 text-sm font-medium text-slate-600">
                 <SlidersHorizontal className="h-4 w-4 text-accent-500" />
@@ -221,9 +253,7 @@ export default function HomePageClient() {
           </div>
         </Container>
       </section>
-
-      {/* Top Coworking Spaces */}
-      <section className="border-t border-slate-200 bg-slate-50 py-16 lg:py-20">
+      <section className="border-t border-slate-200 bg-slate-50 py-10 lg:py-20">
         <Container>
           <ScrollReveal className="mb-6 flex items-end justify-between gap-4">
             <SectionHeader

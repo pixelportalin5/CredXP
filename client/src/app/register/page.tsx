@@ -73,7 +73,7 @@ export default function RegisterPage() {
             <EnterpriseInput name="email" type="email" placeholder="seller@example.com" required />
           </FormField>
           <FormField label="Phone">
-            <EnterpriseInput name="phone" type="tel" placeholder="+91 98765 43210" />
+            <EnterpriseInput name="phone" type="tel" placeholder="+91 85951 91894" />
           </FormField>
           <FormField label="Account Type">
             <EnterpriseSelect

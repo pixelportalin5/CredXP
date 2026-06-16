@@ -12,9 +12,9 @@ export const siteConfig = {
   ogImage: "/og-image.jpg",
 
   contact: {
-    email: "enquiry@credxp.com",
-    phone: "+91 98765 43210",
-    whatsapp: "+919876543210",
+    email: "sales@credxp.com",
+    phone: "+91 85951 91894",
+    whatsapp: "+918595191894",
     address: "Gurugram, Haryana, India",
   },
 

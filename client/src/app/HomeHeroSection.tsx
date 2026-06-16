@@ -103,7 +103,7 @@ export default function HomeHeroSection() {
   };
 
   return (
-    <section className="relative overflow-hidden pb-16 pt-28 lg:min-h-[920px] lg:pb-24">
+    <section className="relative overflow-hidden pb-8 pt-[5.5rem] sm:pb-12 sm:pt-24 lg:min-h-[920px] lg:pb-24 lg:pt-28">
       <Image
         key={selectedGoal}
         src={activeHeroBackground}
@@ -118,21 +118,21 @@ export default function HomeHeroSection() {
 
       <Container size="xl" className="relative z-10">
         <div className="grid gap-12 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-center">
-          <div className="max-w-2xl space-y-8 rounded-[2rem] border border-white/12 bg-slate-950/35 p-7 shadow-2xl backdrop-blur-md sm:p-10 lg:py-12">
-            <h1 className="max-w-[620px] text-[3rem] font-extrabold leading-[1.02] tracking-tight text-white lg:text-[4.2rem]">
+          <div className="max-w-2xl space-y-4 rounded-[1.5rem] border border-white/12 bg-slate-950/35 p-5 shadow-2xl backdrop-blur-md sm:space-y-6 sm:rounded-[2rem] sm:p-8 lg:space-y-8 lg:p-10 lg:py-12">
+            <h1 className="max-w-[620px] text-[1.85rem] font-extrabold leading-[1.08] tracking-tight text-white sm:text-[2.65rem] lg:text-[4.2rem] lg:leading-[1.02]">
               Premium Commercial
               <br />
               Real Estate.
               <span className="text-accent-500"> Delivered.</span>
             </h1>
 
-            <p className="max-w-[480px] text-lg leading-relaxed text-white/78">
+            <p className="max-w-[480px] text-sm leading-relaxed text-white/78 sm:text-lg">
               Pre-leased investments, Grade A office spaces. Flexible workspaces. All in one place.
             </p>
 
-            <div className="space-y-4">
-              <p className="text-xs font-bold uppercase tracking-widest text-white/75">Choose Your Goal</p>
-              <div className="grid grid-cols-3 gap-3">
+            <div className="space-y-3">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-white/75 sm:text-xs">Choose Your Goal</p>
+              <div className="-mx-1 flex gap-2 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-3 sm:overflow-visible sm:pb-0">
                 {goalCards.map((goal) => {
                   const isSelected = selectedGoal === goal.key;
                   return (
@@ -141,7 +141,7 @@ export default function HomeHeroSection() {
                       type="button"
                       onClick={() => setSelectedGoal(goal.key)}
                       className={[
-                        "group flex min-h-[120px] flex-col items-start justify-center rounded-2xl border p-4 text-left transition-all duration-300",
+                        "group flex min-h-[92px] min-w-[108px] shrink-0 snap-start flex-col items-start justify-center rounded-xl border p-3 text-left transition-all duration-300 sm:min-h-[120px] sm:min-w-0 sm:rounded-2xl sm:p-4",
                         isSelected
                           ? "scale-[1.02] border-white/20 bg-white text-slate-900 shadow-lg shadow-black/20 ring-2 ring-accent-500"
                           : "border-white/15 bg-white/8 text-white opacity-80 hover:border-white/30 hover:bg-white/12 hover:opacity-100",
@@ -155,14 +155,14 @@ export default function HomeHeroSection() {
                       >
                         {goal.icon}
                       </div>
-                      <h3 className="whitespace-pre-line text-sm font-semibold leading-snug">{goal.title}</h3>
+                      <h3 className="whitespace-pre-line text-xs font-semibold leading-snug sm:text-sm">{goal.title}</h3>
                     </button>
                   );
                 })}
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-6 pt-4 text-xs font-semibold text-white/82">
+            <div className="hidden flex-wrap items-center gap-4 pt-2 text-xs font-semibold text-white/82 sm:flex sm:gap-6 sm:pt-4">
               <span className="flex flex-row items-center gap-2.5">
                 <ShieldCheck className="h-6 w-6 text-white/72" />
                 <span className="text-left text-[11px] font-bold leading-tight text-white/82">Pre-Leased<br />Blue-chip Tenants</span>
@@ -184,9 +184,9 @@ export default function HomeHeroSection() {
         </div>
 
         {/* Search Bar */}
-        <div className="relative z-20 mt-12 w-full lg:mt-16">
-          <div className="glass-panel mx-auto max-w-6xl rounded-3xl p-6 shadow-2xl sm:p-8">
-            <div className="mb-6 flex flex-wrap items-center gap-6 border-b border-white/20 pb-2">
+        <div className="relative z-20 mt-6 w-full sm:mt-10 lg:mt-16">
+          <div className="glass-panel mx-auto max-w-6xl rounded-2xl p-4 shadow-2xl sm:rounded-3xl sm:p-6 lg:p-8">
+            <div className="-mx-1 mb-4 flex items-center gap-2 overflow-x-auto border-b border-white/20 pb-2 scrollbar-hide sm:mx-0 sm:flex-wrap sm:gap-6">
               {searchTabs.map((tab) => {
                 const isActiveTab = activeTab === tab;
                 return (
@@ -195,7 +195,7 @@ export default function HomeHeroSection() {
                     type="button"
                     onClick={() => setActiveTab(tab)}
                     className={[
-                      "relative rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors",
+                      "relative shrink-0 snap-start rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors sm:text-sm",
                       isActiveTab
                         ? "bg-slate-900 text-white shadow-sm"
                         : "text-white/75 hover:bg-white/10 hover:text-white",

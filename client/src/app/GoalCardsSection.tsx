@@ -32,7 +32,7 @@ const goalCards = [
 
 export default function GoalCardsSection() {
   return (
-    <section className="border-t border-slate-200 py-16 lg:py-20">
+    <section className="border-t border-slate-200 py-10 lg:py-20">
       <Container size="xl">
         <ScrollReveal>
           <SectionHeader
@@ -44,14 +44,14 @@ export default function GoalCardsSection() {
           />
         </ScrollReveal>
 
-        <ScrollReveal stagger className="mt-10 grid gap-6 md:grid-cols-3">
+        <ScrollReveal stagger className="mt-8 grid gap-4 sm:mt-10 sm:gap-6 md:grid-cols-3">
           {goalCards.map((item) => (
             <div
               key={item.title}
-              className="hover-expand-card group relative flex min-h-[148px] flex-col rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm hover:z-10 hover:border-accent-500/30 hover:ring-1 hover:ring-accent-500/20"
+              className="hover-expand-card group relative flex min-h-[132px] flex-col rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm hover:z-10 hover:border-accent-500/30 hover:ring-1 hover:ring-accent-500/20 sm:min-h-[148px] sm:rounded-3xl sm:p-6"
             >
-              <div className="flex items-start gap-5">
-                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-accent-500/10 text-accent-500 transition-colors duration-300 group-hover:bg-accent-500 group-hover:text-white">
+              <div className="flex items-start gap-4 sm:gap-5">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-accent-500/10 text-accent-500 transition-colors duration-300 group-hover:bg-accent-500 group-hover:text-white sm:h-20 sm:w-20 sm:rounded-2xl">
                   {item.icon}
                 </div>
                 <div className="min-w-0 flex-1">

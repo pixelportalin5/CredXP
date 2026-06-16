@@ -23,6 +23,11 @@ async function resolveProposalCoverImage(raw) {
     }
   }
 
+  // Local public paths (e.g. TempImages) — keep as-is for client-side PDF/preview
+  if (value.startsWith("/")) {
+    return value;
+  }
+
   return "";
 }
 

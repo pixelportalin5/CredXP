@@ -79,7 +79,7 @@ export default function HomeStatsSection() {
   }, []);
 
   return (
-    <section className="border-y border-slate-200 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.12),transparent_30%),linear-gradient(180deg,#f8fbff_0%,#eef5ff_100%)] py-12">
+    <section className="border-y border-slate-200 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.12),transparent_30%),linear-gradient(180deg,#f8fbff_0%,#eef5ff_100%)] py-8 sm:py-12">
       <Container size="xl">
         <ScrollReveal>
           <AnimatedStatsGrid stats={stats} variant="dark-bar" />

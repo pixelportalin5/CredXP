@@ -1,6 +1,21 @@
 import { siteConfig } from "@/config/site";
 import type { Proposal } from "@/types/proposal";
-import { getProposalPdfFile } from "@/utils/generateProposalPdf";
+import { downloadProposalPdf } from "@/utils/generateProposalPdf";
+
+export const WHATSAPP_FOLLOWUP_KEY = "credxp:whatsapp-followup";
+
+export function markWhatsAppFollowupVisible() {
+  if (typeof sessionStorage === "undefined") return;
+  sessionStorage.setItem(WHATSAPP_FOLLOWUP_KEY, "1");
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("credxp:whatsapp-followup"));
+  }
+}
+
+export function isWhatsAppFollowupVisible(): boolean {
+  if (typeof sessionStorage === "undefined") return false;
+  return sessionStorage.getItem(WHATSAPP_FOLLOWUP_KEY) === "1";
+}
 
 export function getProposalPublicUrl(proposalId: string): string {
   if (typeof window !== "undefined") {
@@ -10,28 +25,46 @@ export function getProposalPublicUrl(proposalId: string): string {
 }
 
 export function getProposalShareMessage(proposal: Proposal): string {
-  return `CredXP Property Proposal: ${proposal.propertyTitle}\n\nView full details: ${getProposalPublicUrl(proposal._id)}`;
+  return `CredXP Property Proposal: ${proposal.propertyTitle}\n\nView online: ${getProposalPublicUrl(proposal._id)}\n\n(Please attach the downloaded PDF if sharing via WhatsApp.)`;
 }
 
-export async function shareProposalOnWhatsApp(proposal: Proposal): Promise<"native" | "whatsapp-link"> {
+function whatsAppShareUrl(message: string): string {
+  const phone = siteConfig.contact.whatsapp.replace(/\D/g, "");
+  return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+}
+
+/** Download PDF, open WhatsApp with pre-filled message, enable follow-up floating button. */
+export async function shareProposalOnWhatsApp(
+  proposal: Proposal,
+  options?: { coverImageFallback?: string }
+): Promise<"whatsapp"> {
   const message = getProposalShareMessage(proposal);
-  const pdfFile = await getProposalPdfFile(proposal);
+
+  await downloadProposalPdf(proposal, options);
 
   if (typeof navigator !== "undefined" && "share" in navigator && "canShare" in navigator) {
     try {
-      const shareData: ShareData = { title: `CredXP Proposal — ${proposal.propertyTitle}`, text: message, files: [pdfFile] };
+      const { getProposalPdfFile } = await import("@/utils/generateProposalPdf");
+      const pdfFile = await getProposalPdfFile(proposal, options);
+      const shareData: ShareData = {
+        title: `CredXP Proposal — ${proposal.propertyTitle}`,
+        text: message,
+        files: [pdfFile],
+      };
       if (navigator.canShare(shareData)) {
         await navigator.share(shareData);
-        return "native";
+        markWhatsAppFollowupVisible();
+        return "whatsapp";
       }
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") {
-        return "native";
+        markWhatsAppFollowupVisible();
+        return "whatsapp";
       }
     }
   }
 
-  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-  window.open(whatsappUrl, "_blank", "noopener,noreferrer");
-  return "whatsapp-link";
+  window.open(whatsAppShareUrl(message), "_blank", "noopener,noreferrer");
+  markWhatsAppFollowupVisible();
+  return "whatsapp";
 }

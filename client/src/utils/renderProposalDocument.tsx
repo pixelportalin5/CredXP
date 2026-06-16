@@ -41,14 +41,20 @@ export async function mountProposalDocument(proposal: Proposal): Promise<{
   const qrDataUrl = await generateAgentQrDataUrl(proposal.agent);
 
   const container = document.createElement("div");
+  container.setAttribute("data-proposal-pdf-root", "true");
+  // Must stay on-screen with opacity 1 — html2canvas skips hidden/off-screen nodes (blank PDF).
   container.style.position = "fixed";
-  container.style.left = "-10000px";
+  container.style.left = "0";
   container.style.top = "0";
+  container.style.opacity = "1";
+  container.style.visibility = "visible";
+  container.style.pointerEvents = "none";
   container.style.width = `${A4_WIDTH_PX}px`;
-  container.style.height = `${A4_HEIGHT_PX}px`;
-  container.style.overflow = "hidden";
+  container.style.height = "auto";
+  container.style.minHeight = `${A4_HEIGHT_PX}px`;
+  container.style.overflow = "visible";
   container.style.background = "#ffffff";
-  container.style.zIndex = "-1";
+  container.style.zIndex = "2147483646";
   document.body.appendChild(container);
 
   let root: Root | null = createRoot(container);
@@ -56,9 +62,21 @@ export async function mountProposalDocument(proposal: Proposal): Promise<{
     <ProposalDocument proposal={proposal} qrDataUrl={qrDataUrl} mode="export" />
   );
 
+  // Wait for React to commit the initial render
   await new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
+  await new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
+  // Wait for images (cover photo, logo, agent avatar, QR code)
   await waitForImages(container);
-  await new Promise((resolve) => setTimeout(resolve, 150));
+  // Wait for web fonts to be ready
+  if (typeof document !== "undefined" && document.fonts?.ready) {
+    await document.fonts.ready;
+  }
+  // Extra animation frames to let layout fully settle (e.g. CSS transitions)
+  await new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
+  await new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
+  await new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
+  // Additional timer to ensure any async layout side-effects finish
+  await new Promise((resolve) => setTimeout(resolve, 500));
 
   return {
     container,

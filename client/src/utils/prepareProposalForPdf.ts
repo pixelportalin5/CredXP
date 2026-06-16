@@ -4,6 +4,12 @@ import { isDataImageUrl, isRemoteImageUrl } from "@/utils/imageUrl";
 const LARGE_DATA_URL_THRESHOLD = 50_000;
 const EXPORT_COVER_MAX_WIDTH = 480;
 
+function resolveProposalCoverImage(proposal: Proposal): string | undefined {
+  const direct = proposal.coverImage?.trim();
+  if (direct) return direct;
+  return undefined;
+}
+
 async function compressDataUrlCover(src: string): Promise<string> {
   return new Promise((resolve) => {
     const img = new window.Image();
@@ -52,9 +58,15 @@ function normalizeAgentAvatar(avatar?: string): string | undefined {
   return avatar;
 }
 
-export async function prepareProposalForPdf(proposal: Proposal): Promise<Proposal> {
+export async function prepareProposalForPdf(
+  proposal: Proposal,
+  options?: { coverImageFallback?: string }
+): Promise<Proposal> {
+  const resolvedCover =
+    resolveProposalCoverImage(proposal) || options?.coverImageFallback?.trim() || undefined;
+
   const [coverImage, avatar] = await Promise.all([
-    normalizeCoverForExport(proposal.coverImage),
+    normalizeCoverForExport(resolvedCover),
     Promise.resolve(normalizeAgentAvatar(proposal.agent?.avatar)),
   ]);
 

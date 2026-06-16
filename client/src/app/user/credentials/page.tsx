@@ -214,7 +214,7 @@ export default function UserCredentialsPage() {
                   inputMode="numeric"
                   pattern="[0-9]{8,15}"
                   defaultValue={user.phone || ""}
-                  placeholder="9876543210"
+                  placeholder="8595191894"
                 />
               </FormField>
               <Button type="submit" size="lg" fullWidth loading={loading} icon={<Save className="h-4 w-4" />}>

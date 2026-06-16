@@ -304,10 +304,11 @@ export default function AdminDashboardPage() {
 
   const handleProposalShare = async (proposal: Proposal) => {
     try {
-      const method = await shareProposalOnWhatsApp(proposal);
+      await shareProposalOnWhatsApp(proposal);
       showToast({
         type: "success",
-        title: method === "native" ? "Shared" : "WhatsApp opened",
+        title: "WhatsApp opened",
+        message: "PDF downloaded — attach it in the WhatsApp chat if needed.",
       });
     } catch (error) {
       showToast({ type: "error", title: "Share failed", message: error instanceof Error ? error.message : "Please try again." });

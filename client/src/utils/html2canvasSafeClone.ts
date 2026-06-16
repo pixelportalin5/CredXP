@@ -87,6 +87,15 @@ const INLINE_PROPS = [
   "list-style-type",
   "fill",
   "stroke",
+  "text-overflow",
+  "word-wrap",
+  "overflow-wrap",
+  "-webkit-line-clamp",
+  "-webkit-box-orient",
+  "box-orient",
+  "z-index",
+  "transform",
+  "order",
 ];
 
 const COLOR_PROPS = new Set([
@@ -109,13 +118,34 @@ function canvasContext(): CanvasRenderingContext2D | null {
   return colorCanvas.getContext("2d");
 }
 
-/** Browser canvas resolves lab()/oklch() to #rrggbb for html2canvas. */
-export function toHtml2CanvasSafeColor(value: string): string {
+/** Resolve lab()/oklch() via a live DOM probe — canvas fillStyle often fails and returned #000000. */
+export function toHtml2CanvasSafeColor(value: string, kind: "color" | "background" = "color"): string {
   const trimmed = value.trim();
   if (!trimmed || !MODERN_COLOR_FN.test(trimmed)) return trimmed;
 
+  if (typeof document !== "undefined") {
+    try {
+      const probe = document.createElement("span");
+      probe.style.display = "none";
+      probe.style.position = "fixed";
+      probe.style.pointerEvents = "none";
+      if (kind === "background") {
+        probe.style.backgroundColor = trimmed;
+      } else {
+        probe.style.color = trimmed;
+      }
+      document.body.appendChild(probe);
+      const cs = window.getComputedStyle(probe);
+      const resolved = kind === "background" ? cs.backgroundColor : cs.color;
+      probe.remove();
+      if (resolved && !MODERN_COLOR_FN.test(resolved)) return resolved;
+    } catch {
+      // fall through to canvas
+    }
+  }
+
   const ctx = canvasContext();
-  if (!ctx) return "#000000";
+  if (!ctx) return kind === "background" ? "transparent" : "#000000";
 
   try {
     ctx.fillStyle = "#000000";
@@ -126,20 +156,25 @@ export function toHtml2CanvasSafeColor(value: string): string {
     // fall through
   }
 
-  return "#000000";
+  return kind === "background" ? "transparent" : "#64748b";
+}
+
+function colorKindForProp(prop: string): "color" | "background" {
+  if (prop === "background-color") return "background";
+  return "color";
 }
 
 function sanitizeStyleValue(prop: string, value: string): string {
   if (!value) return value;
   if (!MODERN_COLOR_FN.test(value)) return value;
   if (COLOR_PROPS.has(prop) || prop.endsWith("-color")) {
-    return toHtml2CanvasSafeColor(value);
+    return toHtml2CanvasSafeColor(value, colorKindForProp(prop));
   }
   return value
-    .replace(/lab\([^)]*\)/gi, "rgb(0, 0, 0)")
-    .replace(/oklch\([^)]*\)/gi, "rgb(0, 0, 0)")
-    .replace(/oklab\([^)]*\)/gi, "rgb(0, 0, 0)")
-    .replace(/lch\([^)]*\)/gi, "rgb(0, 0, 0)");
+    .replace(/lab\([^)]*\)/gi, "rgb(100, 116, 139)")
+    .replace(/oklch\([^)]*\)/gi, "rgb(100, 116, 139)")
+    .replace(/oklab\([^)]*\)/gi, "rgb(100, 116, 139)")
+    .replace(/lch\([^)]*\)/gi, "rgb(100, 116, 139)");
 }
 
 function countModernColorFns(cssText: string): number {
@@ -162,6 +197,88 @@ function applyComputedStyles(source: Element, target: Element) {
     if (value) {
       styleTarget.style.setProperty(prop, value, computed.getPropertyPriority(prop));
     }
+  }
+}
+
+/** Inline every resolved computed property (canvas-safe) so PDF export survives stylesheet removal. */
+function inlineAllComputedStyles(source: Element, target: Element) {
+  const computed = window.getComputedStyle(source);
+  const styleTarget =
+    target instanceof HTMLElement || target instanceof SVGElement
+      ? (target as HTMLElement | SVGElement)
+      : null;
+  if (!styleTarget) return;
+
+  for (let i = 0; i < computed.length; i += 1) {
+    const prop = computed[i];
+    const raw = computed.getPropertyValue(prop);
+    if (!raw) continue;
+    const value = sanitizeStyleValue(prop, raw);
+    if (value) {
+      styleTarget.style.setProperty(prop, value, computed.getPropertyPriority(prop));
+    }
+  }
+}
+
+function copyInlineStyleAttributes(sourceRoot: Element, targetRoot: Element) {
+  const sourceNodes: Element[] = [];
+  const targetNodes: Element[] = [];
+
+  walkElements(sourceRoot, (el) => sourceNodes.push(el));
+  walkElements(targetRoot, (el) => targetNodes.push(el));
+
+  const count = Math.min(sourceNodes.length, targetNodes.length);
+  for (let i = 0; i < count; i += 1) {
+    const source = sourceNodes[i] as HTMLElement;
+    const target = targetNodes[i] as HTMLElement;
+    if (!source?.style || !target?.style) continue;
+    if (source.style.cssText) {
+      target.style.cssText = source.style.cssText;
+    }
+  }
+}
+
+function removeAllDocumentStyles(clonedDoc: Document) {
+  clonedDoc.querySelectorAll('style, link[rel="stylesheet"]').forEach((node) => node.remove());
+}
+
+type StylesheetSnapshot = {
+  el: Element;
+  media: string | null;
+  linkDisabled: boolean;
+};
+
+/** Disable page stylesheets so html2canvas does not parse Tailwind v4 lab()/oklch() rules. */
+export async function withPageStylesheetsDisabled<T>(run: () => Promise<T>): Promise<T> {
+  if (typeof document === "undefined") return run();
+
+  const nodes = Array.from(document.querySelectorAll("style, link[rel=\"stylesheet\"]"));
+  const snapshot: StylesheetSnapshot[] = nodes.map((el) => ({
+    el,
+    media: el.getAttribute("media"),
+    linkDisabled: el instanceof HTMLLinkElement ? el.disabled : false,
+  }));
+
+  nodes.forEach((el) => {
+    if (el instanceof HTMLLinkElement) {
+      el.disabled = true;
+    } else {
+      el.setAttribute("media", "notall");
+    }
+  });
+
+  try {
+    return await run();
+  } finally {
+    snapshot.forEach(({ el, media, linkDisabled }) => {
+      if (el instanceof HTMLLinkElement) {
+        el.disabled = linkDisabled;
+      } else if (media) {
+        el.setAttribute("media", media);
+      } else {
+        el.removeAttribute("media");
+      }
+    });
   }
 }
 
@@ -217,10 +334,30 @@ export function prepareHtml2CanvasElement(root: HTMLElement) {
   stripTailwindClasses(root);
 }
 
+/**
+ * Replace oklch/oklab/lab/lch color functions in raw CSS text with a safe rgb fallback.
+ * Handles nested parentheses (e.g. `oklch(from var(--color-red) l c h)`) by using
+ * a balanced-paren match: consumes up to 2 levels of nesting inside the outer parens.
+ */
+function sanitizeCssText(css: string): string {
+  // Matches: fn-name( anything including balanced inner parens, up to depth 2 )
+  const balancedFn = /(?:oklch|oklab|lab|lch)\((?:[^()]*|\([^()]*\))*\)/gi;
+  return css.replace(balancedFn, "rgb(100,116,139)");
+}
+
+function sanitizeAllStylesheets(clonedDoc: Document) {
+  clonedDoc.querySelectorAll("style").forEach((node) => {
+    if (node.textContent) {
+      node.textContent = sanitizeCssText(node.textContent);
+    }
+  });
+}
+
 export function prepareHtml2CanvasClone(
   sourceRoot: HTMLElement,
   clonedDoc: Document,
-  clonedRoot: HTMLElement
+  clonedRoot: HTMLElement,
+  { stripClasses = true }: { stripClasses?: boolean } = {}
 ): { labColorRulesBefore: number; stylesheetsRemoved: number } {
   let labColorRulesBefore = 0;
 
@@ -232,12 +369,130 @@ export function prepareHtml2CanvasClone(
 
   copyComputedStyles(sourceRoot, clonedRoot);
   stripLabFromInlineStyles(clonedRoot);
-  stripTailwindClasses(clonedRoot);
+  if (stripClasses) {
+    stripTailwindClasses(clonedRoot);
+  }
 
-  const removed = clonedDoc.querySelectorAll('style, link[rel="stylesheet"]');
+  sanitizeAllStylesheets(clonedDoc);
+
+  const removed = clonedDoc.querySelectorAll('link[rel="stylesheet"]');
   removed.forEach((node) => node.remove());
 
   return { labColorRulesBefore, stylesheetsRemoved: removed.length };
+}
+
+/** Proposal PDF: fully inline Tailwind computed styles, then capture without stylesheets. */
+export function prepareProposalHtml2CanvasElement(root: HTMLElement) {
+  root.style.opacity = "1";
+  root.style.visibility = "visible";
+
+  let sanitizedToBlack = 0;
+  walkElements(root, (el) => {
+    applyComputedStyles(el, el);
+    if (el instanceof HTMLElement || el instanceof SVGElement) {
+      const style = (el as HTMLElement).style;
+      if (style.opacity === "0") style.opacity = "1";
+      if (style.visibility === "hidden") style.visibility = "visible";
+      const bg = style.backgroundColor;
+      if (bg === "rgb(0, 0, 0)" || bg === "#000000") sanitizedToBlack += 1;
+    }
+  });
+  stripLabFromInlineStyles(root);
+  stripTailwindClasses(root);
+
+  // #region agent log
+  if (typeof fetch !== "undefined") {
+    fetch("http://127.0.0.1:7638/ingest/531824bf-0a14-482f-b510-6252707575d1", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "412ec5" },
+      body: JSON.stringify({
+        sessionId: "412ec5",
+        hypothesisId: "C",
+        location: "html2canvasSafeClone.ts:prepareProposalHtml2CanvasElement",
+        message: "Color sanitization produced black backgrounds",
+        data: { sanitizedToBlack },
+        runId: "post-fix",
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+  }
+  // #endregion
+}
+
+export function prepareProposalHtml2CanvasClone(
+  sourceRoot: HTMLElement,
+  clonedDoc: Document,
+  clonedRoot: HTMLElement
+) {
+  copyInlineStyleAttributes(sourceRoot, clonedRoot);
+  stripLabFromInlineStyles(clonedRoot);
+  sanitizeAllStylesheets(clonedDoc);
+  clonedDoc.querySelectorAll('link[rel="stylesheet"]').forEach((node) => node.remove());
+  return { labColorRulesBefore: 0, stylesheetsRemoved: 0 };
+}
+
+/**
+ * Copy resolved computed styles (rgb-safe, no oklch) from a live source element tree
+ * to a structurally identical target tree (e.g., the html2canvas clone).
+ * Uses the partial INLINE_PROPS list.
+ */
+export function copyComputedStylesDeep(source: HTMLElement, target: HTMLElement) {
+  copyComputedStyles(source, target);
+  stripLabFromInlineStyles(target);
+}
+
+/**
+ * Walk source (live) and target (cloned) element trees in parallel and inline EVERY
+ * resolved computed CSS property as a canvas-safe inline style on the target.
+ * This is the gold-standard approach: the browser has already resolved all oklch/lab
+ * colors to rgb on the live element, so we get accurate colors without any regex hacks.
+ *
+ * IMPORTANT: `source` must be the exact same subtree that html2canvas is capturing
+ * (e.g. captureEl), not a parent wrapper, so that node indices align 1-to-1.
+ */
+export function inlineAllComputedStylesDeep(source: HTMLElement, target: HTMLElement) {
+  const sourceNodes: Element[] = [];
+  const targetNodes: Element[] = [];
+
+  walkElements(source, (el) => sourceNodes.push(el));
+  walkElements(target, (el) => targetNodes.push(el));
+
+  const count = Math.min(sourceNodes.length, targetNodes.length);
+  for (let i = 0; i < count; i += 1) {
+    inlineAllComputedStyles(sourceNodes[i], targetNodes[i]);
+  }
+}
+
+/**
+ * Remove all class attributes from every element in the tree.
+ * This prevents Tailwind v4 oklch() rules from being applied even if stylesheets remain.
+ */
+export function stripAllClasses(root: HTMLElement) {
+  stripTailwindClasses(root);
+}
+
+/**
+ * Sanitize oklch()/lab() color functions in all <style> tag text content.
+ * Use this instead of removeAllStylesheets when you need to preserve @font-face rules.
+ * External <link rel="stylesheet"> entries are NOT touched — remove those separately.
+ */
+export function sanitizeStyleElements(doc: Document) {
+  sanitizeAllStylesheets(doc);
+}
+
+/**
+ * Remove only external <link rel="stylesheet"> elements from a document.
+ * Preserves <style> tags (and their @font-face rules) for correct font rendering.
+ */
+export function removeExternalStylesheets(doc: Document) {
+  doc.querySelectorAll('link[rel="stylesheet"]').forEach((node) => node.remove());
+}
+
+/**
+ * Remove all <style> and <link rel="stylesheet"> elements from a document.
+ */
+export function removeAllStylesheets(doc: Document) {
+  doc.querySelectorAll('style, link[rel="stylesheet"]').forEach((node) => node.remove());
 }
 
 export { MODERN_COLOR_FN, countModernColorFns };

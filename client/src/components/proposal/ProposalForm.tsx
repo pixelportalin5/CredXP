@@ -91,7 +91,9 @@ export default function ProposalForm({ property, user, backHref }: ProposalFormP
     try {
       setSaving(true);
       const proposal = await ensureSaved();
-      await downloadProposalPdf(proposal);
+      await downloadProposalPdf(proposal, {
+        coverImageFallback: property.coverImage || property.images?.[0],
+      });
       showToast({ type: "success", title: "PDF downloaded" });
     } catch (error) {
       showToast({ type: "error", title: "Download failed", message: error instanceof Error ? error.message : "Please try again." });
@@ -104,11 +106,13 @@ export default function ProposalForm({ property, user, backHref }: ProposalFormP
     try {
       setSharing(true);
       const proposal = await ensureSaved();
-      const method = await shareProposalOnWhatsApp(proposal);
+      await shareProposalOnWhatsApp(proposal, {
+        coverImageFallback: property.coverImage || property.images?.[0],
+      });
       showToast({
         type: "success",
-        title: method === "native" ? "Shared" : "WhatsApp opened",
-        message: method === "whatsapp-link" ? "Proposal link ready to send." : undefined,
+        title: "WhatsApp opened",
+        message: "PDF downloaded — attach it in the WhatsApp chat if needed.",
       });
     } catch (error) {
       showToast({ type: "error", title: "Share failed", message: error instanceof Error ? error.message : "Please try again." });
