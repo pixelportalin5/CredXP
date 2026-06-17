@@ -1,6 +1,5 @@
 "use client";
 
-import type { CSSProperties } from "react";
 import Image from "next/image";
 import {
   Building2,
@@ -11,15 +10,6 @@ import {
   User,
   X,
 } from "lucide-react";
-import {
-  ExportBuildingIcon,
-  ExportCheckIcon,
-  ExportMapPinIcon,
-  ExportThumbDownIcon,
-  ExportThumbUpIcon,
-  ExportUserIcon,
-  ExportXIcon,
-} from "@/components/proposal/ProposalExportIcons";
 import {
   DETAIL_FIELD_CONFIG,
   getKeyFeatures,
@@ -37,12 +27,10 @@ import { resolveProposalForDocument } from "@/utils/resolveProposalDocument";
 import { toSafeCurrency } from "@/utils/pdfFormat";
 
 const A4_WIDTH = 794;
-const A4_HEIGHT = 1123;
 
 interface ProposalDocumentProps {
   proposal: Proposal;
   qrDataUrl?: string;
-  mode?: "preview" | "export";
 }
 
 function proposalRefId(proposal: Proposal): string {
@@ -56,7 +44,7 @@ function displayValue(value?: string, fallback = "—"): string {
   return toSafeCurrency(value);
 }
 
-export default function ProposalDocument({ proposal, qrDataUrl, mode = "preview" }: ProposalDocumentProps) {
+export default function ProposalDocument({ proposal, qrDataUrl }: ProposalDocumentProps) {
   const resolved = resolveProposalForDocument(proposal);
   const snapshot = resolved.propertySnapshot;
   const price = getSnapshotValue(snapshot, "price") || "On Request";
@@ -70,68 +58,34 @@ export default function ProposalDocument({ proposal, qrDataUrl, mode = "preview"
   const pros = Array.isArray(research?.pros) ? research.pros : [];
   const cons = Array.isArray(research?.cons) ? research.cons : [];
   const keyFeatures = getKeyFeatures(propertyType);
-  const isExport = mode === "export";
   const coverImage = resolved.coverImage;
   const coverImageSrc =
     coverImage?.startsWith("/") && typeof window !== "undefined"
       ? `${window.location.origin}${coverImage}`
       : coverImage;
-  const logoSrc =
-    typeof window !== "undefined" ? `${window.location.origin}/logos/Credxp.webp` : "/logos/Credxp.webp";
 
-  const containerStyle = isExport
-    ? {
-        width: A4_WIDTH,
-        minHeight: A4_HEIGHT,
-        // Do NOT use overflow:hidden or fixed height — html2canvas uses scrollHeight to
-        // capture the full document, so clipping here would cut off content in the PDF.
-        overflow: "visible" as const,
-        display: "flex",
-        flexDirection: "column" as const,
-        background: "#ffffff",
-      }
-    : { width: A4_WIDTH, maxWidth: A4_WIDTH, margin: "0 auto" as const };
+  const badgeLabel = propertyType?.toUpperCase().includes("PRE-LEASED")
+    ? "PRE-LEASED"
+    : propertyType?.split(" ")[0]?.toUpperCase() || "PROPERTY";
 
-  const badgeLabel = propertyType?.toUpperCase().includes("PRE-LEASED") ? "PRE-LEASED" : propertyType?.split(" ")[0]?.toUpperCase() || "PROPERTY";
-
-  const exportClamp = (lines: number): CSSProperties | undefined =>
-    isExport
-      ? {
-          display: "-webkit-box",
-          WebkitLineClamp: lines,
-          WebkitBoxOrient: "vertical",
-          overflow: "hidden",
-        }
-      : undefined;
-
-  const detailItemStyle = (multiline?: boolean): CSSProperties => ({
+  const detailItemStyle = (multiline?: boolean) => ({
     width: multiline ? "100%" : "calc((100% - 0.75rem) / 3)",
   });
-
-  const BuildingIcon = isExport ? ExportBuildingIcon : () => <Building2 className="h-3 w-3 text-red-600" />;
-  const MapPinIcon = isExport ? ExportMapPinIcon : () => <MapPin className="h-3 w-3 shrink-0 text-red-600" />;
-  const UserIcon = isExport ? ExportUserIcon : ({ className }: { className?: string }) => <User className={className || "h-4 w-4"} />;
-  const CheckIcon = isExport ? ExportCheckIcon : () => <Check className="mt-0.5 h-2.5 w-2.5 shrink-0 text-green-600" />;
-  const XIcon = isExport ? ExportXIcon : () => <X className="mt-0.5 h-2.5 w-2.5 shrink-0 text-red-600" />;
-  const ThumbUpIcon = isExport ? ExportThumbUpIcon : () => <ThumbsUp className="h-3 w-3" />;
-  const ThumbDownIcon = isExport ? ExportThumbDownIcon : () => <ThumbsDown className="h-3 w-3" />;
 
   return (
     <div
       className="bg-white font-sans text-slate-900"
-      style={containerStyle}
+      style={{ width: A4_WIDTH, maxWidth: A4_WIDTH, margin: "0 auto" }}
       data-proposal-document
     >
-      {/* Header */}
       <div className="flex items-stretch border-b border-slate-200">
         <div className="flex items-center px-6 py-4">
-          {isExport ? (
-            <img src={logoSrc} alt="CredXP" width={120} height={34} className="h-8 w-auto" crossOrigin="anonymous" />
-          ) : (
-            <Image src="/logos/Credxp.webp" alt="CredXP" width={120} height={34} unoptimized className="h-8 w-auto" />
-          )}
+          <Image src="/logos/Credxp.webp" alt="CredXP" width={120} height={34} unoptimized className="h-8 w-auto" />
         </div>
-        <div className="ml-auto flex items-center bg-black px-6 py-3 text-white" style={{ clipPath: "polygon(8% 0, 100% 0, 100% 100%, 0 100%)" }}>
+        <div
+          className="ml-auto flex items-center bg-black px-6 py-3 text-white"
+          style={{ clipPath: "polygon(8% 0, 100% 0, 100% 100%, 0 100%)" }}
+        >
           <div className="pl-4 text-right">
             <p className="text-[10px] font-bold tracking-[0.2em]">PROPERTY PROPOSAL</p>
             <p className="mt-1 text-[9px] text-slate-300">Prepared on {formatDate(resolved.createdAt)}</p>
@@ -140,33 +94,33 @@ export default function ProposalDocument({ proposal, qrDataUrl, mode = "preview"
         </div>
       </div>
 
-      {/* Hero */}
       <div className="flex gap-3 px-5 pt-4">
-        <div className="flex-[1.1] min-w-0">
+        <div className="min-w-0 flex-[1.1]">
           <div className="mb-2 flex items-center gap-1.5">
-            <BuildingIcon />
+            <Building2 className="h-3 w-3 text-red-600" />
             <p className="text-[8px] font-bold uppercase tracking-wider text-red-600">Who Are We</p>
           </div>
-          <p className="line-clamp-3 text-[8px] leading-relaxed text-slate-600" style={exportClamp(3)}>{WHO_ARE_WE_COPY}</p>
+          <p className="line-clamp-3 text-[8px] leading-relaxed text-slate-600">{WHO_ARE_WE_COPY}</p>
 
           <div className="mt-3">
             <span className="inline-block rounded bg-red-600 px-2 py-0.5 text-[7px] font-bold uppercase tracking-wide text-white">
               {badgeLabel}
             </span>
-            <h1 className="mt-1.5 line-clamp-2 text-[15px] font-bold uppercase leading-tight text-slate-900" style={exportClamp(2)}>
+            <h1 className="mt-1.5 line-clamp-2 text-[15px] font-bold uppercase leading-tight text-slate-900">
               {resolved.propertyTitle}
             </h1>
             <p className="mt-1 flex items-center gap-1 text-[9px] text-slate-600">
-              <MapPinIcon />
-              <span className="line-clamp-1" style={exportClamp(1)}>{displayValue(overview.location)}</span>
+              <MapPin className="h-3 w-3 shrink-0 text-red-600" />
+              <span className="line-clamp-1">{displayValue(overview.location)}</span>
             </p>
-            <p className="mt-1 line-clamp-2 text-[8px] leading-relaxed text-slate-500" style={exportClamp(2)}>
-              {description.slice(0, 140)}{description.length > 140 ? "..." : ""}
+            <p className="mt-1 line-clamp-2 text-[8px] leading-relaxed text-slate-500">
+              {description.slice(0, 140)}
+              {description.length > 140 ? "..." : ""}
             </p>
           </div>
         </div>
 
-        <div className="flex-1 min-w-0 relative h-[130px] overflow-hidden rounded-lg border border-slate-200 bg-slate-100">
+        <div className="relative h-[130px] min-w-0 flex-1 overflow-hidden rounded-lg border border-slate-200 bg-slate-100">
           {coverImageSrc ? (
             <img src={coverImageSrc} alt="" className="h-full w-full object-cover" crossOrigin="anonymous" />
           ) : (
@@ -174,7 +128,7 @@ export default function ProposalDocument({ proposal, qrDataUrl, mode = "preview"
           )}
         </div>
 
-        <div className="flex-[0.9] min-w-0">
+        <div className="min-w-0 flex-[0.9]">
           <div className="rounded-lg bg-red-600 px-3 py-2.5 text-center text-white">
             <p className="text-[7px] font-semibold uppercase tracking-wider opacity-90">Asking Price</p>
             <p className="mt-0.5 text-[16px] font-bold">{toSafeCurrency(price)}</p>
@@ -182,7 +136,10 @@ export default function ProposalDocument({ proposal, qrDataUrl, mode = "preview"
           </div>
           <div className="mt-2 space-y-1.5">
             {keyFeatures.map((feature) => (
-              <div key={feature.title} className="flex items-start gap-1.5 rounded border border-slate-100 bg-slate-50 px-2 py-1">
+              <div
+                key={feature.title}
+                className="flex items-start gap-1.5 rounded border border-slate-100 bg-slate-50 px-2 py-1"
+              >
                 <div className="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-red-600" />
                 <div>
                   <p className="text-[7px] font-bold text-slate-800">{feature.title}</p>
@@ -194,13 +151,14 @@ export default function ProposalDocument({ proposal, qrDataUrl, mode = "preview"
         </div>
       </div>
 
-      {/* Contact cards */}
       <div className="mt-3 flex gap-3 px-5">
         <div className="flex-1 rounded-lg border border-slate-200 bg-white p-3">
-          <div className="mb-2 rounded bg-red-600 px-2 py-0.5 text-[7px] font-bold uppercase tracking-wide text-white">Prepared For</div>
+          <div className="mb-2 rounded bg-red-600 px-2 py-0.5 text-[7px] font-bold uppercase tracking-wide text-white">
+            Prepared For
+          </div>
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-50 text-red-600">
-              {isExport ? <ExportUserIcon size={16} /> : <User className="h-4 w-4" />}
+              <User className="h-4 w-4" />
             </div>
             <div className="min-w-0 text-[8px] text-slate-700">
               <p className="truncate font-bold text-slate-900">{displayValue(preparedFor?.name)}</p>
@@ -218,7 +176,7 @@ export default function ProposalDocument({ proposal, qrDataUrl, mode = "preview"
                 <img src={resolved.agent.avatar} alt="" className="h-full w-full object-cover" crossOrigin="anonymous" />
               ) : (
                 <div className="flex h-full items-center justify-center text-slate-400">
-                  {isExport ? <ExportUserIcon size={20} color="#94a3b8" /> : <User className="h-5 w-5" />}
+                  <User className="h-5 w-5" />
                 </div>
               )}
             </div>
@@ -236,26 +194,26 @@ export default function ProposalDocument({ proposal, qrDataUrl, mode = "preview"
         </div>
       </div>
 
-      {/* Property Overview */}
       <div className="mt-3 px-5">
         <div className="mb-1.5 flex items-center gap-1.5">
-          <BuildingIcon />
+          <Building2 className="h-3 w-3 text-red-600" />
           <p className="text-[8px] font-bold uppercase tracking-wider text-red-600">Property Overview</p>
         </div>
         <div className="flex gap-2">
           {OVERVIEW_FIELD_CONFIG.map((field) => (
-            <div key={field.key} className="flex-1 min-w-0 rounded-lg border border-slate-200 bg-slate-50 px-2 py-2 text-center">
+            <div key={field.key} className="min-w-0 flex-1 rounded-lg border border-slate-200 bg-slate-50 px-2 py-2 text-center">
               <p className="text-[6px] font-semibold uppercase tracking-wide text-slate-500">{field.label}</p>
-              <p className="mt-1 line-clamp-2 text-[9px] font-bold text-slate-900" style={exportClamp(2)}>{displayValue(overview[field.key])}</p>
+              <p className="mt-1 line-clamp-2 text-[9px] font-bold text-slate-900">
+                {displayValue(overview[field.key])}
+              </p>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Property Details */}
       <div className="mt-3 px-5">
         <div className="mb-1.5 flex items-center gap-1.5">
-          <BuildingIcon />
+          <Building2 className="h-3 w-3 text-red-600" />
           <p className="text-[8px] font-bold uppercase tracking-wider text-red-600">Property Details</p>
         </div>
         <div className="flex flex-wrap gap-1.5">
@@ -266,7 +224,9 @@ export default function ProposalDocument({ proposal, qrDataUrl, mode = "preview"
               style={detailItemStyle(field.multiline)}
             >
               <p className="text-[6px] font-semibold uppercase tracking-wide text-slate-500">{field.label}</p>
-              <p className={`mt-0.5 font-bold text-slate-900 ${field.multiline ? "line-clamp-2 text-[8px]" : "line-clamp-1 text-[8px]"}`} style={exportClamp(field.multiline ? 2 : 1)}>
+              <p
+                className={`mt-0.5 font-bold text-slate-900 ${field.multiline ? "line-clamp-2 text-[8px]" : "line-clamp-1 text-[8px]"}`}
+              >
                 {displayValue(details[field.key])}
               </p>
             </div>
@@ -274,47 +234,45 @@ export default function ProposalDocument({ proposal, qrDataUrl, mode = "preview"
         </div>
       </div>
 
-      {/* Description */}
       <div className="mt-3 px-5">
         <div className="mb-1.5 flex items-center gap-1.5">
-          <BuildingIcon />
+          <Building2 className="h-3 w-3 text-red-600" />
           <p className="text-[8px] font-bold uppercase tracking-wider text-red-600">Property Description</p>
         </div>
         <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-          <p className="line-clamp-4 text-[8px] leading-relaxed text-slate-700" style={exportClamp(4)}>{description}</p>
+          <p className="line-clamp-4 text-[8px] leading-relaxed text-slate-700">{description}</p>
         </div>
       </div>
 
-      {/* Agent Research */}
       {research && (pros.some(Boolean) || cons.some(Boolean)) && (
         <div className="mt-3 px-5">
           <div className="mb-1.5 flex items-center gap-1.5">
-            <BuildingIcon />
+            <Building2 className="h-3 w-3 text-red-600" />
             <p className="text-[8px] font-bold uppercase tracking-wider text-red-600">Agent Research</p>
           </div>
           <div className="flex gap-3">
             <div className="flex-1">
               <div className="mb-1 flex items-center gap-1 text-[8px] font-bold text-green-700">
-                <ThumbUpIcon /> Pros
+                <ThumbsUp className="h-3 w-3" /> Pros
               </div>
               <ul className="space-y-0.5">
                 {pros.filter(Boolean).map((item) => (
                   <li key={item} className="flex items-start gap-1 text-[7px] text-slate-700">
-                    <CheckIcon />
-                    <span className="line-clamp-1" style={exportClamp(1)}>{item}</span>
+                    <Check className="mt-0.5 h-2.5 w-2.5 shrink-0 text-green-600" />
+                    <span className="line-clamp-1">{item}</span>
                   </li>
                 ))}
               </ul>
             </div>
             <div className="flex-1">
               <div className="mb-1 flex items-center gap-1 text-[8px] font-bold text-red-700">
-                <ThumbDownIcon /> Cons
+                <ThumbsDown className="h-3 w-3" /> Cons
               </div>
               <ul className="space-y-0.5">
                 {cons.filter(Boolean).map((item) => (
                   <li key={item} className="flex items-start gap-1 text-[7px] text-slate-700">
-                    <XIcon />
-                    <span className="line-clamp-1" style={exportClamp(1)}>{item}</span>
+                    <X className="mt-0.5 h-2.5 w-2.5 shrink-0 text-red-600" />
+                    <span className="line-clamp-1">{item}</span>
                   </li>
                 ))}
               </ul>
@@ -323,7 +281,6 @@ export default function ProposalDocument({ proposal, qrDataUrl, mode = "preview"
         </div>
       )}
 
-      {/* Footer */}
       <div className="mt-auto px-5 pb-0 pt-2">
         <div className="flex gap-2 border-t border-slate-200 py-2">
           {TRUST_FOOTER_ITEMS.map((item) => (

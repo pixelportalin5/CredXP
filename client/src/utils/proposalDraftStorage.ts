@@ -108,11 +108,12 @@ export function getProposalPreviewUrl(propertyId: string): string {
   return `/properties/${propertyId}/proposal/preview`;
 }
 
-export function openProposalPreview(propertyId: string, proposal: Proposal): void {
+export function openProposalPreview(propertyId: string, proposal: Proposal): Window | null {
   saveProposalDraft(propertyId, proposal);
   const previewWindow = window.open(
     getProposalPreviewUrl(propertyId),
     getPreviewWindowName(propertyId)
   );
   previewWindow?.focus();
+  return previewWindow;
 }

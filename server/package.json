@@ -61,6 +61,7 @@
     "mongoose": "^9.6.2",
     "morgan": "^1.10.1",
     "multer": "^2.1.1",
+    "puppeteer": "^24.43.1",
     "rss-parser": "^3.13.0",
     "sharp": "^0.34.5",
     "xlsx": "^0.18.5"

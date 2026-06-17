@@ -4,7 +4,6 @@ import Navbar from "@/components/layout/Navbar";
 import MainContent from "@/components/layout/MainContent";
 import Footer from "@/components/layout/Footer";
 import ScrollToTop from "@/components/layout/ScrollToTop";
-import FloatingWhatsApp from "@/components/lead/FloatingWhatsApp";
 import { AppProviders } from "@/components/providers/AppProviders";
 import { siteConfig } from "@/config/site";
 import type { Metadata } from "next";
@@ -61,7 +60,6 @@ export default function RootLayout({
           <Navbar />
           <MainContent>{children}</MainContent>
           <Footer />
-          <FloatingWhatsApp />
         </AppProviders>
       </body>
     </html>

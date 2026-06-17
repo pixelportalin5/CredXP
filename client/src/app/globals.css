@@ -529,3 +529,18 @@ body {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* Puppeteer PDF export — hide site chrome on /export/proposal/* */
+html[data-proposal-pdf-export] nav,
+html[data-proposal-pdf-export] footer {
+  display: none !important;
+}
+
+html[data-proposal-pdf-export] main {
+  padding-top: 0 !important;
+  margin: 0 !important;
+}
+
+html[data-proposal-pdf-export] body {
+  background: #ffffff !important;
+}

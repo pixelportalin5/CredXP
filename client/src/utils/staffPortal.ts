@@ -19,6 +19,11 @@ export function getDashboardPathForRole(role?: string): string | null {
   return portal ? getDashboardPath(portal) : null;
 }
 
+export function getProposalsDashboardHref(role?: string): string {
+  const base = getDashboardPathForRole(role);
+  return base ? `${base}?section=proposals` : "/admin/dashboard?section=proposals";
+}
+
 export function getStaffEditPath(
   portal: StaffPortal,
   type: "properties" | "coworking",

@@ -13,8 +13,6 @@ import {
   FileText,
   FileWarning,
   Mail,
-  MessageCircle,
-  Download,
   Plus,
   Search,
   ShieldCheck,
@@ -51,8 +49,6 @@ import type { Property } from "@/types/property";
 import type { CoworkingSpace } from "@/types/coworking";
 import type { Proposal } from "@/types/proposal";
 import { getProposalService } from "@/services/proposal.service";
-import { downloadProposalPdf } from "@/utils/generateProposalPdf";
-import { shareProposalOnWhatsApp } from "@/utils/shareProposal";
 
 type AdminSection = "users" | "enquiries" | "logs" | "properties" | "coworking" | "proposals";
 
@@ -299,19 +295,6 @@ export default function AdminDashboardPage() {
       showToast({ type: "success", title: "Proposal deleted" });
     } catch (error) {
       showToast({ type: "error", title: "Delete failed", message: error instanceof Error ? error.message : "Please try again." });
-    }
-  };
-
-  const handleProposalShare = async (proposal: Proposal) => {
-    try {
-      await shareProposalOnWhatsApp(proposal);
-      showToast({
-        type: "success",
-        title: "WhatsApp opened",
-        message: "PDF downloaded — attach it in the WhatsApp chat if needed.",
-      });
-    } catch (error) {
-      showToast({ type: "error", title: "Share failed", message: error instanceof Error ? error.message : "Please try again." });
     }
   };
 
@@ -712,8 +695,6 @@ export default function AdminDashboardPage() {
                         <Link href={`/proposals/${proposal._id}`}>
                           <Button size="sm" variant="outline" icon={<Eye className="h-4 w-4" />} className="border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50">View</Button>
                         </Link>
-                        <Button size="sm" variant="outline" icon={<MessageCircle className="h-4 w-4" />} onClick={() => void handleProposalShare(proposal)} className="border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50">Share</Button>
-                        <Button size="sm" variant="outline" icon={<Download className="h-4 w-4" />} onClick={() => void downloadProposalPdf(proposal)} className="border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50">Download PDF</Button>
                         <Button size="sm" variant="danger" icon={<Trash2 className="h-4 w-4" />} onClick={() => void handleProposalDelete(proposal)}>Delete</Button>
                       </div>
                     </div>

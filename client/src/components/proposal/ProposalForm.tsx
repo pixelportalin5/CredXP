@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { ArrowLeft, Download, ExternalLink, MessageCircle, Save } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowLeft, ExternalLink, Save } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { Input } from "@/components/ui/Input";
@@ -15,9 +15,7 @@ import {
   buildDefaultOverviewFields,
   buildDefaultPreparedFor,
 } from "@/utils/buildProposalDefaults";
-import { downloadProposalPdf } from "@/utils/generateProposalPdf";
 import { buildDraftProposal, openProposalPreview, saveProposalDraft } from "@/utils/proposalDraftStorage";
-import { shareProposalOnWhatsApp } from "@/utils/shareProposal";
 import {
   DETAIL_FIELD_CONFIG,
   OVERVIEW_FIELD_CONFIG,
@@ -55,7 +53,7 @@ export default function ProposalForm({ property, user, backHref }: ProposalFormP
 
   const [savedProposal, setSavedProposal] = useState<Proposal | null>(null);
   const [saving, setSaving] = useState(false);
-  const [sharing, setSharing] = useState(false);
+  const previewOpenedRef = useRef(false);
 
   const buildPayload = (): ProposalCreatePayload => ({
     propertyId: property._id,
@@ -84,40 +82,6 @@ export default function ProposalForm({ property, user, backHref }: ProposalFormP
       showToast({ type: "error", title: "Save failed", message: error instanceof Error ? error.message : "Please try again." });
     } finally {
       setSaving(false);
-    }
-  };
-
-  const handleDownload = async () => {
-    try {
-      setSaving(true);
-      const proposal = await ensureSaved();
-      await downloadProposalPdf(proposal, {
-        coverImageFallback: property.coverImage || property.images?.[0],
-      });
-      showToast({ type: "success", title: "PDF downloaded" });
-    } catch (error) {
-      showToast({ type: "error", title: "Download failed", message: error instanceof Error ? error.message : "Please try again." });
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleShare = async () => {
-    try {
-      setSharing(true);
-      const proposal = await ensureSaved();
-      await shareProposalOnWhatsApp(proposal, {
-        coverImageFallback: property.coverImage || property.images?.[0],
-      });
-      showToast({
-        type: "success",
-        title: "WhatsApp opened",
-        message: "PDF downloaded — attach it in the WhatsApp chat if needed.",
-      });
-    } catch (error) {
-      showToast({ type: "error", title: "Share failed", message: error instanceof Error ? error.message : "Please try again." });
-    } finally {
-      setSharing(false);
     }
   };
 
@@ -154,7 +118,14 @@ export default function ProposalForm({ property, user, backHref }: ProposalFormP
       overviewFields,
       detailFields
     );
-    openProposalPreview(property._id, draft);
+    const opened = openProposalPreview(property._id, draft);
+    if (!opened) {
+      showToast({
+        type: "info",
+        title: "Pop-up blocked",
+        message: "Allow pop-ups for this site to open live preview in a new tab.",
+      });
+    }
   };
 
   useEffect(() => {
@@ -172,6 +143,29 @@ export default function ProposalForm({ property, user, backHref }: ProposalFormP
     return () => window.clearTimeout(timer);
   }, [property, user, preparedFor, agentResearch, overviewFields, detailFields]);
 
+  useEffect(() => {
+    if (previewOpenedRef.current) return;
+    previewOpenedRef.current = true;
+    const draft = buildDraftProposal(
+      property,
+      user,
+      preparedFor,
+      agentResearch,
+      overviewFields,
+      detailFields
+    );
+    const opened = openProposalPreview(property._id, draft);
+    if (!opened) {
+      showToast({
+        type: "info",
+        title: "Pop-up blocked",
+        message: "Allow pop-ups for this site to open live preview in a new tab.",
+      });
+    }
+    // Open preview tab once when the editor loads; draft sync keeps it updated.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [property._id]);
+
   return (
     <Container className="py-10 lg:py-14">
       <Link href={backHref} className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition-colors hover:text-slate-900">
@@ -184,21 +178,15 @@ export default function ProposalForm({ property, user, backHref }: ProposalFormP
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-500">Create Proposal</p>
           <h1 className="mt-2 text-3xl font-semibold text-slate-900">{property.title}</h1>
           <p className="mt-2 max-w-2xl text-sm text-slate-600">
-            Edit proposal details below, then save, download as PDF, or share on WhatsApp.
+            Edit in this tab — live preview opens in a new tab and updates as you type. Download or share the PDF from the preview tab.
           </p>
         </div>
-        <div className="grid w-full gap-3 sm:grid-cols-2 lg:w-auto lg:grid-cols-4">
+        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
           <Button size="md" variant="outline" icon={<ExternalLink className="h-4 w-4" />} onClick={handleOpenPreview}>
             Live Preview
           </Button>
           <Button size="md" loading={saving} icon={<Save className="h-4 w-4" />} onClick={() => void handleSave()}>
             Save Proposal
-          </Button>
-          <Button size="md" loading={saving} icon={<Download className="h-4 w-4" />} onClick={() => void handleDownload()}>
-            Download PDF
-          </Button>
-          <Button size="md" loading={sharing} icon={<MessageCircle className="h-4 w-4" />} onClick={() => void handleShare()}>
-            Share on WhatsApp
           </Button>
         </div>
       </div>

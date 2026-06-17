@@ -6,6 +6,9 @@ const errorHandler = (err, req, res, next) => {
   if (err.name === "MulterError" || err.message === "Unsupported image type") {
     statusCode = 400;
   }
+  if (String(err.message || "").includes("PDF generation failed")) {
+    statusCode = err.statusCode || 503;
+  }
   const message = err.message || "Internal Server Error";
 
   console.error(`[Error] ${statusCode} - ${message}`);

@@ -4,11 +4,15 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { PageLoader } from "@/components/ui/PageLoader";
 import { PublicProposalView } from "@/components/proposal/ProposalPreview";
+import { useAuth } from "@/components/providers/AuthProvider";
 import proposalService from "@/services/proposal.service";
+import { getProposalsDashboardHref } from "@/utils/staffPortal";
+import { isStaff } from "@/utils/roles";
 import type { Proposal } from "@/types/proposal";
 
 export default function PublicProposalPage() {
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
   const [proposal, setProposal] = useState<Proposal | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -42,5 +46,13 @@ export default function PublicProposalPage() {
     );
   }
 
-  return <PublicProposalView proposal={proposal} />;
+  const staffUser = user && isStaff(user.role);
+
+  return (
+    <PublicProposalView
+      proposal={proposal}
+      showToolbar={Boolean(staffUser)}
+      dashboardHref={staffUser ? getProposalsDashboardHref(user.role) : undefined}
+    />
+  );
 }
