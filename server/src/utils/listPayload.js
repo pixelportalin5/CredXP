@@ -30,11 +30,32 @@ function isSafeListImageUrl(value) {
   return isCloudinaryUrl(value) || value.startsWith("/") || /^https?:\/\//i.test(value);
 }
 
+const LIST_IMAGE_TRANSFORM = "c_fill,w_720,h_720,q_auto,f_auto";
+
 function cloudinaryListThumbnail(publicId) {
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
   const id = publicId ? String(publicId).trim() : "";
   if (!cloudName || !id) return "";
-  return `https://res.cloudinary.com/${cloudName}/image/upload/c_fill,w_720,h_720,q_auto,f_auto/${id}`;
+  return `https://res.cloudinary.com/${cloudName}/image/upload/${LIST_IMAGE_TRANSFORM}/${id}`;
+}
+
+function cloudinaryUrlThumbnail(url) {
+  if (!isCloudinaryUrl(url)) return url;
+
+  const marker = "/image/upload/";
+  const markerIndex = url.indexOf(marker);
+  if (markerIndex === -1) return url;
+
+  const afterUpload = url.slice(markerIndex + marker.length);
+  if (afterUpload.startsWith(LIST_IMAGE_TRANSFORM)) return url;
+
+  return `${url.slice(0, markerIndex + marker.length)}${LIST_IMAGE_TRANSFORM}/${afterUpload}`;
+}
+
+function toListImageUrl(value) {
+  if (!value || typeof value !== "string") return "";
+  if (isCloudinaryUrl(value)) return cloudinaryUrlThumbnail(value);
+  return value;
 }
 
 function resolveListCoverImage(doc) {
@@ -45,10 +66,10 @@ function resolveListCoverImage(doc) {
   }
 
   const cover = doc.coverImage ? String(doc.coverImage) : "";
-  if (isSafeListImageUrl(cover)) return cover;
+  if (isSafeListImageUrl(cover)) return toListImageUrl(cover);
 
   const firstImage = Array.isArray(doc.images) && doc.images.length > 0 ? doc.images[0] : "";
-  if (isSafeListImageUrl(firstImage)) return firstImage;
+  if (isSafeListImageUrl(firstImage)) return toListImageUrl(firstImage);
 
   return "";
 }

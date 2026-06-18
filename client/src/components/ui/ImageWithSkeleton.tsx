@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image, { type ImageProps } from "next/image";
 import { ImageOff } from "lucide-react";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { shouldUseUnoptimizedImage } from "@/utils/imageUrl";
+import { listThumbnailUrl, shouldUseUnoptimizedImage } from "@/utils/imageUrl";
 import { cn } from "@/utils/cn";
 
 interface ImageWithSkeletonProps extends Omit<ImageProps, "onLoad" | "onError"> {
@@ -21,12 +21,13 @@ export default function ImageWithSkeleton({
   placeholderLabel,
   onLoadComplete,
   fill,
+  priority = false,
   ...props
 }: ImageWithSkeletonProps) {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!priority);
   const [error, setError] = useState(false);
 
-  const imageSrc = typeof src === "string" ? src : "";
+  const imageSrc = typeof src === "string" ? listThumbnailUrl(src) : "";
 
   if (!imageSrc || error) {
     return (
@@ -60,8 +61,11 @@ export default function ImageWithSkeleton({
         src={imageSrc}
         alt={alt}
         fill={fill}
+        priority={priority}
+        fetchPriority={priority ? "high" : undefined}
+        loading={priority ? "eager" : "lazy"}
         className={cn(
-          "object-cover transition-opacity duration-300",
+          "object-cover transition-opacity duration-150",
           loading ? "opacity-0" : "opacity-100",
           className
         )}

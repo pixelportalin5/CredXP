@@ -1,5 +1,7 @@
 import axios from "axios";
 
+const API_TIMEOUT_MS = Number(process.env.NEXT_PUBLIC_API_TIMEOUT_MS) || 30000;
+
 /**
  * Configured Axios instance for CredXP API
  * Centralizes base URL, headers, timeout, and error handling.
@@ -9,7 +11,7 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 15000,
+  timeout: API_TIMEOUT_MS,
 });
 
 api.interceptors.request.use((config) => {

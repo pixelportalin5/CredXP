@@ -47,8 +47,8 @@ export default function HomeInsightsSection() {
           </div>
         ) : (
           <ScrollReveal stagger className="grid gap-6 md:grid-cols-3">
-            {articles.map((article) => (
-              <InsightCard key={article.id} article={article} compact />
+            {articles.map((article, index) => (
+              <InsightCard key={article.id} article={article} compact priorityImage={index < 3} />
             ))}
           </ScrollReveal>
         )}

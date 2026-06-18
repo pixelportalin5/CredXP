@@ -205,8 +205,13 @@ export default function PropertyDirectoryShell({ mode, basePath, hero }: Propert
               />
             ) : (
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-                {properties.map((property) => (
-                  <PropertyCard key={property._id} property={property} variant="compact" />
+                {properties.map((property, index) => (
+                  <PropertyCard
+                    key={property._id}
+                    property={property}
+                    variant="compact"
+                    priorityImage={index < 6}
+                  />
                 ))}
               </div>
             )}

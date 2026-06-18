@@ -12,10 +12,11 @@ import { cn } from "@/utils/cn";
 interface CoworkingSpaceCardProps {
   space: CoworkingSpace;
   compact?: boolean;
+  priorityImage?: boolean;
   className?: string;
 }
 
-export default function CoworkingSpaceCard({ space, compact = false, className }: CoworkingSpaceCardProps) {
+export default function CoworkingSpaceCard({ space, compact = false, priorityImage = false, className }: CoworkingSpaceCardProps) {
   const coverImage = space.coverImage || space.images[0] || "/images/office1.png";
 
   return (
@@ -26,6 +27,7 @@ export default function CoworkingSpaceCard({ space, compact = false, className }
             src={coverImage}
             alt={space.title}
             fill
+            priority={priorityImage}
             variant="light"
             sizes="(max-width: 768px) 100vw, 33vw"
             className="object-cover transition-transform duration-500 group-hover:scale-105"

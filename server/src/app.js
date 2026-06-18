@@ -28,9 +28,11 @@ app.use(
       "http://localhost:3000",
       "http://localhost:3001",
       "https://credxp-mvp.vercel.app",
+      "https://cred-xp-frontend.vercel.app",
       "https://aqua-goldfinch-370087.hostingersite.com",
       "https://www.credxp.com",
       "https://credxp.com",
+      "https://cred-xp-frontend.vercel.app",
 
     ],
     credentials: true,

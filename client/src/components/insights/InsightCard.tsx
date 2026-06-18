@@ -13,10 +13,11 @@ import type { InsightArticle } from "@/services/insights.service";
 interface InsightCardProps {
   article: InsightArticle;
   compact?: boolean;
+  priorityImage?: boolean;
   className?: string;
 }
 
-export default function InsightCard({ article, compact = false, className }: InsightCardProps) {
+export default function InsightCard({ article, compact = false, priorityImage = false, className }: InsightCardProps) {
   const href = article.sourceUrl.startsWith("http") ? article.sourceUrl : "/insights";
   const isExternal = href.startsWith("http");
   const readMinutes = estimateReadTime(article.excerpt || article.title);
@@ -34,6 +35,7 @@ export default function InsightCard({ article, compact = false, className }: Ins
             src={article.imageUrl}
             alt={article.title}
             fill
+            priority={priorityImage}
             variant="light"
             className="object-cover"
             sizes="(max-width: 768px) 100vw, 33vw"

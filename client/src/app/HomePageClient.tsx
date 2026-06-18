@@ -166,8 +166,8 @@ export default function HomePageClient() {
                 </Link>
               </p>
             ) : (
-              allProperties.slice(0, 8).map((property) => (
-                <PropertyCard key={property._id} property={property} variant="featured" />
+              allProperties.slice(0, 8).map((property, index) => (
+                <PropertyCard key={property._id} property={property} variant="featured" priorityImage={index < 4} />
               ))
             )}
 
@@ -228,8 +228,13 @@ export default function HomePageClient() {
                       stagger
                       className="grid min-w-full grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4"
                     >
-                      {page.map((property) => (
-                        <PropertyCard key={property._id} property={property} variant="featured" />
+                      {page.map((property, index) => (
+                        <PropertyCard
+                          key={property._id}
+                          property={property}
+                          variant="featured"
+                          priorityImage={pageIndex === featuredPage && index < 4}
+                        />
                       ))}
                     </ScrollReveal>
                   ))}
@@ -281,8 +286,8 @@ export default function HomePageClient() {
             </p>
           ) : (
             <ScrollReveal stagger className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              {coworkingSpaces.map((space) => (
-                <CoworkingSpaceCard key={space._id} space={space} compact />
+              {coworkingSpaces.map((space, index) => (
+                <CoworkingSpaceCard key={space._id} space={space} compact priorityImage={index < 2} />
               ))}
             </ScrollReveal>
           )}

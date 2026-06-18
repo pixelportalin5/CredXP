@@ -17,6 +17,7 @@ import type { Property } from "@/types/property";
 interface PropertyCardProps {
   property: Property;
   variant?: "default" | "compact" | "featured";
+  priorityImage?: boolean;
   initialSaved?: boolean;
   onSavedChange?: (propertyId: string, saved: boolean) => void;
   className?: string;
@@ -29,7 +30,7 @@ const STATUS_BADGE_MAP: Record<string, { variant: "warning" | "success" | "accen
   "Available": { variant: "info", icon: null },
 };
 
-export default function PropertyCard({ property, variant = "default", initialSaved = false, onSavedChange, className }: PropertyCardProps) {
+export default function PropertyCard({ property, variant = "default", priorityImage = false, initialSaved = false, onSavedChange, className }: PropertyCardProps) {
   const { _id, title, type, location, price, size, status, financials, grade, tenant } = property;
   const imageUrl = getPropertySectionCoverImage(property);
   const [saved, setSaved] = useState(initialSaved);
@@ -94,6 +95,7 @@ export default function PropertyCard({ property, variant = "default", initialSav
             src={imageUrl || ""}
             alt={title}
             fill
+            priority={priorityImage}
             variant="light"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
