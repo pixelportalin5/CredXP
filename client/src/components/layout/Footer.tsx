@@ -7,13 +7,13 @@ import { siteConfig } from "@/config/site";
 import { footerLinks } from "@/config/navigation";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
-import { InstagramIcon, LinkedInIcon, XIcon, YouTubeIcon } from "@/components/layout/SocialIcons";
+import { InstagramIcon, LinkedInIcon, XIcon, FacebookIcon } from "@/components/layout/SocialIcons";
 
 const socialLinks = [
   { href: siteConfig.social.linkedin, label: "LinkedIn", icon: LinkedInIcon },
   { href: siteConfig.social.twitter, label: "X", icon: XIcon },
   { href: siteConfig.social.instagram, label: "Instagram", icon: InstagramIcon },
-  { href: siteConfig.social.youtube, label: "YouTube", icon: YouTubeIcon },
+  { href: siteConfig.social.facebook, label: "Facebook", icon: FacebookIcon },
 ] as const;
 
 export default function Footer() {

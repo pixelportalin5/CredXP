@@ -19,10 +19,10 @@ export const siteConfig = {
   },
 
   social: {
-    linkedin: "https://linkedin.com/company/credxp",
-    twitter: "https://twitter.com/credxp",
-    instagram: "https://instagram.com/credxp",
-    youtube: "https://youtube.com/@credxp",
+    linkedin: "https://www.linkedin.com/company/thecredxp/",
+    twitter: "https://x.com/thecredxp",
+    instagram: "https://www.instagram.com/cred.xp/",
+    facebook: "https://www.facebook.com/profile.php?id=61552845963690",
   },
 
   legal: {
