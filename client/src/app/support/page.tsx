@@ -1,10 +1,10 @@
 import PlaceholderPage from "@/components/shared/PlaceholderPage";
-import type { Metadata } from "next";
+import { placeholderMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Support | CredXP",
-  description: "CredXP support resources and assistance.",
-};
+export const metadata = placeholderMetadata(
+  "Support",
+  "CredXP support resources and assistance."
+);
 
 export default function SupportPage() {
   return (

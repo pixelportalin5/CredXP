@@ -4,11 +4,24 @@ import PropertyDirectoryShell from "@/components/property/PropertyDirectoryShell
 import { Badge } from "@/components/ui/Badge";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
+const PAGE_METADATA: Metadata = {
   title: "Lease – Office and Retail Spaces for Rent",
   description:
     "Find furnished, bare shell, and high-street office and retail spaces available for lease across premium commercial corridors.",
+  alternates: { canonical: "/lease" },
 };
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}): Promise<Metadata> {
+  const params = await searchParams;
+  const hasFilters = Object.keys(params).length > 0;
+  return hasFilters
+    ? { ...PAGE_METADATA, robots: { index: false, follow: true } }
+    : PAGE_METADATA;
+}
 
 export default function LeasePage() {
   return (

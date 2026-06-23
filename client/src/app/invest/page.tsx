@@ -4,11 +4,24 @@ import PropertyDirectoryShell from "@/components/property/PropertyDirectoryShell
 import { Badge } from "@/components/ui/Badge";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
+const PAGE_METADATA: Metadata = {
   title: "Invest – Pre-Leased and Investment-Grade Assets",
   description:
     "Browse pre-leased offices, retail shops, and SCO investment opportunities with verified tenants and strong rental yields.",
+  alternates: { canonical: "/invest" },
 };
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}): Promise<Metadata> {
+  const params = await searchParams;
+  const hasFilters = Object.keys(params).length > 0;
+  return hasFilters
+    ? { ...PAGE_METADATA, robots: { index: false, follow: true } }
+    : PAGE_METADATA;
+}
 
 export default function InvestPage() {
   return (

@@ -8,7 +8,7 @@ export const siteConfig = {
   tagline: "Premium Commercial Real Estate. Delivered.",
   description:
     "India's premium commercial real estate intelligence platform — pre-leased investments, enterprise office leasing, coworking aggregation, and institutional-grade property discovery.",
-  url: "https://credxp.com",
+  url: "https://www.credxp.com",
   ogImage: "/og-image.jpg",
 
   contact: {

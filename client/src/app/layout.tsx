@@ -5,7 +5,9 @@ import MainContent from "@/components/layout/MainContent";
 import Footer from "@/components/layout/Footer";
 import ScrollToTop from "@/components/layout/ScrollToTop";
 import { AppProviders } from "@/components/providers/AppProviders";
+import JsonLd from "@/components/seo/JsonLd";
 import { siteConfig } from "@/config/site";
+import { absoluteUrl, buildOrganizationJsonLd, defaultOpenGraph } from "@/lib/seo";
 import type { Metadata } from "next";
 
 const geistSans = Geist({
@@ -25,18 +27,19 @@ export const metadata: Metadata = {
   },
   description: siteConfig.description,
   metadataBase: new URL(siteConfig.url),
-  openGraph: {
-    title: siteConfig.name,
-    description: siteConfig.description,
-    url: siteConfig.url,
-    siteName: siteConfig.name,
-    locale: "en_IN",
-    type: "website",
+  alternates: {
+    canonical: "/",
   },
+  openGraph: defaultOpenGraph(
+    `${siteConfig.name} – ${siteConfig.tagline}`,
+    siteConfig.description,
+    "/"
+  ),
   twitter: {
     card: "summary_large_image",
     title: siteConfig.name,
     description: siteConfig.description,
+    images: [absoluteUrl(siteConfig.ogImage)],
   },
   robots: {
     index: true,
@@ -55,6 +58,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-[var(--bg-primary)] text-[var(--text-primary)]">
+        <JsonLd data={buildOrganizationJsonLd()} />
         <AppProviders>
           <ScrollToTop />
           <Navbar />

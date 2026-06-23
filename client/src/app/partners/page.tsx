@@ -1,10 +1,10 @@
 import PlaceholderPage from "@/components/shared/PlaceholderPage";
-import type { Metadata } from "next";
+import { placeholderMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Partners | CredXP",
-  description: "CredXP partner network and collaboration opportunities.",
-};
+export const metadata = placeholderMetadata(
+  "Partners",
+  "CredXP partner network and collaboration opportunities."
+);
 
 export default function PartnersPage() {
   return (

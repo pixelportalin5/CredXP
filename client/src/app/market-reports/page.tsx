@@ -1,10 +1,10 @@
 import PlaceholderPage from "@/components/shared/PlaceholderPage";
-import type { Metadata } from "next";
+import { placeholderMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Market Reports | CredXP",
-  description: "CredXP commercial real estate market reports.",
-};
+export const metadata = placeholderMetadata(
+  "Market Reports",
+  "CredXP commercial real estate market reports."
+);
 
 export default function MarketReportsPage() {
   return (
