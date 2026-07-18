@@ -24,6 +24,17 @@ const getProposal = async (req, res, next) => {
   }
 };
 
+const updateProposal = async (req, res, next) => {
+  try {
+    res.json({
+      success: true,
+      data: await proposalService.updateByUser(req.user._id, req.params.id, req.body),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const getPublicProposal = async (req, res, next) => {
   try {
     res.json({ success: true, data: await proposalService.getPublic(req.params.id) });
@@ -91,6 +102,7 @@ module.exports = {
   createProposal,
   listProposals,
   getProposal,
+  updateProposal,
   getPublicProposal,
   deleteProposal,
   generateProposalPdf,

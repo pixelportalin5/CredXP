@@ -66,7 +66,7 @@ export async function requestProposalPdfBlob(
 }
 
 export function proposalPdfFilename(proposal: Proposal): string {
-  const safeName = proposal.propertyTitle
+  const safeName = (proposal.propertyTitle || "proposal")
     .replace(/[^\w\s-]/g, "")
     .trim()
     .replace(/\s+/g, "-")

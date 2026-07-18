@@ -26,10 +26,10 @@ export function getProposalsDashboardHref(role?: string): string {
 
 export function getStaffEditPath(
   portal: StaffPortal,
-  type: "properties" | "coworking",
+  type: "properties" | "coworking" | "proposals",
   id: string,
   from?: string
 ): string {
-  const section = from || (type === "properties" ? "properties" : "coworking");
+  const section = from || type;
   return `${getDashboardPath(portal)}/${type}/${id}/edit?from=${section}`;
 }

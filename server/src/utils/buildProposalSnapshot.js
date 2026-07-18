@@ -164,19 +164,40 @@ function buildProposalSnapshot(user, property) {
   };
 }
 
+function publicProposalProperty(entry) {
+  return {
+    propertyId: entry.propertyId,
+    propertyTitle: entry.propertyTitle,
+    propertyType: entry.propertyType,
+    propertySnapshot: entry.propertySnapshot,
+    coverImage: entry.coverImage,
+    overviewFields: entry.overviewFields,
+    detailFields: entry.detailFields,
+    agentResearch: entry.agentResearch,
+  };
+}
+
 function publicProposal(proposal) {
+  const properties = Array.isArray(proposal.properties)
+    ? proposal.properties.map(publicProposalProperty)
+    : [];
+  const primary = properties[0];
+
   return {
     _id: proposal._id,
-    propertyId: proposal.propertyId,
-    propertyTitle: proposal.propertyTitle,
-    propertyType: proposal.propertyType,
     agent: proposal.agent,
-    propertySnapshot: proposal.propertySnapshot,
-    coverImage: proposal.coverImage,
     preparedFor: proposal.preparedFor,
-    agentResearch: proposal.agentResearch,
-    overviewFields: proposal.overviewFields,
-    detailFields: proposal.detailFields,
+    properties,
+    // Convenience mirrors of the primary (first) property so existing UI
+    // that expects a single-property shape keeps working.
+    propertyId: primary?.propertyId,
+    propertyTitle: primary?.propertyTitle,
+    propertyType: primary?.propertyType,
+    propertySnapshot: primary?.propertySnapshot,
+    coverImage: primary?.coverImage,
+    overviewFields: primary?.overviewFields,
+    detailFields: primary?.detailFields,
+    agentResearch: primary?.agentResearch,
     createdAt: proposal.createdAt,
   };
 }

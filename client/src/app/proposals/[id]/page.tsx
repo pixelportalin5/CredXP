@@ -6,7 +6,7 @@ import { PageLoader } from "@/components/ui/PageLoader";
 import { PublicProposalView } from "@/components/proposal/ProposalPreview";
 import { useAuth } from "@/components/providers/AuthProvider";
 import proposalService from "@/services/proposal.service";
-import { getProposalsDashboardHref } from "@/utils/staffPortal";
+import { getProposalsDashboardHref, getStaffEditPath, getStaffPortalFromRole } from "@/utils/staffPortal";
 import { isStaff } from "@/utils/roles";
 import type { Proposal } from "@/types/proposal";
 
@@ -47,12 +47,14 @@ export default function PublicProposalPage() {
   }
 
   const staffUser = user && isStaff(user.role);
+  const portal = staffUser ? getStaffPortalFromRole(user.role) : null;
 
   return (
     <PublicProposalView
       proposal={proposal}
       showToolbar={Boolean(staffUser)}
       dashboardHref={staffUser ? getProposalsDashboardHref(user.role) : undefined}
+      editHref={portal ? getStaffEditPath(portal, "proposals", proposal._id, "proposals") : undefined}
     />
   );
 }

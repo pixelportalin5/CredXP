@@ -1,5 +1,12 @@
 import { emptyAgentResearch, emptyDetailFields, emptyOverviewFields } from "@/constants/proposalDocument";
-import type { AgentResearch, PreparedFor, ProposalDetailFields, ProposalOverviewFields } from "@/types/proposal";
+import { buildPropertySnapshotRows } from "@/utils/buildProposalSnapshot";
+import type {
+  AgentResearch,
+  PreparedFor,
+  ProposalDetailFields,
+  ProposalOverviewFields,
+  ProposalPropertyEntry,
+} from "@/types/proposal";
 import type { Property } from "@/types/property";
 import { formatPricePerSqft, formatSize, formatYield } from "@/utils/format";
 
@@ -51,6 +58,20 @@ export function buildDefaultPreparedFor(): PreparedFor {
 
 export function buildDefaultAgentResearch(): AgentResearch {
   return emptyAgentResearch();
+}
+
+/** Builds a fresh proposal-property form entry (defaults + snapshot) for a property. */
+export function buildProposalPropertyEntry(property: Property): ProposalPropertyEntry {
+  return {
+    propertyId: property._id,
+    propertyTitle: property.title,
+    propertyType: property.type,
+    propertySnapshot: buildPropertySnapshotRows(property),
+    coverImage: property.coverImage || property.images?.[0],
+    overviewFields: buildDefaultOverviewFields(property),
+    detailFields: buildDefaultDetailFields(property),
+    agentResearch: buildDefaultAgentResearch(),
+  };
 }
 
 export function getSnapshotValue(

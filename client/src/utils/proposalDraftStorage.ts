@@ -1,13 +1,6 @@
-import { buildProposalPreview } from "@/utils/buildProposalSnapshot";
-import type { Property } from "@/types/property";
+import { buildAgentSnapshot } from "@/utils/buildProposalSnapshot";
 import type { User } from "@/types/auth";
-import type {
-  AgentResearch,
-  PreparedFor,
-  Proposal,
-  ProposalDetailFields,
-  ProposalOverviewFields,
-} from "@/types/proposal";
+import type { PreparedFor, Proposal, ProposalPropertyEntry } from "@/types/proposal";
 
 const STORAGE_PREFIX = "credxp-proposal-draft:";
 const BROADCAST_CHANNEL = "credxp-proposal-draft";
@@ -33,26 +26,24 @@ function notifyDraftUpdated(propertyId: string): void {
 }
 
 export function buildDraftProposal(
-  property: Property,
+  properties: ProposalPropertyEntry[],
   user: User,
-  preparedFor: PreparedFor,
-  agentResearch: AgentResearch,
-  overviewFields: ProposalOverviewFields,
-  detailFields: ProposalDetailFields
+  preparedFor: PreparedFor
 ): Proposal {
-  const preview = buildProposalPreview(user, property);
+  const primary = properties[0];
   return {
     _id: "draft",
-    propertyId: property._id,
-    propertyTitle: property.title,
-    propertyType: property.type,
-    agent: preview.agent,
-    propertySnapshot: preview.property,
-    coverImage: property.coverImage || property.images?.[0],
+    agent: buildAgentSnapshot(user),
     preparedFor,
-    agentResearch,
-    overviewFields,
-    detailFields,
+    properties,
+    propertyId: primary?.propertyId,
+    propertyTitle: primary?.propertyTitle,
+    propertyType: primary?.propertyType,
+    propertySnapshot: primary?.propertySnapshot,
+    coverImage: primary?.coverImage,
+    overviewFields: primary?.overviewFields,
+    detailFields: primary?.detailFields,
+    agentResearch: primary?.agentResearch,
     createdAt: new Date().toISOString(),
   };
 }

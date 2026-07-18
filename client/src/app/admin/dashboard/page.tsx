@@ -281,7 +281,7 @@ export default function AdminDashboardPage() {
     const normalized = query.trim().toLowerCase();
     if (activeSection !== "proposals" || !normalized) return proposals;
     return proposals.filter((proposal) => (
-      proposal.propertyTitle.toLowerCase().includes(normalized) ||
+      (proposal.propertyTitle || "").toLowerCase().includes(normalized) ||
       proposal.agent.name.toLowerCase().includes(normalized)
     ));
   }, [activeSection, proposals, query]);
@@ -687,13 +687,23 @@ export default function AdminDashboardPage() {
                   <Card key={proposal._id} padding="md" className="border-slate-200 bg-white shadow-sm">
                     <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                       <div>
-                        <h3 className="font-semibold text-slate-900">{proposal.propertyTitle}</h3>
+                        <h3 className="font-semibold text-slate-900">
+                          {proposal.propertyTitle}
+                          {(proposal.properties?.length || 0) > 1 && (
+                            <span className="ml-2 text-sm font-normal text-slate-500">
+                              + {proposal.properties.length - 1} more
+                            </span>
+                          )}
+                        </h3>
                         <p className="mt-2 text-sm text-slate-600">Prepared by {proposal.agent.name}</p>
                         <p className="mt-1 text-xs text-slate-500">Saved {formatDate(proposal.createdAt)}</p>
                       </div>
                       <div className="flex flex-wrap gap-2">
                         <Link href={`/proposals/${proposal._id}`}>
                           <Button size="sm" variant="outline" icon={<Eye className="h-4 w-4" />} className="border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50">View</Button>
+                        </Link>
+                        <Link href={getStaffEditPath(portal, "proposals", proposal._id, "proposals")}>
+                          <Button size="sm" variant="outline" icon={<Edit3 className="h-4 w-4" />} className="border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50">Edit</Button>
                         </Link>
                         <Button size="sm" variant="danger" icon={<Trash2 className="h-4 w-4" />} onClick={() => void handleProposalDelete(proposal)}>Delete</Button>
                       </div>

@@ -61,7 +61,10 @@ export default function ProposalPreviewPage() {
 
         <div className="mb-4 text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-500">Live Preview</p>
-          <h1 className="mt-2 text-2xl font-semibold text-slate-900">{proposal.propertyTitle}</h1>
+          <h1 className="mt-2 text-2xl font-semibold text-slate-900">
+            {proposal.propertyTitle}
+            {(proposal.properties?.length || 0) > 1 && ` + ${proposal.properties.length - 1} more`}
+          </h1>
           <p className="mt-1 text-sm text-slate-500">
             Updates automatically as you edit the proposal form in the other tab.
           </p>
