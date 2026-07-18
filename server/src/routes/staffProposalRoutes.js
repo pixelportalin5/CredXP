@@ -3,6 +3,7 @@ const {
   createProposal,
   listProposals,
   getProposal,
+  updateProposal,
   deleteProposal,
   generateProposalPdf,
 } = require("../controllers/proposalController");
@@ -15,6 +16,7 @@ function buildStaffProposalRoutes(authorize) {
   router.post("/pdf", generateProposalPdf);
   router.get("/", listProposals);
   router.get("/:id", getProposal);
+  router.put("/:id", updateProposal);
   router.delete("/:id", deleteProposal);
   return router;
 }

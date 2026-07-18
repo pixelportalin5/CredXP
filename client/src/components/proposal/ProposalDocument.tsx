@@ -20,7 +20,7 @@ import {
   emptyOverviewFields,
 } from "@/constants/proposalDocument";
 import { siteConfig } from "@/config/site";
-import type { Proposal } from "@/types/proposal";
+import type { Proposal, ProposalPropertyEntry } from "@/types/proposal";
 import { formatDate } from "@/utils/format";
 import { getSnapshotValue } from "@/utils/buildProposalDefaults";
 import { resolveProposalForDocument } from "@/utils/resolveProposalDocument";
@@ -44,21 +44,26 @@ function displayValue(value?: string, fallback = "—"): string {
   return toSafeCurrency(value);
 }
 
-export default function ProposalDocument({ proposal, qrDataUrl }: ProposalDocumentProps) {
-  const resolved = resolveProposalForDocument(proposal);
-  const snapshot = resolved.propertySnapshot;
+interface PropertySectionProps {
+  entry: ProposalPropertyEntry;
+  index: number;
+  total: number;
+  isLast: boolean;
+}
+
+function PropertySection({ entry, index, total, isLast }: PropertySectionProps) {
+  const snapshot = entry.propertySnapshot;
   const price = getSnapshotValue(snapshot, "price") || "On Request";
   const pricePerSqft = getSnapshotValue(snapshot, "pricePerSqft");
   const description = getSnapshotValue(snapshot, "description") || "No description provided.";
-  const propertyType = resolved.propertyType || getSnapshotValue(snapshot, "type");
-  const overview = resolved.overviewFields || emptyOverviewFields();
-  const details = resolved.detailFields || emptyDetailFields();
-  const preparedFor = resolved.preparedFor;
-  const research = resolved.agentResearch;
+  const propertyType = entry.propertyType || getSnapshotValue(snapshot, "type");
+  const overview = entry.overviewFields || emptyOverviewFields();
+  const details = entry.detailFields || emptyDetailFields();
+  const research = entry.agentResearch;
   const pros = Array.isArray(research?.pros) ? research.pros : [];
   const cons = Array.isArray(research?.cons) ? research.cons : [];
   const keyFeatures = getKeyFeatures(propertyType);
-  const coverImage = resolved.coverImage;
+  const coverImage = entry.coverImage;
   const coverImageSrc =
     coverImage?.startsWith("/") && typeof window !== "undefined"
       ? `${window.location.origin}${coverImage}`
@@ -74,50 +79,33 @@ export default function ProposalDocument({ proposal, qrDataUrl }: ProposalDocume
 
   return (
     <div
-      className="bg-white font-sans text-slate-900"
-      style={{ width: A4_WIDTH, maxWidth: A4_WIDTH, margin: "0 auto" }}
-      data-proposal-document
+      className={isLast ? "" : "border-b border-dashed border-slate-300 pb-4"}
+      style={{ pageBreakAfter: isLast ? "auto" : "always", breakAfter: isLast ? "auto" : "page" }}
     >
-      <div className="flex items-stretch border-b border-slate-200">
-        <div className="flex items-center px-6 py-4">
-          <Image src="/logos/Credxp.webp" alt="CredXP" width={120} height={34} unoptimized className="h-8 w-auto" />
+      {total > 1 && (
+        <div className="px-5 pt-3">
+          <span className="inline-block rounded bg-slate-800 px-2 py-0.5 text-[7px] font-bold uppercase tracking-wide text-white">
+            Property {index + 1} of {total}
+          </span>
         </div>
-        <div
-          className="ml-auto flex items-center bg-black px-6 py-3 text-white"
-          style={{ clipPath: "polygon(8% 0, 100% 0, 100% 100%, 0 100%)" }}
-        >
-          <div className="pl-4 text-right">
-            <p className="text-[10px] font-bold tracking-[0.2em]">PROPERTY PROPOSAL</p>
-            <p className="mt-1 text-[9px] text-slate-300">Prepared on {formatDate(resolved.createdAt)}</p>
-            <p className="text-[8px] text-slate-400">Ref: {proposalRefId(resolved)}</p>
-          </div>
-        </div>
-      </div>
+      )}
 
-      <div className="flex gap-3 px-5 pt-4">
+      <div className="flex gap-3 px-5 pt-3">
         <div className="min-w-0 flex-[1.1]">
-          <div className="mb-2 flex items-center gap-1.5">
-            <Building2 className="h-3 w-3 text-red-600" />
-            <p className="text-[8px] font-bold uppercase tracking-wider text-red-600">Who Are We</p>
-          </div>
-          <p className="line-clamp-3 text-[8px] leading-relaxed text-slate-600">{WHO_ARE_WE_COPY}</p>
-
-          <div className="mt-3">
-            <span className="inline-block rounded bg-red-600 px-2 py-0.5 text-[7px] font-bold uppercase tracking-wide text-white">
-              {badgeLabel}
-            </span>
-            <h1 className="mt-1.5 line-clamp-2 text-[15px] font-bold uppercase leading-tight text-slate-900">
-              {resolved.propertyTitle}
-            </h1>
-            <p className="mt-1 flex items-center gap-1 text-[9px] text-slate-600">
-              <MapPin className="h-3 w-3 shrink-0 text-red-600" />
-              <span className="line-clamp-1">{displayValue(overview.location)}</span>
-            </p>
-            <p className="mt-1 line-clamp-2 text-[8px] leading-relaxed text-slate-500">
-              {description.slice(0, 140)}
-              {description.length > 140 ? "..." : ""}
-            </p>
-          </div>
+          <span className="inline-block rounded bg-red-600 px-2 py-0.5 text-[7px] font-bold uppercase tracking-wide text-white">
+            {badgeLabel}
+          </span>
+          <h1 className="mt-1.5 line-clamp-2 text-[15px] font-bold uppercase leading-tight text-slate-900">
+            {entry.propertyTitle}
+          </h1>
+          <p className="mt-1 flex items-center gap-1 text-[9px] text-slate-600">
+            <MapPin className="h-3 w-3 shrink-0 text-red-600" />
+            <span className="line-clamp-1">{displayValue(overview.location)}</span>
+          </p>
+          <p className="mt-1 line-clamp-3 text-[8px] leading-relaxed text-slate-500">
+            {description.slice(0, 180)}
+            {description.length > 180 ? "..." : ""}
+          </p>
         </div>
 
         <div className="relative h-[130px] min-w-0 flex-1 overflow-hidden rounded-lg border border-slate-200 bg-slate-100">
@@ -147,49 +135,6 @@ export default function ProposalDocument({ proposal, qrDataUrl }: ProposalDocume
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-3 flex gap-3 px-5">
-        <div className="flex-1 rounded-lg border border-slate-200 bg-white p-3">
-          <div className="mb-2 rounded bg-red-600 px-2 py-0.5 text-[7px] font-bold uppercase tracking-wide text-white">
-            Prepared For
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-50 text-red-600">
-              <User className="h-4 w-4" />
-            </div>
-            <div className="min-w-0 text-[8px] text-slate-700">
-              <p className="truncate font-bold text-slate-900">{displayValue(preparedFor?.name)}</p>
-              {preparedFor?.email && <p className="truncate">{preparedFor.email}</p>}
-              {preparedFor?.phone && <p className="truncate">{preparedFor.phone}</p>}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex-1 rounded-lg border border-red-200 bg-red-50 p-3">
-          <div className="mb-2 text-[7px] font-bold uppercase tracking-wide text-red-700">Your Property Advisor</div>
-          <div className="flex items-center gap-2">
-            <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full border-2 border-white bg-slate-200">
-              {resolved.agent.avatar ? (
-                <img src={resolved.agent.avatar} alt="" className="h-full w-full object-cover" crossOrigin="anonymous" />
-              ) : (
-                <div className="flex h-full items-center justify-center text-slate-400">
-                  <User className="h-5 w-5" />
-                </div>
-              )}
-            </div>
-            <div className="min-w-0 flex-1 text-[8px] text-slate-700">
-              <p className="font-bold text-slate-900">{resolved.agent.name}</p>
-              <p className="text-slate-500">Senior Property Consultant</p>
-              {resolved.agent.phone && <p>{resolved.agent.phone}</p>}
-              {resolved.agent.email && <p className="truncate">{resolved.agent.email}</p>}
-              <p className="text-red-600">{siteConfig.url.replace("https://", "")}</p>
-            </div>
-            {qrDataUrl && (
-              <img src={qrDataUrl} alt="Contact QR" className="h-12 w-12 shrink-0 rounded bg-white p-0.5" />
-            )}
           </div>
         </div>
       </div>
@@ -245,7 +190,7 @@ export default function ProposalDocument({ proposal, qrDataUrl }: ProposalDocume
       </div>
 
       {research && (pros.some(Boolean) || cons.some(Boolean)) && (
-        <div className="mt-3 px-5">
+        <div className="mt-3 px-5 pb-3">
           <div className="mb-1.5 flex items-center gap-1.5">
             <Building2 className="h-3 w-3 text-red-600" />
             <p className="text-[8px] font-bold uppercase tracking-wider text-red-600">Agent Research</p>
@@ -280,6 +225,99 @@ export default function ProposalDocument({ proposal, qrDataUrl }: ProposalDocume
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+export default function ProposalDocument({ proposal, qrDataUrl }: ProposalDocumentProps) {
+  const resolved = resolveProposalForDocument(proposal);
+  const properties = resolved.properties?.length ? resolved.properties : [];
+  const preparedFor = resolved.preparedFor;
+
+  return (
+    <div
+      className="bg-white font-sans text-slate-900"
+      style={{ width: A4_WIDTH, maxWidth: A4_WIDTH, margin: "0 auto" }}
+      data-proposal-document
+    >
+      <div className="flex items-stretch border-b border-slate-200">
+        <div className="flex items-center px-6 py-4">
+          <Image src="/logos/Credxp.webp" alt="CredXP" width={120} height={34} unoptimized className="h-8 w-auto" />
+        </div>
+        <div
+          className="ml-auto flex items-center bg-black px-6 py-3 text-white"
+          style={{ clipPath: "polygon(8% 0, 100% 0, 100% 100%, 0 100%)" }}
+        >
+          <div className="pl-4 text-right">
+            <p className="text-[10px] font-bold tracking-[0.2em]">PROPERTY PROPOSAL</p>
+            <p className="mt-1 text-[9px] text-slate-300">Prepared on {formatDate(resolved.createdAt)}</p>
+            <p className="text-[8px] text-slate-400">Ref: {proposalRefId(resolved)}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="px-5 pt-4">
+        <div className="mb-2 flex items-center gap-1.5">
+          <Building2 className="h-3 w-3 text-red-600" />
+          <p className="text-[8px] font-bold uppercase tracking-wider text-red-600">Who Are We</p>
+        </div>
+        <p className="line-clamp-3 text-[8px] leading-relaxed text-slate-600">{WHO_ARE_WE_COPY}</p>
+      </div>
+
+      <div className="mt-3 flex gap-3 px-5">
+        <div className="flex-1 rounded-lg border border-slate-200 bg-white p-3">
+          <div className="mb-2 rounded bg-red-600 px-2 py-0.5 text-[7px] font-bold uppercase tracking-wide text-white">
+            Prepared For
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-50 text-red-600">
+              <User className="h-4 w-4" />
+            </div>
+            <div className="min-w-0 text-[8px] text-slate-700">
+              <p className="truncate font-bold text-slate-900">{displayValue(preparedFor?.name)}</p>
+              {preparedFor?.email && <p className="truncate">{preparedFor.email}</p>}
+              {preparedFor?.phone && <p className="truncate">{preparedFor.phone}</p>}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex-1 rounded-lg border border-red-200 bg-red-50 p-3">
+          <div className="mb-2 text-[7px] font-bold uppercase tracking-wide text-red-700">Your Property Advisor</div>
+          <div className="flex items-center gap-2">
+            <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full border-2 border-white bg-slate-200">
+              {resolved.agent.avatar ? (
+                <img src={resolved.agent.avatar} alt="" className="h-full w-full object-cover" crossOrigin="anonymous" />
+              ) : (
+                <div className="flex h-full items-center justify-center text-slate-400">
+                  <User className="h-5 w-5" />
+                </div>
+              )}
+            </div>
+            <div className="min-w-0 flex-1 text-[8px] text-slate-700">
+              <p className="font-bold text-slate-900">{resolved.agent.name}</p>
+              <p className="text-slate-500">Senior Property Consultant</p>
+              {resolved.agent.phone && <p>{resolved.agent.phone}</p>}
+              {resolved.agent.email && <p className="truncate">{resolved.agent.email}</p>}
+              <p className="text-red-600">{siteConfig.url.replace("https://", "")}</p>
+            </div>
+            {qrDataUrl && (
+              <img src={qrDataUrl} alt="Contact QR" className="h-12 w-12 shrink-0 rounded bg-white p-0.5" />
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-2">
+        {properties.map((entry, index) => (
+          <PropertySection
+            key={entry.propertyId || index}
+            entry={entry}
+            index={index}
+            total={properties.length}
+            isLast={index === properties.length - 1}
+          />
+        ))}
+      </div>
 
       <div className="mt-auto px-5 pb-0 pt-2">
         <div className="flex gap-2 border-t border-slate-200 py-2">

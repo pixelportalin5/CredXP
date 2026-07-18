@@ -45,26 +45,48 @@ export interface ProposalDetailFields {
   expectedClosures: string;
 }
 
-export interface ProposalCreatePayload {
-  propertyId: string;
-  preparedFor: PreparedFor;
-  agentResearch: AgentResearch;
-  overviewFields: ProposalOverviewFields;
-  detailFields: ProposalDetailFields;
-}
-
-export interface Proposal {
-  _id: string;
+/** A single property's data as stored inside a saved proposal. */
+export interface ProposalPropertyEntry {
   propertyId: string;
   propertyTitle: string;
   propertyType?: string;
-  agent: ProposalAgent;
   propertySnapshot: ProposalField[];
-  preparedFor?: PreparedFor;
-  agentResearch?: AgentResearch;
+  coverImage?: string;
   overviewFields?: ProposalOverviewFields;
   detailFields?: ProposalDetailFields;
+  agentResearch?: AgentResearch;
+}
+
+/** What the client sends for one property when creating/updating a proposal. */
+export interface ProposalPropertyInput {
+  propertyId: string;
+  overviewFields: ProposalOverviewFields;
+  detailFields: ProposalDetailFields;
+  agentResearch?: AgentResearch;
+}
+
+export interface ProposalCreatePayload {
+  preparedFor: PreparedFor;
+  properties: ProposalPropertyInput[];
+}
+
+export type ProposalUpdatePayload = ProposalCreatePayload;
+
+export interface Proposal {
+  _id: string;
+  agent: ProposalAgent;
+  preparedFor?: PreparedFor;
+  properties: ProposalPropertyEntry[];
+  // Convenience mirrors of the primary (first) property, kept for any
+  // legacy single-property UI that hasn't been updated to iterate `properties`.
+  propertyId?: string;
+  propertyTitle?: string;
+  propertyType?: string;
+  propertySnapshot?: ProposalField[];
   coverImage?: string;
+  overviewFields?: ProposalOverviewFields;
+  detailFields?: ProposalDetailFields;
+  agentResearch?: AgentResearch;
   createdAt: string;
   draftUpdatedAt?: number;
 }

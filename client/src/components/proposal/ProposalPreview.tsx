@@ -54,17 +54,19 @@ export default function ProposalPreview({ proposal, variant = "embedded" }: Prop
 export function PublicProposalView({
   proposal,
   dashboardHref,
+  editHref,
   showToolbar = false,
 }: {
   proposal: Proposal;
   dashboardHref?: string;
+  editHref?: string;
   showToolbar?: boolean;
 }) {
   return (
     <div className="min-h-screen bg-slate-50 py-10">
       <div className="mx-auto max-w-4xl px-4">
         {showToolbar && dashboardHref && (
-          <ProposalPreviewToolbar proposal={proposal} dashboardHref={dashboardHref} />
+          <ProposalPreviewToolbar proposal={proposal} dashboardHref={dashboardHref} editHref={editHref} />
         )}
         <div className="mb-8 text-center">
           <p className="text-sm font-bold uppercase tracking-[0.24em] text-accent-500">CredXP</p>

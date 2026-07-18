@@ -14,6 +14,7 @@ export default function CreateProposalPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
   const [property, setProperty] = useState<Property | null>(null);
+  const [availableProperties, setAvailableProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,11 +24,15 @@ export default function CreateProposalPage() {
       return;
     }
 
-    async function fetchProperty() {
+    async function fetchData() {
       try {
         setLoading(true);
-        const res = await propertyService.getById(id);
-        setProperty(res.data);
+        const [propertyRes, listRes] = await Promise.all([
+          propertyService.getById(id),
+          propertyService.getAll({ limit: 500 }),
+        ]);
+        setProperty(propertyRes.data);
+        setAvailableProperties(listRes.data.properties || []);
       } catch {
         router.replace(`/properties/${id}`);
       } finally {
@@ -35,11 +40,18 @@ export default function CreateProposalPage() {
       }
     }
 
-    if (id) void fetchProperty();
+    if (id) void fetchData();
   }, [authLoading, user, id, router]);
 
   if (authLoading || loading) return <PageLoader label="Loading proposal…" />;
   if (!user || !property || !isStaff(user.role)) return null;
 
-  return <ProposalForm property={property} user={user} backHref={`/properties/${property._id}`} />;
+  return (
+    <ProposalForm
+      user={user}
+      backHref={`/properties/${property._id}`}
+      initialProperty={property}
+      availableProperties={availableProperties}
+    />
+  );
 }

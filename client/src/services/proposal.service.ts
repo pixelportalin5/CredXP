@@ -1,5 +1,5 @@
 import api from "@/lib/api";
-import type { Proposal, ProposalCreatePayload } from "@/types/proposal";
+import type { Proposal, ProposalCreatePayload, ProposalUpdatePayload } from "@/types/proposal";
 import type { StaffPortal } from "@/utils/staffPortal";
 
 export function getProposalService(portal: StaffPortal) {
@@ -8,6 +8,9 @@ export function getProposalService(portal: StaffPortal) {
   return {
     create: (payload: ProposalCreatePayload): Promise<{ data: Proposal }> =>
       api.post(base, payload),
+
+    update: (id: string, payload: ProposalUpdatePayload): Promise<{ data: Proposal }> =>
+      api.put(`${base}/${id}`, payload),
 
     list: (): Promise<{ data: Proposal[] }> =>
       api.get(base),
