@@ -168,6 +168,9 @@ export default function Footer() {
           <Container className="flex flex-col items-center justify-between gap-3 py-5 text-xs text-white/55 sm:flex-row">
             <p>
               © {currentYear} {siteConfig.legal.companyName}. All rights reserved.
+              <Link href="/privacy-policy" className="ml-3 transition-colors hover:text-white">
+                Privacy Policy
+              </Link>
             </p>
             <p>{siteConfig.legal.rera}</p>
           </Container>

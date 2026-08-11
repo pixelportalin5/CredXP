@@ -4,6 +4,7 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 import CoworkingPartnerMarquee from "@/components/coworking/CoworkingPartnerMarquee";
 import ScrollReveal from "@/components/motion/ScrollReveal";
 import HomeHeroSection from "./HomeHeroSection";
+import PropertyOfTheMonth from "./PropertyOfTheMonth";
 import HomeStatsSection from "./HomeStatsSection";
 import GoalCardsSection from "./GoalCardsSection";
 import LeadCaptureBar from "@/components/lead/LeadCaptureBar";
@@ -21,6 +22,8 @@ export default function HomePage() {
   return (
     <>
       <HomeHeroSection />
+
+      <PropertyOfTheMonth />
 
       <HomeStatsSection />
 

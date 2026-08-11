@@ -17,6 +17,7 @@ const savedPropertyRoutes = require("./routes/savedPropertyRoutes");
 const insightsRoutes = require("./routes/insightsRoutes");
 const proposalRoutes = require("./routes/proposalRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
+const zohoIntegrationRoutes = require("./routes/zohoIntegrationRoutes");
 
 const app = express();
 
@@ -74,6 +75,7 @@ app.use("/api/saved-properties", savedPropertyRoutes);
 app.use("/api/insights", insightsRoutes);
 app.use("/api/proposals", proposalRoutes);
 app.use("/api/uploads", uploadRoutes);
+app.use("/api/integrations/zoho", zohoIntegrationRoutes);
 
 // --------------- Error Handling ---------------
 app.use(errorHandler);
