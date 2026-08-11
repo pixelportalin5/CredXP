@@ -12,21 +12,78 @@ const ALLOWED_TYPES = new Set([
   "Commercial Land",
 ]);
 
+const INVESTMENT_TYPES = new Set(["Pre-Leased Office", "Shop", "Retail/SCO"]);
+const LEASE_TYPES = new Set(["Office Space", "Shop"]);
+
 function asBoolean(value) {
   if (typeof value === "boolean") return value;
   const normalized = String(value ?? "").trim().toLowerCase();
   return ["true", "yes", "1", "y"].includes(normalized);
 }
 
+function pick(body, keys) {
+  for (const key of keys) {
+    const value = body?.[key];
+    if (value !== undefined && value !== null && String(value).trim() !== "") {
+      return value;
+    }
+  }
+  return undefined;
+}
+
+function normalizeType(rawType) {
+  const candidate = String(rawType || "").trim();
+  if (ALLOWED_TYPES.has(candidate)) return candidate;
+
+  const lower = candidate.toLowerCase();
+  if (lower.includes("pre-leased") || lower.includes("pre leased") || lower.includes("investment")) {
+    return "Pre-Leased Office";
+  }
+  if (lower.includes("retail") || lower.includes("sco")) return "Retail/SCO";
+  if (lower.includes("shop")) return "Shop";
+  if (lower.includes("warehouse")) return "Warehouse";
+  if (lower.includes("cowork")) return "Coworking Space";
+  if (lower.includes("land")) return "Commercial Land";
+  if (lower.includes("office") || lower.includes("lease") || lower.includes("rent")) {
+    return "Office Space";
+  }
+
+  // CredXP primary inventory is investment/pre-leased
+  return "Pre-Leased Office";
+}
+
+function resolvePriceUnit(type, rawUnit) {
+  const unit = String(rawUnit || "").trim().toLowerCase();
+  if (["month", "year", "sqft", "total"].includes(unit)) return unit;
+
+  // Lease listings must use month/year or /lease filters hide them.
+  // Investment listings must NOT use month/year or /invest filters hide them.
+  if (type === "Office Space") return "month";
+  return "total";
+}
+
 /**
  * @desc   Zoho CRM webhook — create/update property on the website
  * @route  POST /api/integrations/zoho/webhook
  *
- * Expected body: { zohoId, title, price, type, description, publishToWebsite }
+ * Expected body (flexible field names supported):
+ * { zohoId, title, price, type, description, publishToWebsite }
  */
 const handleZohoPropertyWebhook = async (req, res, next) => {
   try {
-    const { zohoId, title, price, type, description, publishToWebsite } = req.body || {};
+    const body = req.body || {};
+
+    const zohoId = pick(body, ["zohoId", "id", "Id", "Record_Id", "record_id"]);
+    const title = pick(body, ["title", "Title", "Name", "Property_Name"]);
+    const price = pick(body, ["price", "Price", "Asking_Price", "Sale_Price"]);
+    const typeRaw = pick(body, ["type", "Type", "Property_Type", "Listing_Type"]);
+    const description = pick(body, ["description", "Description", "Property_Description"]);
+    const publishToWebsite = pick(body, [
+      "publishToWebsite",
+      "Publish_to_Website",
+      "Publish_To_Website",
+      "publish_to_website",
+    ]);
 
     if (!zohoId || !title) {
       return res.status(400).json({
@@ -35,16 +92,26 @@ const handleZohoPropertyWebhook = async (req, res, next) => {
       });
     }
 
-    const resolvedType = ALLOWED_TYPES.has(String(type))
-      ? String(type)
-      : "Office Space";
+    const resolvedType = normalizeType(typeRaw);
+    const priceUnit = resolvePriceUnit(
+      resolvedType,
+      pick(body, ["priceUnit", "Price_Unit", "financials.priceUnit"])
+    );
 
-    const listingStatus = asBoolean(publishToWebsite) ? "published" : "draft";
+    // Default to published so Zoho listings appear unless explicitly unpublished
+    const shouldPublish =
+      publishToWebsite === undefined ? true : asBoolean(publishToWebsite);
+    const listingStatus = shouldPublish ? "published" : "draft";
+
+    const numericPrice = Number(String(price ?? "").replace(/,/g, "")) || 0;
+    const numericSize =
+      Number(String(pick(body, ["size", "Size", "Area", "Built_Up_Area"]) ?? "").replace(/,/g, "")) ||
+      0;
 
     const update = {
       zohoId: String(zohoId).trim(),
       title: String(title).trim(),
-      price: Number(price) || 0,
+      price: numericPrice,
       type: resolvedType,
       description: description
         ? String(description).trim()
@@ -52,19 +119,19 @@ const handleZohoPropertyWebhook = async (req, res, next) => {
       listingStatus,
       isActive: listingStatus === "published",
       zohoLastSync: new Date(),
-      // Required schema fields — defaults used when Zoho does not send them
-      size: Number(req.body?.size) || 0,
+      size: numericSize,
       location: {
-        address: req.body?.address || req.body?.location?.address || "Address TBD",
-        city: req.body?.city || req.body?.location?.city || "Gurugram",
-        state: req.body?.state || req.body?.location?.state || "Haryana",
+        address:
+          pick(body, ["address", "Address", "Location_Address"]) || "Address TBD",
+        city: pick(body, ["city", "City", "Location_City"]) || "Gurugram",
+        state: pick(body, ["state", "State", "Location_State"]) || "Haryana",
       },
       financials: {
-        price: Number(price) || 0,
-        priceUnit: "total",
+        price: numericPrice,
+        priceUnit,
       },
       specs: {
-        size: Number(req.body?.size) || 0,
+        size: numericSize,
         sizeUnit: "sqft",
       },
     };
@@ -80,7 +147,19 @@ const handleZohoPropertyWebhook = async (req, res, next) => {
       }
     );
 
-    console.log("Zoho Property Synced:", updatedProperty);
+    console.log("Zoho Property Synced:", {
+      id: updatedProperty._id,
+      zohoId: updatedProperty.zohoId,
+      title: updatedProperty.title,
+      type: updatedProperty.type,
+      priceUnit: updatedProperty.financials?.priceUnit,
+      listingStatus: updatedProperty.listingStatus,
+      visibleOnInvest: INVESTMENT_TYPES.has(updatedProperty.type) &&
+        !["month", "year"].includes(updatedProperty.financials?.priceUnit),
+      visibleOnLease:
+        LEASE_TYPES.has(updatedProperty.type) &&
+        ["month", "year"].includes(updatedProperty.financials?.priceUnit),
+    });
 
     invalidatePrefix("properties");
 
