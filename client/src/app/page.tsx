@@ -13,9 +13,15 @@ import HomeInsightsSection from "@/components/insights/HomeInsightsSection";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Premium Commercial Real Estate. Delivered.",
+  title: "Commercial Real Estate, Pre-Leased Shops & Premium Office Rentals",
   description:
-    "Pre-leased investments, enterprise office leasing, coworking aggregation, and institutional-grade property discovery across India's top commercial markets.",
+    "Discover pre-leased commercial shops, premium office rentals, SCO investments, and enterprise office leasing with CredXP — India's commercial real estate marketplace.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "CredXP | Pre-Leased Commercial Shops & Premium Office Rentals",
+    description:
+      "Buy pre-leased commercial shops and lease premium offices across Gurugram, Delhi NCR, and India's top business districts.",
+  },
 };
 
 export default function HomePage() {

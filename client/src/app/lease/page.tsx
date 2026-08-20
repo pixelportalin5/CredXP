@@ -5,9 +5,9 @@ import { Badge } from "@/components/ui/Badge";
 import type { Metadata } from "next";
 
 const PAGE_METADATA: Metadata = {
-  title: "Lease – Office and Retail Spaces for Rent",
+  title: "Premium Office Rentals & Retail Space for Lease",
   description:
-    "Find furnished, bare shell, and high-street office and retail spaces available for lease across premium commercial corridors.",
+    "Find premium office rentals, high-street retail shops, furnished suites, and bare-shell commercial space for lease across India's top business corridors.",
   alternates: { canonical: "/lease" },
 };
 

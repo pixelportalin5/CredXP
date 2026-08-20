@@ -65,6 +65,47 @@ export function defaultOpenGraph(
   };
 }
 
+export function buildDefaultMetadata(): Metadata {
+  const title = `${siteConfig.name} – ${siteConfig.tagline}`;
+  const description = siteConfig.description;
+
+  return {
+    title: {
+      default: title,
+      template: `%s | ${siteConfig.name}`,
+    },
+    description,
+    keywords: [...siteConfig.keywords],
+    applicationName: siteConfig.name,
+    authors: [{ name: siteConfig.legal.companyName, url: getSiteUrl() }],
+    creator: siteConfig.legal.companyName,
+    publisher: siteConfig.legal.companyName,
+    category: "Commercial Real Estate",
+    metadataBase: new URL(siteConfig.url),
+    alternates: {
+      canonical: "/",
+    },
+    openGraph: defaultOpenGraph(title, description, "/"),
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [absoluteUrl(siteConfig.ogImage)],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+        "max-video-preview": -1,
+      },
+    },
+  };
+}
+
 async function fetchJson<T>(url: string): Promise<T | null> {
   try {
     const response = await fetch(url, {
@@ -177,6 +218,20 @@ export function buildOrganizationJsonLd() {
   };
 }
 
+export function buildWebsiteJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: siteConfig.name,
+    url: getSiteUrl(),
+    description: siteConfig.description,
+    publisher: {
+      "@type": "Organization",
+      name: siteConfig.name,
+    },
+  };
+}
+
 export function buildRealEstateListingJsonLd(property: Property, id: string) {
   const image = propertyImage(property);
   return {
@@ -231,6 +286,7 @@ export const PUBLIC_STATIC_ROUTES = [
   "/contact",
   "/compare",
   "/privacy",
+  "/privacy-policy",
   "/terms",
   "/list-property",
   "/list-coworking",

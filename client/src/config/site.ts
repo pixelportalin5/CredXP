@@ -7,7 +7,18 @@ export const siteConfig = {
   name: "CredXP",
   tagline: "Premium Commercial Real Estate. Delivered.",
   description:
-    "India's premium commercial real estate intelligence platform — pre-leased investments, enterprise office leasing, coworking aggregation, and institutional-grade property discovery.",
+    "CredXP is a commercial real estate platform for pre-leased commercial shops, premium office rentals, SCO investments, and enterprise office leasing across India's top business districts.",
+  keywords: [
+    "commercial real estate services",
+    "pre-leased commercial shops",
+    "premium office rentals",
+    "office space for rent",
+    "pre-leased office investment",
+    "retail shops for investment",
+    "SCO plots",
+    "coworking spaces Gurugram",
+    "commercial property India",
+  ],
   url: "https://www.credxp.com",
   ogImage: "/og-image.jpg",
 
