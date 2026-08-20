@@ -5,7 +5,15 @@ import {
   buildPropertyMetadata,
   buildRealEstateListingJsonLd,
   fetchPropertyForSeo,
+  fetchPropertyIdsForSitemap,
 } from "@/lib/seo";
+
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  const ids = await fetchPropertyIdsForSitemap();
+  return ids.map((id) => ({ id }));
+}
 
 export async function generateMetadata({
   params,

@@ -127,6 +127,16 @@ const propertySchema = new mongoose.Schema(
       enum: ["draft", "published", "paused", "sold"],
       default: "published",
     },
+    /** Zoho CRM record id — unique when present; sparse so non-Zoho listings stay valid */
+    zohoId: {
+      type: String,
+      trim: true,
+      unique: true,
+      sparse: true,
+    },
+    zohoLastSync: {
+      type: Date,
+    },
   },
   { timestamps: true }
 );

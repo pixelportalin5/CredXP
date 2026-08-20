@@ -5,9 +5,9 @@ import { Badge } from "@/components/ui/Badge";
 import type { Metadata } from "next";
 
 const PAGE_METADATA: Metadata = {
-  title: "Invest – Pre-Leased and Investment-Grade Assets",
+  title: "Invest in Pre-Leased Commercial Shops & Offices",
   description:
-    "Browse pre-leased offices, retail shops, and SCO investment opportunities with verified tenants and strong rental yields.",
+    "Browse pre-leased commercial shops, pre-leased offices, and SCO investments with verified tenants, rental yields, and institutional-grade due diligence.",
   alternates: { canonical: "/invest" },
 };
 

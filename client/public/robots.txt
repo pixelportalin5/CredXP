@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /employee/
+Disallow: /seller/dashboard
+Disallow: /user/
+Disallow: /login
+Disallow: /register
+Disallow: /export/
+Disallow: /properties/*/proposal
+Disallow: /proposals/
+Disallow: /list-property/bulk-upload
+
+Sitemap: https://www.credxp.com/sitemap.xml

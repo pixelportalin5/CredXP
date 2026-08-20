@@ -5,7 +5,15 @@ import {
   buildCoworkingJsonLd,
   buildCoworkingMetadata,
   fetchCoworkingForSeo,
+  fetchCoworkingIdsForSitemap,
 } from "@/lib/seo";
+
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  const ids = await fetchCoworkingIdsForSitemap();
+  return ids.map((id) => ({ id }));
+}
 
 export async function generateMetadata({
   params,
