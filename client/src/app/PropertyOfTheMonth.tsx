@@ -22,9 +22,8 @@ import {
 import { Container } from "@/components/ui/Container";
 
 /* ── Constants ── */
-const BARESHELL_INVESTMENT = 6_000_000; // ₹60 Lakhs
 const PRELEASED_INVESTMENT = 8_300_000; // ₹83 Lakhs
-const MIN_INVESTMENT = BARESHELL_INVESTMENT;
+const MIN_INVESTMENT = PRELEASED_INVESTMENT;
 const MAX_INVESTMENT = 50_000_000; // ₹5 Crores
 const STEP_INVESTMENT = 100_000; // ₹1 Lakh
 const MIN_YEARS = 1;
@@ -465,22 +464,10 @@ export default function PropertyOfTheMonth() {
                     className="mt-2.5 w-full cursor-pointer accent-yellow-400"
                   />
                   <div className="mt-1 flex justify-between text-[10px] font-semibold text-white/40">
-                    <span>Bareshell {formatINR(BARESHELL_INVESTMENT)}</span>
+                    <span>Pre-Leased {formatINR(PRELEASED_INVESTMENT)}</span>
                     <span>{formatINR(MAX_INVESTMENT)}</span>
                   </div>
                   <div className="mt-2.5 flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setInvestment(BARESHELL_INVESTMENT)}
-                      className={[
-                        "rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider transition-colors",
-                        investment === BARESHELL_INVESTMENT
-                          ? "border-yellow-400/60 bg-yellow-400/15 text-yellow-400"
-                          : "border-white/15 bg-white/[0.04] text-white/60 hover:border-white/30 hover:text-white",
-                      ].join(" ")}
-                    >
-                      Bareshell from ₹60 L
-                    </button>
                     <button
                       type="button"
                       onClick={() => setInvestment(PRELEASED_INVESTMENT)}
