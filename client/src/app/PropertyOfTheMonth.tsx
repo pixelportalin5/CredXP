@@ -22,7 +22,8 @@ import {
 import { Container } from "@/components/ui/Container";
 
 /* ── Constants ── */
-const MIN_INVESTMENT = 4_900_000; // ₹49 Lakhs
+const PRELEASED_INVESTMENT = 8_300_000; // ₹83 Lakhs
+const MIN_INVESTMENT = PRELEASED_INVESTMENT;
 const MAX_INVESTMENT = 50_000_000; // ₹5 Crores
 const STEP_INVESTMENT = 100_000; // ₹1 Lakh
 const MIN_YEARS = 1;
@@ -262,7 +263,7 @@ function PropertySlider() {
 }
 
 export default function PropertyOfTheMonth() {
-  const [investment, setInvestment] = useState(MIN_INVESTMENT);
+  const [investment, setInvestment] = useState(PRELEASED_INVESTMENT);
   const [years, setYears] = useState(MAX_YEARS);
 
   const results = useMemo(() => {
@@ -463,8 +464,22 @@ export default function PropertyOfTheMonth() {
                     className="mt-2.5 w-full cursor-pointer accent-yellow-400"
                   />
                   <div className="mt-1 flex justify-between text-[10px] font-semibold text-white/40">
-                    <span>{formatINR(MIN_INVESTMENT)}</span>
+                    <span>Pre-Leased {formatINR(PRELEASED_INVESTMENT)}</span>
                     <span>{formatINR(MAX_INVESTMENT)}</span>
+                  </div>
+                  <div className="mt-2.5 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setInvestment(PRELEASED_INVESTMENT)}
+                      className={[
+                        "rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider transition-colors",
+                        investment === PRELEASED_INVESTMENT
+                          ? "border-yellow-400/60 bg-yellow-400/15 text-yellow-400"
+                          : "border-white/15 bg-white/[0.04] text-white/60 hover:border-white/30 hover:text-white",
+                      ].join(" ")}
+                    >
+                      Pre-Leased from ₹83 L
+                    </button>
                   </div>
                 </div>
 
@@ -492,9 +507,11 @@ export default function PropertyOfTheMonth() {
                 </div>
 
                 <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3.5 text-[11px] leading-relaxed text-white/55">
-                  Rental yield starts at <span className="font-bold text-yellow-400">6.75% p.a.</span> and
-                  escalates <span className="font-bold text-yellow-400">15% every 3 years</span> across the
-                  9-year lease.
+                  Bareshell starts from <span className="font-bold text-yellow-400">₹60 L</span>. Pre-leased
+                  starts from <span className="font-bold text-yellow-400">₹83 L</span> with{" "}
+                  <span className="font-bold text-yellow-400">₹48,000/month</span> rent, 9-year lease and
+                  3-year lock-in. Yield starts at <span className="font-bold text-yellow-400">6.75% p.a.</span>{" "}
+                  and escalates <span className="font-bold text-yellow-400">15% every 3 years</span>.
                 </div>
               </div>
             </div>
