@@ -8,7 +8,6 @@ import {
   Banknote,
   BarChart3,
   Building2,
-  CalendarClock,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
@@ -103,9 +102,14 @@ const propertyDetails = [
   { icon: Building2, label: "Type", value: "Pre-Leased Commercial Office", highlight: false },
   { icon: MapPin, label: "Location", value: "SPR Gurgaon", highlight: false },
   { icon: KeyRound, label: "Ownership", value: "Independent, Lockable Unit", highlight: false },
-  { icon: Banknote, label: "Investment Starts From", value: "₹49 Lakhs", highlight: true },
-  { icon: TrendingUp, label: "Monthly Rental", value: "₹30,000/month", highlight: true },
-  { icon: CalendarClock, label: "Lease Details", value: "9 Years Tenure | 3 Years Lock-in", highlight: false },
+  { icon: Home, label: "Bareshell Property", value: "Starts from ₹60 L", highlight: true },
+  { icon: Banknote, label: "Pre-Leased Property", value: "Starts from ₹83 L", highlight: true },
+  {
+    icon: TrendingUp,
+    label: "Pre-Leased Returns",
+    value: "₹48,000/month rent · 9 yr lease · 3 yr lock-in",
+    highlight: true,
+  },
 ];
 
 const keyFeatures = [
