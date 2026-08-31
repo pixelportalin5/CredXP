@@ -37,6 +37,8 @@ const SKIP_ROUTES = new Set([
   "/support",
   "/partners",
   "/downloads",
+  "/privacy",
+  "/terms",
 ]);
 
 function walkPages(dir, acc = []) {

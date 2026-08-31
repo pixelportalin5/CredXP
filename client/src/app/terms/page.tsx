@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Terms of Use | CredXP",
   description: "CredXP terms of use and platform conditions.",
+  robots: { index: false, follow: true },
 };
 
 export default function TermsPage() {
