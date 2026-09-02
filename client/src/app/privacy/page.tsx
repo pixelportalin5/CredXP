@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Privacy Policy | CredXP",
   description: "CredXP privacy policy and data handling practices.",
+  robots: { index: false, follow: true },
 };
 
 export default function PrivacyPage() {

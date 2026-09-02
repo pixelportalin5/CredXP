@@ -11,17 +11,21 @@ import LeadCaptureBar from "@/components/lead/LeadCaptureBar";
 import HomePageClient from "./HomePageClient";
 import HomeInsightsSection from "@/components/insights/HomeInsightsSection";
 import type { Metadata } from "next";
+import { defaultOpenGraph } from "@/lib/seo";
+
+const HOME_TITLE = "Commercial Real Estate, Pre-Leased Shops & Premium Office Rentals";
+const HOME_DESCRIPTION =
+  "Discover pre-leased commercial shops, premium office rentals, SCO investments, and enterprise office leasing with CredXP — India's commercial real estate marketplace.";
 
 export const metadata: Metadata = {
-  title: "Commercial Real Estate, Pre-Leased Shops & Premium Office Rentals",
-  description:
-    "Discover pre-leased commercial shops, premium office rentals, SCO investments, and enterprise office leasing with CredXP — India's commercial real estate marketplace.",
+  title: HOME_TITLE,
+  description: HOME_DESCRIPTION,
   alternates: { canonical: "/" },
-  openGraph: {
-    title: "CredXP | Pre-Leased Commercial Shops & Premium Office Rentals",
-    description:
-      "Buy pre-leased commercial shops and lease premium offices across Gurugram, Delhi NCR, and India's top business districts.",
-  },
+  openGraph: defaultOpenGraph(
+    "CredXP | Pre-Leased Commercial Shops & Premium Office Rentals",
+    "Buy pre-leased commercial shops and lease premium offices across Gurugram, Delhi NCR, and India's top business districts.",
+    "/"
+  ),
 };
 
 export default function HomePage() {

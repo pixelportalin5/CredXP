@@ -92,6 +92,9 @@ export function buildDefaultMetadata(): Metadata {
       description,
       images: [absoluteUrl(siteConfig.ogImage)],
     },
+    verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+      ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
+      : undefined,
     robots: {
       index: true,
       follow: true,
@@ -285,9 +288,7 @@ export const PUBLIC_STATIC_ROUTES = [
   "/about",
   "/contact",
   "/compare",
-  "/privacy",
   "/privacy-policy",
-  "/terms",
   "/list-property",
   "/list-coworking",
 ] as const;
