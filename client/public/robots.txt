@@ -1,3 +1,35 @@
+# CredXP Commercial Real Estate Platform
+# Last Updated: 2026-09-12
+# Optimized for Google, Bing, and other search engines
+
+User-agent: Googlebot
+Allow: /
+Disallow: /admin/
+Disallow: /employee/
+Disallow: /seller/dashboard
+Disallow: /user/
+Disallow: /login
+Disallow: /register
+Disallow: /export/
+Disallow: /properties/*/proposal
+Disallow: /proposals/
+Disallow: /list-property/bulk-upload
+Crawl-delay: 0
+
+User-agent: Bingbot
+Allow: /
+Disallow: /admin/
+Disallow: /employee/
+Disallow: /seller/dashboard
+Disallow: /user/
+Disallow: /login
+Disallow: /register
+Disallow: /export/
+Disallow: /properties/*/proposal
+Disallow: /proposals/
+Disallow: /list-property/bulk-upload
+Crawl-delay: 1
+
 User-agent: *
 Allow: /
 Disallow: /admin/
@@ -10,5 +42,21 @@ Disallow: /export/
 Disallow: /properties/*/proposal
 Disallow: /proposals/
 Disallow: /list-property/bulk-upload
+Crawl-delay: 1
 
+# Block AI/ML crawlers that don't respect robots.txt
+User-agent: GPTBot
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+# Sitemap location
 Sitemap: https://www.credxp.com/sitemap.xml
+Sitemap: https://cred-xp-frontend.vercel.app/sitemap.xml

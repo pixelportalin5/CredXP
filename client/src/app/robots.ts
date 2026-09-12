@@ -1,29 +1,76 @@
-import type { MetadataRoute } from "next";
-import { siteConfig } from "@/config/site";
+import type { MetadataRoute } from 'next';
+import { siteConfig } from '@/config/site';
 
 export default function robots(): MetadataRoute.Robots {
-  const base = siteConfig.url.replace(/\/$/, "");
+  const baseUrl = siteConfig.url.replace(/\/$/, '');
 
   return {
     rules: [
       {
-        userAgent: "*",
-        allow: "/",
+        userAgent: 'Googlebot',
+        allow: '/',
         disallow: [
-          "/admin/",
-          "/employee/",
-          "/seller/dashboard",
-          "/user/",
-          "/login",
-          "/register",
-          "/export/",
-          "/properties/*/proposal",
-          "/proposals/",
-          "/list-property/bulk-upload",
+          '/admin/',
+          '/employee/',
+          '/seller/dashboard',
+          '/user/',
+          '/login',
+          '/register',
+          '/export/',
+          '/*/proposal',
+          '/proposals/',
+          '/list-property/bulk-upload',
+          '/api/',
+          '/*.json',
+          '/private/',
+          '/admin',
         ],
+        crawlDelay: 0,
+      },
+      {
+        userAgent: 'Bingbot',
+        allow: '/',
+        disallow: [
+          '/admin/',
+          '/employee/',
+          '/seller/dashboard',
+          '/user/',
+          '/login',
+          '/register',
+          '/export/',
+          '/*/proposal',
+          '/proposals/',
+          '/list-property/bulk-upload',
+          '/api/',
+          '/*.json',
+          '/private/',
+          '/admin',
+        ],
+        crawlDelay: 1,
+      },
+      {
+        userAgent: '*',
+        allow: '/',
+        disallow: [
+          '/admin/',
+          '/employee/',
+          '/seller/dashboard',
+          '/user/',
+          '/login',
+          '/register',
+          '/export/',
+          '/*/proposal',
+          '/proposals/',
+          '/list-property/bulk-upload',
+          '/api/',
+          '/*.json',
+          '/private/',
+          '/admin',
+        ],
+        crawlDelay: 1,
       },
     ],
-    sitemap: `${base}/sitemap.xml`,
-    host: base,
+    sitemap: `${baseUrl}/sitemap.xml`,
+    host: baseUrl,
   };
 }
