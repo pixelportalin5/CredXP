@@ -23,25 +23,55 @@ const app = express();
 
 // --------------- Middleware ---------------
 app.use(compression());
+
+// CORS Configuration - Optimized for SEO and Frontend Access
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "https://credxp-mvp.vercel.app",
+  "https://cred-xp-frontend.vercel.app",
+  "https://aqua-goldfinch-370087.hostingersite.com",
+  "https://www.credxp.com",
+  "https://credxp.com",
+];
+
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000",
-      "http://localhost:3001",
-      "https://credxp-mvp.vercel.app",
-      "https://cred-xp-frontend.vercel.app",
-      "https://aqua-goldfinch-370087.hostingersite.com",
-      "https://www.credxp.com",
-      "https://credxp.com",
-      "https://cred-xp-frontend.vercel.app",
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
 
-    ],
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.warn(`[CORS] Blocked request from origin: ${origin}`);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    optionsSuccessStatus: 200,
   })
 );
+
+// Security headers
+app.use(helmet());
+
+// Logging
 app.use(morgan("dev"));
+
+// Body parser
 app.use(express.json({ limit: "8mb" }));
 app.use(express.urlencoded({ extended: true, limit: "8mb" }));
+
+// --------------- SEO & Crawling Headers ---------------
+// Allow search engines to crawl without blocking
+app.use((req, res, next) => {
+  res.setHeader("X-Robots-Tag", "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1");
+  res.setHeader("Cache-Control", "public, s-maxage=3600, stale-while-revalidate=86400");
+  next();
+});
 
 // --------------- Routes ---------------
 const { getDatabaseUrlDiagnostic } = require("./lib/databaseUrlDiagnostics");
@@ -59,6 +89,7 @@ app.get("/api/health", (req, res) => {
       postgresUrlValid: db.isValidPostgres,
       hasWrappingQuotes: db.hasWrappingQuotes,
     },
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -76,6 +107,15 @@ app.use("/api/insights", insightsRoutes);
 app.use("/api/proposals", proposalRoutes);
 app.use("/api/uploads", uploadRoutes);
 app.use("/api/integrations/zoho", zohoIntegrationRoutes);
+
+// --------------- 404 Fallback ---------------
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "API endpoint not found",
+    path: req.path,
+  });
+});
 
 // --------------- Error Handling ---------------
 app.use(errorHandler);
