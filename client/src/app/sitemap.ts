@@ -1,58 +1,79 @@
 import type { MetadataRoute } from "next";
-import { siteConfig } from "@/config/site";
-import {
-  fetchCoworkingIdsForSitemap,
-  fetchPropertyIdsForSitemap,
-  PUBLIC_STATIC_ROUTES,
-} from "@/lib/seo";
 
-// Cache the generated sitemap so Googlebot gets a fast, consistent XML response.
-export const revalidate = 3600;
+// Simple static sitemap - no async/await, no API calls
+// This ensures it always works and Google can always fetch it
 
-function buildStaticEntries(base: string, now: Date): MetadataRoute.Sitemap {
-  return PUBLIC_STATIC_ROUTES.map((route) => ({
-    url: `${base}${route === "/" ? "" : route}`,
-    lastModified: now,
-    changeFrequency: route === "/" ? "daily" : "weekly",
-    priority: route === "/" ? 1 : route === "/invest" || route === "/lease" ? 0.9 : 0.7,
-  }));
-}
+export const revalidate = 3600; // Revalidate every hour
 
-async function fetchDynamicIds(): Promise<{ propertyIds: string[]; coworkingIds: string[] }> {
-  try {
-    const timeoutMs = 8000;
-    const [propertyIds, coworkingIds] = await Promise.race([
-      Promise.all([fetchPropertyIdsForSitemap(), fetchCoworkingIdsForSitemap()]),
-      new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error("sitemap API timeout")), timeoutMs)
-      ),
-    ]);
-    return { propertyIds, coworkingIds };
-  } catch {
-    return { propertyIds: [], coworkingIds: [] };
-  }
-}
+export default function sitemap(): MetadataRoute.Sitemap {
+  const baseUrl = "https://www.credxp.com";
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = siteConfig.url.replace(/\/$/, "");
-  const now = new Date();
-  const staticEntries = buildStaticEntries(base, now);
-
-  const { propertyIds, coworkingIds } = await fetchDynamicIds();
-
-  const propertyEntries: MetadataRoute.Sitemap = propertyIds.map((id) => ({
-    url: `${base}/properties/${id}`,
-    lastModified: now,
-    changeFrequency: "weekly",
-    priority: 0.8,
-  }));
-
-  const coworkingEntries: MetadataRoute.Sitemap = coworkingIds.map((id) => ({
-    url: `${base}/coworking/${id}`,
-    lastModified: now,
-    changeFrequency: "weekly",
-    priority: 0.75,
-  }));
-
-  return [...staticEntries, ...propertyEntries, ...coworkingEntries];
+  return [
+    {
+      url: baseUrl,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 1.0,
+    },
+    {
+      url: `${baseUrl}/invest`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/lease`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/coworking`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/insights`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/about`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/contact`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/compare`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/privacy-policy`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.5,
+    },
+    {
+      url: `${baseUrl}/list-property`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/list-coworking`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
+  ];
 }
