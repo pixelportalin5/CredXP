@@ -14,6 +14,7 @@ export const metadata: Metadata = {
   title: "About CredXP – India's CRE Intelligence Platform",
   description:
     "Learn about CredXP's mission to transform commercial real estate discovery for investors, corporate tenants, and asset managers across India.",
+  alternates: { canonical: "/about" },
 };
 
 export default function AboutPage() {

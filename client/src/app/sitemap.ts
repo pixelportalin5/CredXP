@@ -1,14 +1,28 @@
 import type { MetadataRoute } from "next";
+import { fetchCoworkingIdsForSitemap, fetchPropertyIdsForSitemap } from "@/lib/seo";
 
-// Simple static sitemap - no async/await, no API calls
-// This ensures it always works and Google can always fetch it
+// Static routes are always returned. Listing URLs are appended best-effort:
+// if the API is slow or down, the sitemap still serves the static routes.
+const API_TIMEOUT_MS = 5000;
+
+async function withTimeout(promise: Promise<string[]>): Promise<string[]> {
+  return Promise.race([
+    promise.catch(() => []),
+    new Promise<string[]>((resolve) => setTimeout(() => resolve([]), API_TIMEOUT_MS)),
+  ]);
+}
 
 export const revalidate = 3600; // Revalidate every hour
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://www.credxp.com";
 
-  return [
+  const [propertyIds, coworkingIds] = await Promise.all([
+    withTimeout(fetchPropertyIdsForSitemap()),
+    withTimeout(fetchCoworkingIdsForSitemap()),
+  ]);
+
+  const staticRoutes: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
       lastModified: new Date(),
@@ -76,4 +90,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
   ];
+
+  const listingRoutes: MetadataRoute.Sitemap = [
+    ...propertyIds.map((id) => ({
+      url: `${baseUrl}/properties/${id}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
+    })),
+    ...coworkingIds.map((id) => ({
+      url: `${baseUrl}/coworking/${id}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    })),
+  ];
+
+  return [...staticRoutes, ...listingRoutes];
 }

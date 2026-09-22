@@ -14,6 +14,7 @@ export const metadata: Metadata = {
   title: "Contact Us – Get Expert CRE Guidance",
   description:
     "Connect with CredXP's commercial real estate experts for personalized investment advice, leasing support, and coworking solutions.",
+  alternates: { canonical: "/contact" },
 };
 
 export default function ContactPage() {

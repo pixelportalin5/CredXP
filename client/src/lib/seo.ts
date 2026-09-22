@@ -82,9 +82,6 @@ export function buildDefaultMetadata(): Metadata {
     publisher: siteConfig.legal.companyName,
     category: "Commercial Real Estate",
     metadataBase: new URL(siteConfig.url),
-    alternates: {
-      canonical: "/",
-    },
     openGraph: defaultOpenGraph(title, description, "/"),
     twitter: {
       card: "summary_large_image",
