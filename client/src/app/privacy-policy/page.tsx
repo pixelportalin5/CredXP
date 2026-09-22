@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: "Privacy Policy | CredXP",
   description:
     "Learn how CredXp collects, uses, and protects your personal data across our website and digital marketing campaigns.",
+  alternates: { canonical: "/privacy-policy" },
 };
 
 export default function PrivacyPolicyPage() {
