@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { CoworkingSpace } from "@/types/coworking";
-import type { Property } from "@/types/property";
+import type { Property, PropertyListResponse } from "@/types/property";
 import { siteConfig } from "@/config/site";
 
 const DEFAULT_REVALIDATE_SECONDS = 3600;
@@ -106,25 +106,55 @@ export function buildDefaultMetadata(): Metadata {
   };
 }
 
-async function fetchJson<T>(url: string): Promise<T | null> {
+interface SeoFetchResult<T> {
+  data: T | null;
+  /** True only when the API explicitly answered 404 (not on timeouts or 5xx). */
+  notFound: boolean;
+}
+
+async function fetchApi<T>(url: string): Promise<SeoFetchResult<T>> {
   try {
     const response = await fetch(url, {
       next: { revalidate: DEFAULT_REVALIDATE_SECONDS },
     });
-    if (!response.ok) return null;
+    if (!response.ok) return { data: null, notFound: response.status === 404 };
     const json = (await response.json()) as { success?: boolean; data?: T };
-    return json.data ?? null;
+    return { data: json.data ?? null, notFound: false };
   } catch {
-    return null;
+    return { data: null, notFound: false };
   }
 }
 
-export async function fetchPropertyForSeo(id: string): Promise<Property | null> {
-  return fetchJson<Property>(`${getApiBaseUrl()}/properties/${encodeURIComponent(id)}`);
+async function fetchJson<T>(url: string): Promise<T | null> {
+  return (await fetchApi<T>(url)).data;
 }
 
-export async function fetchCoworkingForSeo(id: string): Promise<CoworkingSpace | null> {
-  return fetchJson<CoworkingSpace>(`${getApiBaseUrl()}/coworking/${encodeURIComponent(id)}`);
+export async function fetchPropertyForSeo(id: string): Promise<SeoFetchResult<Property>> {
+  return fetchApi<Property>(`${getApiBaseUrl()}/properties/${encodeURIComponent(id)}`);
+}
+
+export async function fetchCoworkingForSeo(id: string): Promise<SeoFetchResult<CoworkingSpace>> {
+  return fetchApi<CoworkingSpace>(`${getApiBaseUrl()}/coworking/${encodeURIComponent(id)}`);
+}
+
+function toQueryString(params: Record<string, unknown>): string {
+  return new URLSearchParams(
+    Object.entries(params)
+      .filter(([, value]) => value !== undefined && value !== "")
+      .map(([key, value]) => [key, String(value)])
+  ).toString();
+}
+
+export async function fetchPropertyListForSeo(
+  params: Record<string, unknown>
+): Promise<PropertyListResponse | null> {
+  return fetchJson<PropertyListResponse>(`${getApiBaseUrl()}/properties?${toQueryString(params)}`);
+}
+
+export async function fetchCoworkingListForSeo(
+  params: Record<string, unknown>
+): Promise<CoworkingSpace[] | null> {
+  return fetchJson<CoworkingSpace[]>(`${getApiBaseUrl()}/coworking?${toQueryString(params)}`);
 }
 
 export async function fetchPropertyIdsForSitemap(limit = 500): Promise<string[]> {

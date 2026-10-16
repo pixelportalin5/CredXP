@@ -28,12 +28,13 @@ import { isStaff } from "@/utils/roles";
    PropertyDetailClient — Decomposed Property Detail Page
    ============================================================ */
 
-export default function PropertyDetailClient() {
+export default function PropertyDetailClient({ initialProperty = null }: { initialProperty?: Property | null }) {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const { showToast } = useToast();
-  const [property, setProperty] = useState<Property | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Server-fetched data lets the first HTML response contain the full listing for crawlers.
+  const [property, setProperty] = useState<Property | null>(initialProperty);
+  const [loading, setLoading] = useState(!initialProperty);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -57,8 +58,9 @@ export default function PropertyDetailClient() {
         setLoading(false);
       }
     }
+    if (initialProperty && initialProperty._id === id) return;
     if (id) fetchProperty();
-  }, [id]);
+  }, [id, initialProperty]);
 
   // ── Loading State ──
   if (loading) {

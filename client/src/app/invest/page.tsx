@@ -3,6 +3,10 @@ import { Building2 } from "lucide-react";
 import PropertyDirectoryShell from "@/components/property/PropertyDirectoryShell";
 import { Badge } from "@/components/ui/Badge";
 import type { Metadata } from "next";
+import { fetchPropertyListForSeo } from "@/lib/seo";
+import { filtersFromSearchParams, filtersToApiParams } from "@/utils/propertyFilterParams";
+
+export const revalidate = 3600;
 
 const PAGE_METADATA: Metadata = {
   title: "Invest in Pre-Leased Commercial Shops & Offices",
@@ -23,7 +27,11 @@ export async function generateMetadata({
     : PAGE_METADATA;
 }
 
-export default function InvestPage() {
+export default async function InvestPage() {
+  const initialData = await fetchPropertyListForSeo(
+    filtersToApiParams(filtersFromSearchParams(new URLSearchParams(), "invest"), "invest")
+  );
+
   return (
     <Suspense
       fallback={
@@ -34,6 +42,7 @@ export default function InvestPage() {
     >
       <PropertyDirectoryShell
         mode="invest"
+        initialData={initialData}
         basePath="/invest"
         hero={{
           badge: (

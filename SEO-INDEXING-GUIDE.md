@@ -30,8 +30,10 @@ INTERNAL_API_URL=https://YOUR_BACKEND_URL/api
 
 **B) INTERNAL_API_URL**
 - Get your backend URL (where your Express server is deployed)
-- Example: `https://credxp-backend.onrender.com/api` (if using Render)
+- Example: `https://credxp-backend-no10.onrender.com/api` (if using Render)
 - Or: `https://your-backend-domain.com/api`
+
+> **Important:** `INTERNAL_API_URL` takes priority over `NEXT_PUBLIC_API_URL` on the server. If it points at a dead or sleeping backend, every property/coworking page renders as "Not Found" and the sitemap lists no listings. Both must point at the live backend (`https://credxp-backend-no10.onrender.com/api`). `NEXT_PUBLIC_*` variables must use the **Config** type in Vercel, not **Secret**.
 
 ### After adding variables:
 - **REDEPLOY** your Vercel app (Settings → Deployments → Redeploy)

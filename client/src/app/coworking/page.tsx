@@ -1,5 +1,9 @@
 import CoworkingPageClient from "./CoworkingPageClient";
 import type { Metadata } from "next";
+import { fetchCoworkingListForSeo } from "@/lib/seo";
+import { DEFAULT_COWORKING_FILTERS } from "./defaults";
+
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Coworking Spaces – Flexible Workspace Solutions",
@@ -8,6 +12,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/coworking" },
 };
 
-export default function CoworkingPage() {
-  return <CoworkingPageClient />;
+export default async function CoworkingPage() {
+  const initialSpaces = await fetchCoworkingListForSeo({ ...DEFAULT_COWORKING_FILTERS });
+  return <CoworkingPageClient initialSpaces={initialSpaces} />;
 }

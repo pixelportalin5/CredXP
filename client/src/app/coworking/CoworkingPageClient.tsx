@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Landmark } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { SectionHeader } from "@/components/ui/SectionHeader";
@@ -10,18 +10,21 @@ import CoworkingFilters from "@/components/coworking/CoworkingFilters";
 import CoworkingSpaceCard from "@/components/coworking/CoworkingSpaceCard";
 import LeadCaptureBar from "@/components/lead/LeadCaptureBar";
 import coworkingService from "@/services/coworking.service";
+import { DEFAULT_COWORKING_FILTERS } from "./defaults";
 import type { CoworkingSpace, CoworkingFilters as CoworkingFiltersType } from "@/types/coworking";
 
-export default function CoworkingPageClient() {
-  const [spaces, setSpaces] = useState<CoworkingSpace[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState<CoworkingFiltersType>({
-    page: 1,
-    limit: 12,
-    sort: "featured",
-  });
+export default function CoworkingPageClient({ initialSpaces = null }: { initialSpaces?: CoworkingSpace[] | null }) {
+  // Server-fetched first page lets crawlers see the spaces without running JS.
+  const [spaces, setSpaces] = useState<CoworkingSpace[]>(initialSpaces || []);
+  const [loading, setLoading] = useState(!initialSpaces);
+  const [filters, setFilters] = useState<CoworkingFiltersType>(DEFAULT_COWORKING_FILTERS);
+  const skipInitialFetch = useRef(Boolean(initialSpaces));
 
   useEffect(() => {
+    if (skipInitialFetch.current) {
+      skipInitialFetch.current = false;
+      return;
+    }
     async function fetchSpaces() {
       try {
         setLoading(true);
