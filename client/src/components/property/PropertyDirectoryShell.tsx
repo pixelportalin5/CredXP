@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo, type ReactNode } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import PropertyCard from "@/components/property/PropertyCard";
 import { PropertyCardSkeleton } from "@/components/ui/Skeleton";
@@ -21,7 +21,7 @@ import {
   filtersToApiParams,
   type PropertyDirectoryMode,
 } from "@/utils/propertyFilterParams";
-import type { Property, PropertyFilters as PropertyFiltersType } from "@/types/property";
+import type { Property, PropertyFilters as PropertyFiltersType, PropertyListResponse } from "@/types/property";
 import type { Pagination as PaginationType } from "@/types/common";
 
 interface PropertyDirectoryShellProps {
@@ -33,17 +33,21 @@ interface PropertyDirectoryShellProps {
     description: string;
     stats?: { label: string; value: string | number }[];
   };
+  /** Server-fetched first page for the unfiltered view, so crawlers see listings without JS. */
+  initialData?: PropertyListResponse | null;
 }
 
-export default function PropertyDirectoryShell({ mode, basePath, hero }: PropertyDirectoryShellProps) {
+export default function PropertyDirectoryShell({ mode, basePath, hero, initialData = null }: PropertyDirectoryShellProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const filters = useMemo(() => filtersFromSearchParams(searchParams, mode), [searchParams, mode]);
   const searchQuery = searchParams.get("q") || "";
 
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [pagination, setPagination] = useState<PaginationType | null>(null);
-  const [loading, setLoading] = useState(true);
+  const useInitialData = Boolean(initialData) && searchParams.toString() === "";
+  const [properties, setProperties] = useState<Property[]>(useInitialData ? initialData?.properties || [] : []);
+  const [pagination, setPagination] = useState<PaginationType | null>(useInitialData ? initialData?.pagination || null : null);
+  const [loading, setLoading] = useState(!useInitialData);
+  const skipInitialFetch = useRef(useInitialData);
 
   const updateFilters = useCallback((next: PropertyFiltersType, nextQuery = searchQuery) => {
     const params = searchParamsFromFilters(next, nextQuery, mode);
@@ -52,6 +56,10 @@ export default function PropertyDirectoryShell({ mode, basePath, hero }: Propert
   }, [router, searchQuery, mode, basePath]);
 
   useEffect(() => {
+    if (skipInitialFetch.current) {
+      skipInitialFetch.current = false;
+      return;
+    }
     const fetchProperties = async () => {
       try {
         setLoading(true);

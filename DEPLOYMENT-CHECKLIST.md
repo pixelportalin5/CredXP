@@ -42,7 +42,7 @@ INTERNAL_API_URL=<YOUR_BACKEND_URL>/api
 ```
 NEXT_PUBLIC_APP_URL=https://www.credxp.com
 NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=abc123def456ghi789
-INTERNAL_API_URL=https://credxp-backend.onrender.com/api
+INTERNAL_API_URL=https://credxp-backend-no10.onrender.com/api
 ```
 
 ### Step 3: Redeploy Frontend

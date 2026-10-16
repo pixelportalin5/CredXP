@@ -3,6 +3,10 @@ import { BriefcaseBusiness } from "lucide-react";
 import PropertyDirectoryShell from "@/components/property/PropertyDirectoryShell";
 import { Badge } from "@/components/ui/Badge";
 import type { Metadata } from "next";
+import { fetchPropertyListForSeo } from "@/lib/seo";
+import { filtersFromSearchParams, filtersToApiParams } from "@/utils/propertyFilterParams";
+
+export const revalidate = 3600;
 
 const PAGE_METADATA: Metadata = {
   title: "Premium Office Rentals & Retail Space for Lease",
@@ -23,7 +27,11 @@ export async function generateMetadata({
     : PAGE_METADATA;
 }
 
-export default function LeasePage() {
+export default async function LeasePage() {
+  const initialData = await fetchPropertyListForSeo(
+    filtersToApiParams(filtersFromSearchParams(new URLSearchParams(), "lease"), "lease")
+  );
+
   return (
     <Suspense
       fallback={
@@ -34,6 +42,7 @@ export default function LeasePage() {
     >
       <PropertyDirectoryShell
         mode="lease"
+        initialData={initialData}
         basePath="/lease"
         hero={{
           badge: (

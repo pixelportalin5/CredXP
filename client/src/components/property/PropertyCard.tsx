@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { MapPin, TrendingUp, Clock, Building2, Heart } from "lucide-react";
 import ImageWithSkeleton from "@/components/ui/ImageWithSkeleton";
 import { Badge } from "@/components/ui/Badge";
@@ -69,7 +70,8 @@ export default function PropertyCard({ property, variant = "default", priorityIm
     }
   };
 
-  const openProperty = () => router.push(`/properties/${_id}`);
+  const propertyHref = `/properties/${_id}`;
+  const openProperty = () => router.push(propertyHref);
 
   return (
     <article
@@ -132,7 +134,10 @@ export default function PropertyCard({ property, variant = "default", priorityIm
       <div className={cn("space-y-3", isCompact ? "p-4" : "space-y-4 p-5")}>
         <div>
           <h3 className="line-clamp-2 text-base font-semibold leading-6 text-slate-900 transition-colors group-hover:text-accent-500">
-            {title}
+            {/* Real anchor so crawlers can discover listing pages; the card itself stays clickable. */}
+            <Link href={propertyHref} tabIndex={-1} onClick={(event) => event.stopPropagation()}>
+              {title}
+            </Link>
           </h3>
           <p className="mt-1 flex items-start gap-1.5 text-sm text-slate-600">
             <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />

@@ -1,6 +1,7 @@
 import CoworkingDetailClient from "./CoworkingDetailClient";
 import JsonLd from "@/components/seo/JsonLd";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import {
   buildCoworkingJsonLd,
   buildCoworkingMetadata,
@@ -21,9 +22,9 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const space = await fetchCoworkingForSeo(id);
+  const { data: space } = await fetchCoworkingForSeo(id);
   if (!space) {
-    return { title: "Coworking Space Not Found" };
+    return { title: "Coworking Space Not Found", robots: { index: false, follow: true } };
   }
   return buildCoworkingMetadata(space, id);
 }
@@ -34,12 +35,13 @@ export default async function CoworkingDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const space = await fetchCoworkingForSeo(id);
+  const { data: space, notFound: missing } = await fetchCoworkingForSeo(id);
+  if (missing) notFound();
 
   return (
     <>
       {space ? <JsonLd data={buildCoworkingJsonLd(space, id)} /> : null}
-      <CoworkingDetailClient />
+      <CoworkingDetailClient initialSpace={space} />
     </>
   );
 }

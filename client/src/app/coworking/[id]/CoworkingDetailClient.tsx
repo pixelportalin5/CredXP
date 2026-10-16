@@ -15,10 +15,11 @@ import coworkingService from "@/services/coworking.service";
 import { formatPrice, formatDate } from "@/utils/format";
 import type { CoworkingSpace } from "@/types/coworking";
 
-export default function CoworkingDetailClient() {
+export default function CoworkingDetailClient({ initialSpace = null }: { initialSpace?: CoworkingSpace | null }) {
   const { id } = useParams<{ id: string }>();
-  const [space, setSpace] = useState<CoworkingSpace | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Server-fetched data lets the first HTML response contain the full listing for crawlers.
+  const [space, setSpace] = useState<CoworkingSpace | null>(initialSpace);
+  const [loading, setLoading] = useState(!initialSpace);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -41,8 +42,9 @@ export default function CoworkingDetailClient() {
       }
     }
 
+    if (initialSpace && initialSpace._id === id) return;
     void fetchSpace();
-  }, [id]);
+  }, [id, initialSpace]);
 
   if (loading) {
     return (
