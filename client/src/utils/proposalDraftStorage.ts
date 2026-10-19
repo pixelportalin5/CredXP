@@ -55,15 +55,23 @@ export function saveProposalDraft(propertyId: string, proposal: Proposal): void 
   notifyDraftUpdated(propertyId);
 }
 
-export function loadProposalDraft(propertyId: string): Proposal | null {
+/** Raw serialized draft, suitable as a useSyncExternalStore snapshot (strings compare by value). */
+export function readProposalDraftRaw(propertyId: string): string | null {
   if (typeof window === "undefined") return null;
-  const raw = localStorage.getItem(storageKey(propertyId));
+  return localStorage.getItem(storageKey(propertyId));
+}
+
+export function parseProposalDraft(raw: string | null): Proposal | null {
   if (!raw) return null;
   try {
     return JSON.parse(raw) as Proposal;
   } catch {
     return null;
   }
+}
+
+export function loadProposalDraft(propertyId: string): Proposal | null {
+  return parseProposalDraft(readProposalDraftRaw(propertyId));
 }
 
 export function subscribeToDraftUpdates(propertyId: string, onUpdate: () => void): () => void {

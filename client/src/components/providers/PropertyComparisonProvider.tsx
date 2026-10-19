@@ -4,14 +4,15 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
-  useState,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 import {
   MAX_COMPARE_PROPERTIES,
-  readCompareIds,
+  getCompareIdsServerSnapshot,
+  getCompareIdsSnapshot,
+  subscribeCompareIds,
   writeCompareIds,
 } from "@/utils/propertyComparisonStorage";
 
@@ -33,25 +34,14 @@ interface PropertyComparisonContextValue {
 const PropertyComparisonContext = createContext<PropertyComparisonContextValue | null>(null);
 
 export function PropertyComparisonProvider({ children }: { children: ReactNode }) {
-  const [ids, setIds] = useState<string[]>([]);
+  const ids = useSyncExternalStore(
+    subscribeCompareIds,
+    getCompareIdsSnapshot,
+    getCompareIdsServerSnapshot
+  );
 
-  useEffect(() => {
-    setIds(readCompareIds());
-
-    const handleStorage = (event: StorageEvent) => {
-      if (event.key === "credxp_property_compare") {
-        setIds(readCompareIds());
-      }
-    };
-    window.addEventListener("storage", handleStorage);
-    return () => window.removeEventListener("storage", handleStorage);
-  }, []);
-
-  const persist = useCallback((next: string[]) => {
-    const normalized = writeCompareIds(next);
-    setIds(normalized);
-    return normalized;
-  }, []);
+  // writeCompareIds notifies the store subscription, which re-renders with the new ids.
+  const persist = useCallback((next: string[]) => writeCompareIds(next), []);
 
   const isInCompare = useCallback((propertyId: string) => ids.includes(propertyId), [ids]);
 

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   Activity,
   BarChart3,
@@ -82,6 +82,15 @@ function isCacheFresh(fetchedAt: number) {
   return Date.now() - fetchedAt < CACHE_TTL_MS;
 }
 
+function isSectionCacheFresh(section: AdminSection) {
+  const cached = sectionDataCache[section];
+  return !!cached && isCacheFresh(cached.fetchedAt);
+}
+
+function getFreshCachedSections() {
+  return new Set(adminSections.filter(isSectionCacheFresh));
+}
+
 function userLabel(value: Enquiry["userId"] | Enquiry["sellerId"]) {
   if (!value || typeof value === "string") return "Unassigned";
   return `${value.name} (${value.email})`;
@@ -123,18 +132,29 @@ export default function AdminDashboardPage() {
     resolveSection(searchParams.get("section"), portal)
   );
   const [summary, setSummary] = useState<AdminSummary | null>(summaryCache?.data ?? null);
-  const [users, setUsers] = useState<AdminUser[]>([]);
-  const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
-  const [logs, setLogs] = useState<AdminAuditLog[]>([]);
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [coworkingSpaces, setCoworkingSpaces] = useState<CoworkingSpace[]>([]);
-  const [proposals, setProposals] = useState<Proposal[]>([]);
+  const [users, setUsers] = useState<AdminUser[]>(() => sectionDataCache.users?.data ?? []);
+  const [enquiries, setEnquiries] = useState<Enquiry[]>(() => sectionDataCache.enquiries?.data ?? []);
+  const [logs, setLogs] = useState<AdminAuditLog[]>(() => sectionDataCache.logs?.data ?? []);
+  const [properties, setProperties] = useState<Property[]>(() => sectionDataCache.properties?.data ?? []);
+  const [coworkingSpaces, setCoworkingSpaces] = useState<CoworkingSpace[]>(() => sectionDataCache.coworking?.data ?? []);
+  const [proposals, setProposals] = useState<Proposal[]>(() => sectionDataCache.proposals?.data ?? []);
   const [showPropertyForm, setShowPropertyForm] = useState(false);
   const [showCoworkingForm, setShowCoworkingForm] = useState(false);
   const [query, setQuery] = useState("");
-  const [summaryLoading, setSummaryLoading] = useState(false);
-  const [sectionLoading, setSectionLoading] = useState<AdminSection | null>(null);
-  const loadedSections = useRef<Set<AdminSection>>(new Set());
+  const [summaryFailed, setSummaryFailed] = useState(false);
+  // Sections whose data has been loaded (from the network or a fresh cache) and can be shown without a spinner.
+  const [loadedSections, setLoadedSections] = useState<Set<AdminSection>>(getFreshCachedSections);
+  const [failedSection, setFailedSection] = useState<AdminSection | null>(null);
+
+  const markSectionLoaded = useCallback((section: AdminSection, loaded: boolean) => {
+    setLoadedSections((current) => {
+      if (current.has(section) === loaded) return current;
+      const next = new Set(current);
+      if (loaded) next.add(section);
+      else next.delete(section);
+      return next;
+    });
+  }, []);
 
   const invalidateSummary = useCallback(() => {
     summaryCache = null;
@@ -142,25 +162,24 @@ export default function AdminDashboardPage() {
 
   const invalidateSection = useCallback((section: AdminSection) => {
     delete sectionDataCache[section];
-    loadedSections.current.delete(section);
   }, []);
 
-  const fetchSummary = useCallback(async (force = false) => {
-    if (!force && summaryCache && isCacheFresh(summaryCache.fetchedAt)) {
-      setSummary(summaryCache.data);
-      return;
-    }
+  // State is only updated in the promise callbacks, so this is safe to start from an effect.
+  // The summary state is initialised from the cache and kept in step with it, so a cache hit needs no update.
+  const fetchSummary = useCallback((force = false) => {
+    if (!force && summaryCache && isCacheFresh(summaryCache.fetchedAt)) return;
 
-    try {
-      setSummaryLoading(true);
-      const res = await staffService.getSummary();
-      summaryCache = { data: res.data, fetchedAt: Date.now() };
-      setSummary(res.data);
-    } catch (error) {
-      showToast({ type: "error", title: "Summary unavailable", message: error instanceof Error ? error.message : "Please try again." });
-    } finally {
-      setSummaryLoading(false);
-    }
+    staffService.getSummary().then(
+      (res) => {
+        summaryCache = { data: res.data, fetchedAt: Date.now() };
+        setSummary(res.data);
+        setSummaryFailed(false);
+      },
+      (error) => {
+        setSummaryFailed(true);
+        showToast({ type: "error", title: "Summary unavailable", message: error instanceof Error ? error.message : "Please try again." });
+      }
+    );
   }, [showToast, staffService]);
 
   const applySectionData = useCallback((section: AdminSection, data: SectionDataMap[AdminSection]) => {
@@ -172,54 +191,80 @@ export default function AdminDashboardPage() {
     else setProposals(data as Proposal[]);
   }, []);
 
-  const fetchSection = useCallback(async (section: AdminSection, force = false) => {
+  // Fetches a section from the network and writes it to the module cache.
+  const requestSection = useCallback(async (section: AdminSection): Promise<SectionDataMap[AdminSection]> => {
+    if (section === "users") {
+      const { data } = await adminService.getUsers();
+      sectionDataCache.users = { data, fetchedAt: Date.now() };
+      return data;
+    }
+    if (section === "enquiries") {
+      const { data } = await staffService.getEnquiries();
+      sectionDataCache.enquiries = { data, fetchedAt: Date.now() };
+      return data;
+    }
+    if (section === "logs") {
+      const { data } = await staffService.getLogs();
+      sectionDataCache.logs = { data, fetchedAt: Date.now() };
+      return data;
+    }
+    if (section === "properties") {
+      const { data } = await staffService.getProperties();
+      sectionDataCache.properties = { data, fetchedAt: Date.now() };
+      return data;
+    }
+    if (section === "coworking") {
+      const { data } = await staffService.getCoworkingSpaces();
+      sectionDataCache.coworking = { data, fetchedAt: Date.now() };
+      return data;
+    }
+    const { data } = await proposalService.list();
+    sectionDataCache.proposals = { data, fetchedAt: Date.now() };
+    return data;
+  }, [proposalService, staffService]);
+
+  // State is only updated in the promise callbacks, so this is safe to start from an effect.
+  // Fresh cache hits are applied when a section is selected (see selectSection).
+  const fetchSection = useCallback((section: AdminSection) => {
     if (portal === "employee" && section === "users") return;
+    if (isSectionCacheFresh(section)) return;
 
-    const cached = sectionDataCache[section];
-    if (!force && cached && isCacheFresh(cached.fetchedAt)) {
-      applySectionData(section, cached.data);
-      loadedSections.current.add(section);
-      return;
-    }
-
-    try {
-      setSectionLoading(section);
-      if (section === "users") {
-        const res = await adminService.getUsers();
-        sectionDataCache.users = { data: res.data, fetchedAt: Date.now() };
-        setUsers(res.data);
-      } else if (section === "enquiries") {
-        const res = await staffService.getEnquiries();
-        sectionDataCache.enquiries = { data: res.data, fetchedAt: Date.now() };
-        setEnquiries(res.data);
-      } else if (section === "logs") {
-        const res = await staffService.getLogs();
-        sectionDataCache.logs = { data: res.data, fetchedAt: Date.now() };
-        setLogs(res.data);
-      } else if (section === "properties") {
-        const res = await staffService.getProperties();
-        sectionDataCache.properties = { data: res.data, fetchedAt: Date.now() };
-        setProperties(res.data);
-      } else if (section === "coworking") {
-        const res = await staffService.getCoworkingSpaces();
-        sectionDataCache.coworking = { data: res.data, fetchedAt: Date.now() };
-        setCoworkingSpaces(res.data);
-      } else {
-        const res = await proposalService.list();
-        sectionDataCache.proposals = { data: res.data, fetchedAt: Date.now() };
-        setProposals(res.data);
+    requestSection(section).then(
+      (data) => {
+        applySectionData(section, data);
+        markSectionLoaded(section, true);
+      },
+      (error) => {
+        setFailedSection(section);
+        showToast({ type: "error", title: "Dashboard data unavailable", message: error instanceof Error ? error.message : "Please try again." });
       }
-      loadedSections.current.add(section);
-    } catch (error) {
-      showToast({ type: "error", title: "Dashboard data unavailable", message: error instanceof Error ? error.message : "Please try again." });
-    } finally {
-      setSectionLoading((current) => (current === section ? null : current));
-    }
-  }, [applySectionData, portal, proposalService, showToast, staffService]);
+    );
+  }, [applySectionData, markSectionLoaded, portal, requestSection, showToast]);
 
-  useEffect(() => {
+  const selectSection = (section: AdminSection) => {
+    setActiveSection(section);
+    setFailedSection(null);
+    const cached = sectionDataCache[section];
+    if (cached && isCacheFresh(cached.fetchedAt)) {
+      applySectionData(section, cached.data);
+      markSectionLoaded(section, true);
+    } else if (!cached) {
+      // Invalidated or never fetched: show the spinner until it is refetched.
+      markSectionLoaded(section, false);
+    }
+    // Switching sections refetches via the effect below; re-selecting the current one refetches here.
+    if (section === activeSection) fetchSection(section);
+  };
+
+  // Follow ?section= navigation (adjusting state during render instead of in an effect).
+  const [syncedSearchParams, setSyncedSearchParams] = useState(searchParams);
+  const [syncedPortal, setSyncedPortal] = useState(portal);
+  if (searchParams !== syncedSearchParams || portal !== syncedPortal) {
+    setSyncedSearchParams(searchParams);
+    setSyncedPortal(portal);
     setActiveSection(resolveSection(searchParams.get("section"), portal));
-  }, [searchParams, portal]);
+    setFailedSection(null);
+  }
 
   useEffect(() => {
     if (!user) return;
@@ -233,8 +278,8 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     if (!hasPortalAccess) return;
-    void fetchSummary();
-    void fetchSection(activeSection);
+    fetchSummary();
+    fetchSection(activeSection);
   }, [hasPortalAccess, activeSection, fetchSummary, fetchSection]);
 
   const filteredUsers = useMemo(() => {
@@ -304,7 +349,7 @@ export default function AdminDashboardPage() {
       setUsers((current) => current.map((item) => item._id === res.data._id ? res.data : item));
       showToast({ type: "success", title: "User updated" });
       invalidateSummary();
-      void fetchSummary(true);
+      fetchSummary(true);
     } catch (error) {
       showToast({ type: "error", title: "User update failed", message: error instanceof Error ? error.message : "Please try again." });
     }
@@ -316,7 +361,7 @@ export default function AdminDashboardPage() {
       setEnquiries((current) => current.map((item) => item._id === enquiry._id ? res.data : item));
       showToast({ type: "success", title: status === "closed" ? "Enquiry closed" : "Enquiry reopened" });
       invalidateSummary();
-      void fetchSummary(true);
+      fetchSummary(true);
     } catch (error) {
       showToast({ type: "error", title: "Enquiry update failed", message: error instanceof Error ? error.message : "Please try again." });
     }
@@ -330,7 +375,7 @@ export default function AdminDashboardPage() {
       showToast({ type: "success", title: "Property published" });
       invalidateSummary();
       invalidateSection("properties");
-      void fetchSummary(true);
+      fetchSummary(true);
     } catch (error) {
       showToast({ type: "error", title: "Property save failed", message: error instanceof Error ? error.message : "Please review the listing." });
     }
@@ -342,7 +387,7 @@ export default function AdminDashboardPage() {
       setProperties((current) => current.map((item) => item._id === property._id ? res.data : item));
       showToast({ type: "success", title: "Property updated" });
       invalidateSummary();
-      void fetchSummary(true);
+      fetchSummary(true);
     } catch (error) {
       showToast({ type: "error", title: "Property update failed", message: error instanceof Error ? error.message : "Please try again." });
     }
@@ -355,7 +400,7 @@ export default function AdminDashboardPage() {
       setProperties((current) => current.filter((item) => item._id !== property._id));
       showToast({ type: "success", title: "Property deleted" });
       invalidateSummary();
-      void fetchSummary(true);
+      fetchSummary(true);
     } catch (error) {
       showToast({ type: "error", title: "Property delete failed", message: error instanceof Error ? error.message : "Please try again." });
     }
@@ -396,8 +441,7 @@ export default function AdminDashboardPage() {
   };
 
   const handleSectionChange = (section: AdminSection) => {
-    setActiveSection(section);
-    void fetchSection(section);
+    selectSection(section);
   };
 
   if (authLoading) {
@@ -423,7 +467,7 @@ export default function AdminDashboardPage() {
     );
   }
 
-  const isSectionLoading = sectionLoading === activeSection && !loadedSections.current.has(activeSection);
+  const isSectionLoading = !loadedSections.has(activeSection) && failedSection !== activeSection;
 
   return (
     <>
@@ -446,13 +490,13 @@ export default function AdminDashboardPage() {
               <Button icon={<Plus className="h-4 w-4" />} onClick={() => setShowPropertyForm(true)}>
                 Publish Property
               </Button>
-              <Button icon={<Landmark className="h-4 w-4" />} variant="outline" className="border-white/30 bg-white/10 text-white hover:bg-white/20" onClick={() => { setActiveSection("coworking"); setShowCoworkingForm(true); }}>
+              <Button icon={<Landmark className="h-4 w-4" />} variant="outline" className="border-white/30 bg-white/10 text-white hover:bg-white/20" onClick={() => { selectSection("coworking"); setShowCoworkingForm(true); }}>
                 Add Coworking
               </Button>
             </div>
           </div>
 
-          {summaryLoading && !summary ? (
+          {!summary && !summaryFailed ? (
             <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
               {Array.from({ length: 6 }).map((_, index) => (
                 <Card key={index} padding="sm" className="border-blue-100/80 bg-white/95 text-center shadow-sm">
