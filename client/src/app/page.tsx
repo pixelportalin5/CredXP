@@ -11,7 +11,13 @@ import LeadCaptureBar from "@/components/lead/LeadCaptureBar";
 import HomePageClient from "./HomePageClient";
 import HomeInsightsSection from "@/components/insights/HomeInsightsSection";
 import type { Metadata } from "next";
-import { defaultOpenGraph } from "@/lib/seo";
+import { defaultOpenGraph, fetchCoworkingListForSeo, fetchPropertyListForSeo } from "@/lib/seo";
+
+export const revalidate = 3600;
+
+// Must match the "all-properties" tab query in HomePageClient.
+const HOME_FEATURED_QUERY = { page: 1, limit: 20, sort: "newest", category: "investment" };
+const HOME_COWORKING_QUERY = { limit: 4, sort: "featured" };
 
 const HOME_TITLE = "Commercial Real Estate, Pre-Leased Shops & Premium Office Rentals";
 const HOME_DESCRIPTION =
@@ -28,7 +34,12 @@ export const metadata: Metadata = {
   ),
 };
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [featured, coworkingSpaces] = await Promise.all([
+    fetchPropertyListForSeo(HOME_FEATURED_QUERY),
+    fetchCoworkingListForSeo(HOME_COWORKING_QUERY),
+  ]);
+
   return (
     <>
       <HomeHeroSection />
@@ -37,7 +48,10 @@ export default function HomePage() {
 
       <HomeStatsSection />
 
-      <HomePageClient />
+      <HomePageClient
+        initialProperties={featured?.properties ?? null}
+        initialCoworkingSpaces={coworkingSpaces}
+      />
 
       <GoalCardsSection />
 

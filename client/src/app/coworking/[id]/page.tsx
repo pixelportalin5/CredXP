@@ -3,6 +3,7 @@ import JsonLd from "@/components/seo/JsonLd";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
+  buildCoworkingBreadcrumbJsonLd,
   buildCoworkingJsonLd,
   buildCoworkingMetadata,
   fetchCoworkingForSeo,
@@ -40,7 +41,12 @@ export default async function CoworkingDetailPage({
 
   return (
     <>
-      {space ? <JsonLd data={buildCoworkingJsonLd(space, id)} /> : null}
+      {space ? (
+        <>
+          <JsonLd data={buildCoworkingJsonLd(space, id)} />
+          <JsonLd data={buildCoworkingBreadcrumbJsonLd(space, id)} />
+        </>
+      ) : null}
       <CoworkingDetailClient initialSpace={space} />
     </>
   );

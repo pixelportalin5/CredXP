@@ -3,6 +3,7 @@ import JsonLd from "@/components/seo/JsonLd";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
+  buildPropertyBreadcrumbJsonLd,
   buildPropertyMetadata,
   buildRealEstateListingJsonLd,
   fetchPropertyForSeo,
@@ -40,7 +41,12 @@ export default async function PropertyDetailPage({
 
   return (
     <>
-      {property ? <JsonLd data={buildRealEstateListingJsonLd(property, id)} /> : null}
+      {property ? (
+        <>
+          <JsonLd data={buildRealEstateListingJsonLd(property, id)} />
+          <JsonLd data={buildPropertyBreadcrumbJsonLd(property, id)} />
+        </>
+      ) : null}
       <PropertyDetailClient initialProperty={property} />
     </>
   );

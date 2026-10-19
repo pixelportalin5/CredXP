@@ -4,11 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "node scripts/generate-seo-files.mjs",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
-    "seo:generate": "node scripts/generate-seo-files.mjs"
+    "lint": "eslint"
   },
   "dependencies": {
     "axios": "^1.16.1",

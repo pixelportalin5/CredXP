@@ -47,7 +47,7 @@ export const footerLinks = {
     { href: "/invest", label: "Invest in Pre-Leased" },
     { href: "/lease", label: "Lease Corporate Space" },
     { href: "/coworking", label: "Coworking Spaces" },
-    { href: "/invest", label: "Investment Directory" },
+    { href: "/list-property", label: "List Your Property" },
   ],
   company: [
     { href: "/about", label: "About Us" },

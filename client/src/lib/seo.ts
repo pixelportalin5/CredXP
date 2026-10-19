@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import type { CoworkingSpace } from "@/types/coworking";
 import type { Property, PropertyListResponse } from "@/types/property";
 import { siteConfig } from "@/config/site";
+import { formatPriceCompact, formatSize } from "@/utils/format";
+import { getListingDirectoryPath } from "@/utils/propertyFilterParams";
 
 const DEFAULT_REVALIDATE_SECONDS = 3600;
 
@@ -10,6 +12,15 @@ export function getSiteUrl(): string {
     process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ||
     siteConfig.url.replace(/\/$/, "")
   );
+}
+
+/**
+ * True on the production deployment (and locally / when self-hosted).
+ * Vercel preview deployments set VERCEL_ENV to "preview".
+ */
+export function isProductionDeployment(): boolean {
+  const vercelEnv = process.env.VERCEL_ENV;
+  return !vercelEnv || vercelEnv === "production";
 }
 
 export function getApiBaseUrl(): string {
@@ -92,7 +103,7 @@ export function buildDefaultMetadata(): Metadata {
     verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
       ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
       : undefined,
-    robots: {
+    robots: isProductionDeployment() ? {
       index: true,
       follow: true,
       googleBot: {
@@ -102,7 +113,7 @@ export function buildDefaultMetadata(): Metadata {
         "max-snippet": -1,
         "max-video-preview": -1,
       },
-    },
+    } : { index: false, follow: false },
   };
 }
 
@@ -157,18 +168,35 @@ export async function fetchCoworkingListForSeo(
   return fetchJson<CoworkingSpace[]>(`${getApiBaseUrl()}/coworking?${toQueryString(params)}`);
 }
 
-export async function fetchPropertyIdsForSitemap(limit = 500): Promise<string[]> {
+export interface SitemapListing {
+  id: string;
+  updatedAt?: string;
+}
+
+function toSitemapListing(item: { _id: string; updatedAt?: string; createdAt?: string }): SitemapListing {
+  return { id: item._id, updatedAt: item.updatedAt || item.createdAt };
+}
+
+export async function fetchPropertiesForSitemap(limit = 500): Promise<SitemapListing[]> {
   const result = await fetchJson<{ properties?: Property[] }>(
     `${getApiBaseUrl()}/properties?limit=${limit}&page=1&sort=newest`
   );
-  return (result?.properties || []).map((property) => property._id).filter(Boolean);
+  return (result?.properties || []).filter((property) => property._id).map(toSitemapListing);
 }
 
-export async function fetchCoworkingIdsForSitemap(limit = 200): Promise<string[]> {
+export async function fetchCoworkingForSitemap(limit = 200): Promise<SitemapListing[]> {
   const result = await fetchJson<CoworkingSpace[]>(
     `${getApiBaseUrl()}/coworking?limit=${limit}&sort=newest`
   );
-  return (result || []).map((space) => space._id).filter(Boolean);
+  return (result || []).filter((space) => space._id).map(toSitemapListing);
+}
+
+export async function fetchPropertyIdsForSitemap(limit = 500): Promise<string[]> {
+  return (await fetchPropertiesForSitemap(limit)).map((listing) => listing.id);
+}
+
+export async function fetchCoworkingIdsForSitemap(limit = 200): Promise<string[]> {
+  return (await fetchCoworkingForSitemap(limit)).map((listing) => listing.id);
 }
 
 function propertyImage(property: Property): string | undefined {
@@ -179,11 +207,18 @@ function propertyImage(property: Property): string | undefined {
 }
 
 export function buildPropertyMetadata(property: Property, id: string): Metadata {
-  const title = `${property.title} – ${property.location.city}`;
-  const yieldText = property.financials?.rentalYield
-    ? ` ${property.financials.rentalYield}% yield.`
-    : "";
-  const description = `${property.type} in ${property.location.city}, ${property.location.state}.${yieldText} View pricing, tenant details, and specs on CredXP.`;
+  const { location } = property;
+  const place = [location.micromarket, location.city].filter(Boolean).join(", ");
+  // Skip the type when the listing name already contains it ("Pre-Leased Office - ...").
+  const nameHasType = property.title.toLowerCase().includes(property.type.toLowerCase());
+  const title = `${property.title} – ${nameHasType ? location.city : `${property.type} in ${location.city}`}`;
+  const details = [
+    property.size ? formatSize(property.size) : null,
+    property.price ? formatPriceCompact(property.price) : null,
+    property.financials?.rentalYield ? `${property.financials.rentalYield}% rental yield` : null,
+    property.tenant?.name ? `leased to ${property.tenant.name}` : null,
+  ].filter(Boolean).join(" · ");
+  const description = `${property.type} in ${place}, ${location.state}${details ? ` — ${details}` : ""}. View photos, pricing, tenant details and specs on CredXP.`;
   const image = propertyImage(property);
   const canonical = `/properties/${id}`;
 
@@ -231,10 +266,13 @@ export function buildCoworkingMetadata(space: CoworkingSpace, id: string): Metad
 export function buildOrganizationJsonLd() {
   return {
     "@context": "https://schema.org",
-    "@type": "Organization",
+    "@type": "RealEstateAgent",
+    "@id": `${siteConfig.url}/#organization`,
     name: siteConfig.name,
-    url: getSiteUrl(),
-    logo: absoluteUrl("/logos/Credxp.webp"),
+    legalName: siteConfig.legal.companyName,
+    url: siteConfig.url,
+    logo: `${siteConfig.url}/logos/Credxp.webp`,
+    image: `${siteConfig.url}${siteConfig.ogImage}`,
     description: siteConfig.description,
     email: siteConfig.contact.email,
     telephone: siteConfig.contact.phone,
@@ -244,6 +282,7 @@ export function buildOrganizationJsonLd() {
       addressRegion: "Haryana",
       addressCountry: "IN",
     },
+    areaServed: ["Gurugram", "Delhi NCR", "India"],
     sameAs: Object.values(siteConfig.social),
   };
 }
@@ -255,11 +294,38 @@ export function buildWebsiteJsonLd() {
     name: siteConfig.name,
     url: getSiteUrl(),
     description: siteConfig.description,
-    publisher: {
-      "@type": "Organization",
-      name: siteConfig.name,
-    },
+    publisher: { "@id": `${siteConfig.url}/#organization` },
   };
+}
+
+export function buildBreadcrumbJsonLd(items: { name: string; path: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: `${siteConfig.url}${item.path === "/" ? "" : item.path}`,
+    })),
+  };
+}
+
+export function buildPropertyBreadcrumbJsonLd(property: Property, id: string) {
+  const directory = getListingDirectoryPath(property);
+  return buildBreadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: directory === "/lease" ? "Lease" : "Invest", path: directory },
+    { name: property.title, path: `/properties/${id}` },
+  ]);
+}
+
+export function buildCoworkingBreadcrumbJsonLd(space: CoworkingSpace, id: string) {
+  return buildBreadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Coworking", path: "/coworking" },
+    { name: space.title, path: `/coworking/${id}` },
+  ]);
 }
 
 export function buildRealEstateListingJsonLd(property: Property, id: string) {
