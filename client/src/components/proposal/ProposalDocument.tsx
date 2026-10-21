@@ -110,6 +110,7 @@ function PropertySection({ entry, index, total, isLast }: PropertySectionProps) 
 
         <div className="relative h-[130px] min-w-0 flex-1 overflow-hidden rounded-lg border border-slate-200 bg-slate-100">
           {coverImageSrc ? (
+            // eslint-disable-next-line @next/next/no-img-element -- plain <img> with crossOrigin so html2canvas can rasterise it for PDF export
             <img src={coverImageSrc} alt="" className="h-full w-full object-cover" crossOrigin="anonymous" />
           ) : (
             <div className="flex h-full items-center justify-center text-[9px] text-slate-400">No image</div>
@@ -286,6 +287,7 @@ export default function ProposalDocument({ proposal, qrDataUrl }: ProposalDocume
           <div className="flex items-center gap-2">
             <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full border-2 border-white bg-slate-200">
               {resolved.agent.avatar ? (
+                // eslint-disable-next-line @next/next/no-img-element -- plain <img> with crossOrigin so html2canvas can rasterise it for PDF export
                 <img src={resolved.agent.avatar} alt="" className="h-full w-full object-cover" crossOrigin="anonymous" />
               ) : (
                 <div className="flex h-full items-center justify-center text-slate-400">
@@ -301,6 +303,7 @@ export default function ProposalDocument({ proposal, qrDataUrl }: ProposalDocume
               <p className="text-red-600">{siteConfig.url.replace("https://", "")}</p>
             </div>
             {qrDataUrl && (
+              // eslint-disable-next-line @next/next/no-img-element -- data-URL QR as a plain <img> so html2canvas can rasterise it for PDF export
               <img src={qrDataUrl} alt="Contact QR" className="h-12 w-12 shrink-0 rounded bg-white p-0.5" />
             )}
           </div>

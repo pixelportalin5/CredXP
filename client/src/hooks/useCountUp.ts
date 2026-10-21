@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 interface UseCountUpOptions {
   end: number;
@@ -18,18 +19,18 @@ export function useCountUp({
   decimals = 0,
 }: UseCountUpOptions): number {
   const [value, setValue] = useState(start);
+  const [wasEnabled, setWasEnabled] = useState(enabled);
+  const prefersReducedMotion = usePrefersReducedMotion();
+
+  // Restart from `start` whenever the animation is toggled, so re-enabling
+  // never flashes the value left over from the previous run.
+  if (enabled !== wasEnabled) {
+    setWasEnabled(enabled);
+    setValue(start);
+  }
 
   useEffect(() => {
-    if (!enabled) {
-      setValue(start);
-      return undefined;
-    }
-
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (prefersReducedMotion) {
-      setValue(end);
-      return;
-    }
+    if (!enabled || prefersReducedMotion) return undefined;
 
     let frameId = 0;
     const startTime = performance.now();
@@ -48,7 +49,9 @@ export function useCountUp({
 
     frameId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frameId);
-  }, [end, duration, start, enabled, decimals]);
+  }, [end, duration, start, enabled, decimals, prefersReducedMotion]);
 
+  if (!enabled) return start;
+  if (prefersReducedMotion) return end;
   return value;
 }

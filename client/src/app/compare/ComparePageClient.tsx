@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { GitCompare, ArrowLeft } from "lucide-react";
 import { Container } from "@/components/ui/Container";
@@ -12,42 +12,56 @@ import { usePropertyComparison } from "@/hooks/usePropertyComparison";
 import propertyService from "@/services/property.service";
 import type { Property } from "@/types/property";
 
+type CompareLoadResult = {
+  key: string;
+  properties: Property[];
+  error: string | null;
+};
+
+async function fetchCompareProperties(ids: string[]): Promise<Omit<CompareLoadResult, "key">> {
+  try {
+    const properties = await Promise.all(
+      ids.map(async (id) => {
+        const response = await propertyService.getById(id);
+        return response.data;
+      })
+    );
+    return { properties, error: null };
+  } catch (fetchError) {
+    return {
+      properties: [],
+      error: fetchError instanceof Error ? fetchError.message : "Failed to load properties for comparison.",
+    };
+  }
+}
+
 export default function ComparePageClient() {
   const { ids, count, max, clearCompare } = usePropertyComparison();
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<CompareLoadResult | null>(null);
+  const [attempt, setAttempt] = useState(0);
 
-  const loadProperties = useCallback(async () => {
-    if (ids.length === 0) {
-      setProperties([]);
-      setLoading(false);
-      setError(null);
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const results = await Promise.all(
-        ids.map(async (id) => {
-          const response = await propertyService.getById(id);
-          return response.data;
-        })
-      );
-      setProperties(results);
-    } catch (fetchError) {
-      setProperties([]);
-      setError(fetchError instanceof Error ? fetchError.message : "Failed to load properties for comparison.");
-    } finally {
-      setLoading(false);
-    }
-  }, [ids]);
+  // Loading/error/properties are derived from whether the last fetch matches the current selection.
+  const idsKey = ids.join(",");
+  const current = ids.length === 0 ? null : result?.key === idsKey ? result : null;
+  const loading = ids.length > 0 && current === null;
+  const properties = current?.properties ?? [];
+  const error = current?.error ?? null;
 
   useEffect(() => {
-    loadProperties();
-  }, [loadProperties]);
+    if (ids.length === 0) return;
+    let cancelled = false;
+    void fetchCompareProperties(ids).then((loaded) => {
+      if (!cancelled) setResult({ key: ids.join(","), ...loaded });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [ids, attempt]);
+
+  const retry = () => {
+    setResult(null);
+    setAttempt((value) => value + 1);
+  };
 
   return (
     <div className="bg-slate-50/60 pb-24">
@@ -94,7 +108,7 @@ export default function ComparePageClient() {
         {!loading && error ? (
           <div className="rounded-[1.75rem] border border-red-200 bg-red-50 px-6 py-8 text-center">
             <p className="text-sm font-medium text-red-700">{error}</p>
-            <Button type="button" variant="outline" size="md" className="mt-4" onClick={loadProperties}>
+            <Button type="button" variant="outline" size="md" className="mt-4" onClick={retry}>
               Retry
             </Button>
           </div>

@@ -26,10 +26,13 @@ export default function Navbar() {
     getDashboardPathForRole(user?.role) ??
     (user?.role === "seller" ? "/seller/dashboard" : "/user/dashboard");
 
-  useEffect(() => {
+  // Close menus on navigation (adjusting state during render instead of in an effect).
+  const [menuPathname, setMenuPathname] = useState(pathname);
+  if (pathname !== menuPathname) {
+    setMenuPathname(pathname);
     setProfileOpen(false);
     setDrawerOpen(false);
-  }, [pathname]);
+  }
 
   useEffect(() => {
     if (!profileOpen) return;

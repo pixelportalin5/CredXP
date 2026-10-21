@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { Eye, EyeOff, KeyRound, Save, UploadCloud, UserCircle, X } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -22,18 +22,22 @@ export default function UserCredentialsPage() {
   const [loading, setLoading] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
-  const [avatarPreview, setAvatarPreview] = useState<string | undefined>(undefined);
+  const [avatarPreview, setAvatarPreview] = useState<string | undefined>(user?.avatar || undefined);
   const [avatarDirty, setAvatarDirty] = useState(false);
   const [avatarPublicId, setAvatarPublicId] = useState<string | undefined>(undefined);
   const [avatarUploading, setAvatarUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
+  // Reset the avatar preview whenever the signed-in user object changes
+  // (adjusting state during render instead of in an effect).
+  const [syncedUser, setSyncedUser] = useState(user);
+  if (user !== syncedUser) {
+    setSyncedUser(user);
     if (user) {
       setAvatarPreview(user.avatar || undefined);
       setAvatarDirty(false);
     }
-  }, [user]);
+  }
 
   const handleAvatarChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

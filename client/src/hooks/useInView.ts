@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type RefObject } from "react";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 interface UseInViewOptions {
   threshold?: number;
@@ -14,16 +15,12 @@ export function useInView<T extends HTMLElement = HTMLDivElement>(
   const { threshold = 0.12, rootMargin = "0px 0px -8% 0px", once = false } = options;
   const ref = useRef<T | null>(null);
   const [inView, setInView] = useState(false);
+  // With reduced motion, content is treated as always visible and no observer is attached.
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     const element = ref.current;
-    if (!element) return;
-
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (prefersReducedMotion) {
-      setInView(true);
-      return;
-    }
+    if (!element || prefersReducedMotion) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -39,7 +36,7 @@ export function useInView<T extends HTMLElement = HTMLDivElement>(
 
     observer.observe(element);
     return () => observer.disconnect();
-  }, [threshold, rootMargin, once]);
+  }, [threshold, rootMargin, once, prefersReducedMotion]);
 
-  return [ref, inView];
+  return [ref, inView || prefersReducedMotion];
 }

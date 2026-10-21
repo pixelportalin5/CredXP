@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import { CheckCircle2, UploadCloud, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -33,10 +33,13 @@ export default function CoworkingListingForm({
   const [imageUploading, setImageUploading] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
+  // Reset images when a different space is passed in (adjusting state during render instead of in an effect).
+  const [syncedSpace, setSyncedSpace] = useState(initialSpace);
+  if (initialSpace !== syncedSpace) {
+    setSyncedSpace(initialSpace);
     setImages(initialSpace?.images || []);
     setImagePublicIds(initialSpace?.imagePublicIds || []);
-  }, [initialSpace]);
+  }
 
   const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);

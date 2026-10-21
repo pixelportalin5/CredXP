@@ -1,28 +1,34 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useSyncExternalStore } from "react";
 import { useParams, useRouter } from "next/navigation";
 import ProposalPreview from "@/components/proposal/ProposalPreview";
 import ProposalPreviewToolbar from "@/components/proposal/ProposalPreviewToolbar";
 import { PageLoader } from "@/components/ui/PageLoader";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { loadProposalDraft, subscribeToDraftUpdates } from "@/utils/proposalDraftStorage";
+import { parseProposalDraft, readProposalDraftRaw, subscribeToDraftUpdates } from "@/utils/proposalDraftStorage";
 import { getProposalsDashboardHref } from "@/utils/staffPortal";
 import { isStaff } from "@/utils/roles";
-import type { Proposal } from "@/types/proposal";
 
 export default function ProposalPreviewPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
-  const [proposal, setProposal] = useState<Proposal | null>(null);
-  const [ready, setReady] = useState(false);
+  const canPreview = !authLoading && !!user && isStaff(user.role) && !!id;
 
-  const refreshDraft = useCallback(() => {
-    if (!id) return;
-    const draft = loadProposalDraft(id);
-    if (draft) setProposal(draft);
-  }, [id]);
+  // Read the draft straight from localStorage as an external store; it re-reads on
+  // storage/broadcast/focus events. `undefined` means "not read yet" (server render
+  // and hydration), as opposed to `null` for "no draft saved".
+  const subscribe = useCallback(
+    (onChange: () => void) => (canPreview ? subscribeToDraftUpdates(id, onChange) : () => undefined),
+    [canPreview, id]
+  );
+  const rawDraft = useSyncExternalStore<string | null | undefined>(
+    subscribe,
+    () => (id ? readProposalDraftRaw(id) : null),
+    () => undefined
+  );
+  const proposal = useMemo(() => (rawDraft ? parseProposalDraft(rawDraft) : null), [rawDraft]);
 
   useEffect(() => {
     if (authLoading) return;
@@ -30,22 +36,12 @@ export default function ProposalPreviewPage() {
       router.replace(id ? `/properties/${id}` : "/invest");
       return;
     }
-    if (!id) return;
-
-    const draft = loadProposalDraft(id);
-    if (!draft) {
+    if (id && rawDraft !== undefined && !proposal) {
       router.replace(`/properties/${id}/proposal`);
-      return;
     }
+  }, [authLoading, user, id, router, rawDraft, proposal]);
 
-    setProposal(draft);
-    setReady(true);
-  }, [authLoading, user, id, router]);
-
-  useEffect(() => {
-    if (!ready || !id) return;
-    return subscribeToDraftUpdates(id, refreshDraft);
-  }, [ready, id, refreshDraft]);
+  const ready = canPreview && !!proposal;
 
   if (authLoading || !ready || !proposal) return <PageLoader label="Loading preview…" />;
   if (!user || !isStaff(user.role)) return null;
