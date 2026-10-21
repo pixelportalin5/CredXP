@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, SlidersHorizontal, WifiOff, TrendingUp } from "lucide-react";
 import PropertyCard from "@/components/property/PropertyCard";
@@ -20,14 +20,21 @@ import type { CoworkingSpace } from "@/types/coworking";
    HomePageClient — Live Property Sections
    ============================================================ */
 
-export default function HomePageClient() {
-  const [allProperties, setAllProperties] = useState<Property[]>([]);
-  const [loading, setLoading] = useState(true);
+interface HomePageClientProps {
+  /** Server-fetched "All Properties" tab and coworking spaces, so crawlers see listings and links without JS. */
+  initialProperties?: Property[] | null;
+  initialCoworkingSpaces?: CoworkingSpace[] | null;
+}
+
+export default function HomePageClient({ initialProperties = null, initialCoworkingSpaces = null }: HomePageClientProps) {
+  const [allProperties, setAllProperties] = useState<Property[]>(initialProperties || []);
+  const [loading, setLoading] = useState(!initialProperties);
   const [error, setError] = useState(false);
   const [activeFeaturedTab, setActiveFeaturedTab] = useState("all-properties");
   const [featuredPage, setFeaturedPage] = useState(0);
-  const [coworkingSpaces, setCoworkingSpaces] = useState<CoworkingSpace[]>([]);
-  const [coworkingLoading, setCoworkingLoading] = useState(true);
+  const [coworkingSpaces, setCoworkingSpaces] = useState<CoworkingSpace[]>(initialCoworkingSpaces || []);
+  const [coworkingLoading, setCoworkingLoading] = useState(!initialCoworkingSpaces);
+  const skipInitialPropertiesFetch = useRef(Boolean(initialProperties));
 
   const featuredTabs = [
     { key: "all-properties", label: "All Properties" },
@@ -44,6 +51,10 @@ export default function HomePageClient() {
   );
 
   useEffect(() => {
+    if (skipInitialPropertiesFetch.current) {
+      skipInitialPropertiesFetch.current = false;
+      return;
+    }
     async function fetchData() {
       try {
         setLoading(true);
@@ -69,6 +80,7 @@ export default function HomePageClient() {
   }, [activeFeaturedTab]);
 
   useEffect(() => {
+    if (initialCoworkingSpaces) return;
     async function fetchCoworking() {
       try {
         const res = await coworkingService.getAll({ limit: 4, sort: "featured" });
@@ -80,7 +92,7 @@ export default function HomePageClient() {
       }
     }
     void fetchCoworking();
-  }, []);
+  }, [initialCoworkingSpaces]);
 
   if (!loading && error) {
     return (
