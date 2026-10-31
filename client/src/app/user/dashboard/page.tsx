@@ -16,6 +16,7 @@ import savedPropertyService from "@/services/saved-property.service";
 import { formatDate, formatPriceCompact } from "@/utils/format";
 import type { Enquiry } from "@/types/enquiry";
 import type { Property } from "@/types/property";
+import { propertyPath, coworkingPath } from "@/utils/listingUrl";
 
 function getProperty(enquiry: Enquiry) {
   return typeof enquiry.propertyId === "string" ? null : enquiry.propertyId;
@@ -223,14 +224,14 @@ export default function UserDashboardPage() {
                       )}
                       <div className="flex flex-wrap gap-2">
                         {property && (
-                          <Link href={`/properties/${property._id}`}>
+                          <Link href={propertyPath(property)}>
                             <Button variant="outline" size="sm" className="border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50">
                               View Property
                             </Button>
                           </Link>
                         )}
                         {coworkingSpace && (
-                          <Link href={`/coworking/${coworkingSpace._id}`}>
+                          <Link href={coworkingPath(coworkingSpace)}>
                             <Button variant="outline" size="sm" className="border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50">
                               View Coworking
                             </Button>

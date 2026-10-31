@@ -26,7 +26,16 @@ export const siteConfig = {
     email: "sales@credxp.com",
     phone: "+91 85951 91894",
     whatsapp: "+918595191894",
-    address: "Gurugram, Haryana, India",
+    address: "Iris Tech Park, Sector 48, Sohna Road, Gurugram, Haryana 122018",
+    // Structured address for schema.org and Google Business Profile consistency.
+    postalAddress: {
+      streetAddress: "Iris Tech Park, Sector 48, Sohna Road",
+      addressLocality: "Gurugram",
+      addressRegion: "Haryana",
+      postalCode: "122018",
+      addressCountry: "IN",
+    },
+    mapsUrl: "https://www.google.com/maps/search/?api=1&query=Iris+Tech+Park+Sector+48+Sohna+Road+Gurugram",
   },
 
   social: {
@@ -37,8 +46,6 @@ export const siteConfig = {
   },
 
   legal: {
-    // Owner to supply the real HRERA registration number. Left empty, nothing is shown.
-    rera: "",
     companyName: "CredXP Prop-Tech Pvt. Ltd.",
     cin: "",
   },

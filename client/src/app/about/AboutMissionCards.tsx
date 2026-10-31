@@ -18,12 +18,12 @@ const missionCards = [
   {
     icon: <Globe className="h-6 w-6" />,
     title: "Coworking Aggregation",
-    description: "India's largest flex-space aggregation platform — compare and book from 15+ operators.",
+    description: "Compare coworking and managed offices from partner operators in one place.",
   },
   {
     icon: <ShieldCheck className="h-6 w-6" />,
     title: "Trust & Transparency",
-    description: "RERA-compliant, verified properties with complete due-diligence documentation.",
+    description: "Gross yields labelled as gross, and lease, tenant and title documents shared on request.",
   },
 ];
 

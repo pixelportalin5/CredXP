@@ -11,9 +11,56 @@ import type { Pagination as PaginationType } from "@/types/common";
 interface PaginationProps {
   pagination: PaginationType;
   onPageChange: (page: number) => void;
+  /** When set, pages render as real links so crawlers can follow them. */
+  hrefForPage?: (page: number) => string;
 }
 
-export default function Pagination({ pagination, onPageChange }: PaginationProps) {
+interface PageControlProps {
+  page: number;
+  disabled?: boolean;
+  className: string;
+  label?: string;
+  rel?: string;
+  current?: boolean;
+  children: React.ReactNode;
+  onPageChange: (page: number) => void;
+  hrefForPage?: (page: number) => string;
+}
+
+function PageControl({ page, disabled, className, label, rel, current, children, onPageChange, hrefForPage }: PageControlProps) {
+  if (hrefForPage && !disabled) {
+    return (
+      <a
+        href={hrefForPage(page)}
+        rel={rel}
+        aria-label={label}
+        aria-current={current ? "page" : undefined}
+        className={className}
+        onClick={(event) => {
+          if (event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) return;
+          event.preventDefault();
+          onPageChange(page);
+        }}
+      >
+        {children}
+      </a>
+    );
+  }
+  return (
+    <button
+      type="button"
+      onClick={() => onPageChange(page)}
+      disabled={disabled}
+      aria-label={label}
+      aria-current={current ? "page" : undefined}
+      className={className}
+    >
+      {children}
+    </button>
+  );
+}
+
+export default function Pagination({ pagination, onPageChange, hrefForPage }: PaginationProps) {
   if (!pagination || pagination.totalPages <= 1) return null;
 
   const { currentPage, totalPages, totalItems } = pagination;
@@ -54,9 +101,13 @@ export default function Pagination({ pagination, onPageChange }: PaginationProps
       </p>
 
       <div className="flex items-center gap-1.5">
-        <button
-          onClick={() => onPageChange(currentPage - 1)}
+        <PageControl
+          page={currentPage - 1}
           disabled={currentPage <= 1}
+          label="Previous page"
+          rel="prev"
+          onPageChange={onPageChange}
+          hrefForPage={hrefForPage}
           className={cn(
             buttonBase,
             "border border-[var(--border-default)] bg-navy-800/60 text-navy-400",
@@ -65,7 +116,7 @@ export default function Pagination({ pagination, onPageChange }: PaginationProps
           )}
         >
           <ChevronLeft className="h-4 w-4" />
-        </button>
+        </PageControl>
 
         {getPageNumbers().map((page, i) =>
           page === "..." ? (
@@ -73,9 +124,13 @@ export default function Pagination({ pagination, onPageChange }: PaginationProps
               ...
             </span>
           ) : (
-            <button
+            <PageControl
               key={page}
-              onClick={() => onPageChange(page as number)}
+              page={page as number}
+              current={page === currentPage}
+              label={`Page ${page}`}
+              onPageChange={onPageChange}
+              hrefForPage={hrefForPage}
               className={cn(
                 buttonBase,
                 page === currentPage
@@ -84,13 +139,17 @@ export default function Pagination({ pagination, onPageChange }: PaginationProps
               )}
             >
               {page}
-            </button>
+            </PageControl>
           )
         )}
 
-        <button
-          onClick={() => onPageChange(currentPage + 1)}
+        <PageControl
+          page={currentPage + 1}
           disabled={currentPage >= totalPages}
+          label="Next page"
+          rel="next"
+          onPageChange={onPageChange}
+          hrefForPage={hrefForPage}
           className={cn(
             buttonBase,
             "border border-[var(--border-default)] bg-navy-800/60 text-navy-400",
@@ -99,7 +158,7 @@ export default function Pagination({ pagination, onPageChange }: PaginationProps
           )}
         >
           <ChevronRight className="h-4 w-4" />
-        </button>
+        </PageControl>
       </div>
     </div>
   );

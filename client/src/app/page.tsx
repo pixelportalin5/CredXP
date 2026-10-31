@@ -9,9 +9,10 @@ import HomeStatsSection from "./HomeStatsSection";
 import GoalCardsSection from "./GoalCardsSection";
 import LeadCaptureBar from "@/components/lead/LeadCaptureBar";
 import HomePageClient from "./HomePageClient";
-import HomeInsightsSection from "@/components/insights/HomeInsightsSection";
+import HomeGuidesSection from "@/components/insights/HomeGuidesSection";
 import type { Metadata } from "next";
-import { defaultOpenGraph, fetchCoworkingListForSeo, fetchListingCountsForSeo, fetchPropertyListForSeo } from "@/lib/seo";
+import { defaultOpenGraph, fetchAllListingsForSeo, fetchCoworkingListForSeo, fetchListingCountsForSeo, fetchPropertyListForSeo } from "@/lib/seo";
+import { optionsFromListings } from "@/config/filters";
 
 export const revalidate = 3600;
 
@@ -35,15 +36,17 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const [featured, coworkingSpaces, listingCounts] = await Promise.all([
+  const [featured, coworkingSpaces, listingCounts, allListings] = await Promise.all([
     fetchPropertyListForSeo(HOME_FEATURED_QUERY),
     fetchCoworkingListForSeo(HOME_COWORKING_QUERY),
     fetchListingCountsForSeo(),
+    fetchAllListingsForSeo(),
   ]);
+  const filterOptions = optionsFromListings(allListings);
 
   return (
     <>
-      <HomeHeroSection />
+      <HomeHeroSection cities={filterOptions.cities} propertyTypes={filterOptions.types} />
 
       <PropertyOfTheMonth />
 
@@ -72,7 +75,7 @@ export default async function HomePage() {
         </Container>
       </section>
 
-      <HomeInsightsSection />
+      <HomeGuidesSection />
 
       <LeadCaptureBar />
     </>

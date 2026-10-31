@@ -14,6 +14,7 @@ import { formatPriceCompact, formatSize, formatYield } from "@/utils/format";
 import { getPropertySectionCoverImage } from "@/utils/propertySections";
 import ComparePropertyButton from "@/components/property/ComparePropertyButton";
 import type { Property } from "@/types/property";
+import { propertyPath } from "@/utils/listingUrl";
 
 interface PropertyCardProps {
   property: Property;
@@ -70,7 +71,7 @@ export default function PropertyCard({ property, variant = "default", priorityIm
     }
   };
 
-  const propertyHref = `/properties/${_id}`;
+  const propertyHref = propertyPath(property);
   const openProperty = () => router.push(propertyHref);
 
   return (

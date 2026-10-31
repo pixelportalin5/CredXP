@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { publicHighlights } from "@/utils/publicHighlights";
 import { useParams } from "next/navigation";
+import { listingIdFromParam } from "@/utils/listingUrl";
 import Link from "next/link";
 import {
   ArrowLeft, MapPin, Building2, CheckCircle2, TrendingUp,
@@ -30,7 +31,8 @@ import { isStaff } from "@/utils/roles";
    ============================================================ */
 
 export default function PropertyDetailClient({ initialProperty = null }: { initialProperty?: Property | null }) {
-  const { id } = useParams<{ id: string }>();
+  const { id: idParam } = useParams<{ id: string }>();
+  const id = listingIdFromParam(idParam);
   const { user } = useAuth();
   const { showToast } = useToast();
   // Server-fetched data lets the first HTML response contain the full listing for crawlers.
@@ -167,7 +169,7 @@ export default function PropertyDetailClient({ initialProperty = null }: { initi
         `${formatSize(size)} commercial space`,
         `${occupancy ? `${occupancy}% occupied` : "Occupancy available on request"}`,
         financials?.escalation ? `Rent escalation: ${financials.escalation}` : "Commercial terms available on request",
-        reraId ? `RERA No: ${reraId}` : "RERA details available on request",
+        ...(reraId ? [`Project RERA No: ${reraId}`] : []),
       ];
   const locationAdvantages = [
     location.landmark || `${location.city} commercial catchment`,
@@ -408,7 +410,7 @@ export default function PropertyDetailClient({ initialProperty = null }: { initi
             <h2 className="text-lg font-semibold text-slate-900">Documents</h2>
             <div className="mt-5 grid gap-3 sm:grid-cols-3">
               {[
-                { label: "RERA Certificate", value: reraId || "Available on request" },
+                { label: "Project RERA No.", value: reraId || "—" },
                 { label: "Brochure", value: "Available on request" },
                 { label: "Due Diligence", value: "Available on request" },
               ].map((document) => (

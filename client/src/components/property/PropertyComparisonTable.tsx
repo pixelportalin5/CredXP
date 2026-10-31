@@ -5,6 +5,7 @@ import { X } from "lucide-react";
 import type { Property } from "@/types/property";
 import { buildComparisonRows } from "@/utils/propertyComparisonMetrics";
 import { usePropertyComparison } from "@/hooks/usePropertyComparison";
+import { propertyPath } from "@/utils/listingUrl";
 
 interface PropertyComparisonTableProps {
   properties: Property[];
@@ -27,7 +28,7 @@ export default function PropertyComparisonTable({ properties }: PropertyComparis
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <Link
-                      href={`/properties/${property._id}`}
+                      href={propertyPath(property)}
                       className="line-clamp-2 text-base font-semibold text-slate-900 transition-colors hover:text-accent-500"
                     >
                       {property.title}

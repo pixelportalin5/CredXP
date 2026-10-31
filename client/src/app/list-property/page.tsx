@@ -12,6 +12,7 @@ import { useAuth } from "@/components/providers/AuthProvider";
 import { useToast } from "@/components/providers/ToastProvider";
 import propertyService from "@/services/property.service";
 import type { Property } from "@/types/property";
+import { propertyPath } from "@/utils/listingUrl";
 
 export default function ListPropertyPage() {
   const router = useRouter();
@@ -41,7 +42,7 @@ export default function ListPropertyPage() {
     try {
       const res = await propertyService.create(data);
       showToast({ type: "success", title: "Property published", message: "Your listing is now visible publicly." });
-      router.push(`/properties/${res.data._id}`);
+      router.push(propertyPath(res.data));
     } catch (error) {
       showToast({ type: "error", title: "Unable to publish", message: error instanceof Error ? error.message : "Please review the form." });
     }

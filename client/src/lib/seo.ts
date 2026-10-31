@@ -4,6 +4,7 @@ import type { Property, PropertyListResponse } from "@/types/property";
 import { siteConfig } from "@/config/site";
 import { formatPriceCompact, formatSize } from "@/utils/format";
 import { getListingDirectoryPath } from "@/utils/propertyFilterParams";
+import { coworkingPath, propertyPath } from "@/utils/listingUrl";
 
 const DEFAULT_REVALIDATE_SECONDS = 3600;
 
@@ -208,32 +209,33 @@ export async function fetchListingCountsForSeo(): Promise<ListingCounts | null> 
 export interface SitemapListing {
   id: string;
   updatedAt?: string;
+  title?: string;
+  city?: string;
 }
 
-function toSitemapListing(item: { _id: string; updatedAt?: string; createdAt?: string }): SitemapListing {
-  return { id: item._id, updatedAt: item.updatedAt || item.createdAt };
-}
-
-export async function fetchPropertiesForSitemap(limit = 500): Promise<SitemapListing[]> {
+/**
+ * Every published property (list payload), newest first. One cached request
+ * shared by the sitemap, location pages and static params.
+ */
+export async function fetchAllListingsForSeo(limit = 500): Promise<Property[]> {
   const result = await fetchJson<{ properties?: Property[] }>(
     `${getApiBaseUrl()}/properties?limit=${limit}&page=1&sort=newest`
   );
-  return (result?.properties || []).filter((property) => property._id).map(toSitemapListing);
+  return (result?.properties || []).filter((property) => property._id);
 }
 
 export async function fetchCoworkingForSitemap(limit = 200): Promise<SitemapListing[]> {
   const result = await fetchJson<CoworkingSpace[]>(
     `${getApiBaseUrl()}/coworking?limit=${limit}&sort=newest`
   );
-  return (result || []).filter((space) => space._id).map(toSitemapListing);
-}
-
-export async function fetchPropertyIdsForSitemap(limit = 500): Promise<string[]> {
-  return (await fetchPropertiesForSitemap(limit)).map((listing) => listing.id);
-}
-
-export async function fetchCoworkingIdsForSitemap(limit = 200): Promise<string[]> {
-  return (await fetchCoworkingForSitemap(limit)).map((listing) => listing.id);
+  return (result || [])
+    .filter((space) => space._id)
+    .map((space) => ({
+      id: space._id,
+      updatedAt: space.updatedAt || space.createdAt,
+      title: space.title,
+      city: space.location?.city,
+    }));
 }
 
 function propertyImage(property: Property): string | undefined {
@@ -241,6 +243,12 @@ function propertyImage(property: Property): string | undefined {
   if (!image) return undefined;
   if (image.startsWith("http") || image.startsWith("/")) return image;
   return undefined;
+}
+
+/** Published and active. Sold, paused, draft or deactivated listings are not. */
+export function isPropertyAvailable(property: Pick<Property, "listingStatus" | "isActive">): boolean {
+  if (property.isActive === false) return false;
+  return !property.listingStatus || property.listingStatus === "published";
 }
 
 export function buildPropertyMetadata(property: Property, id: string): Metadata {
@@ -257,12 +265,15 @@ export function buildPropertyMetadata(property: Property, id: string): Metadata 
   ].filter(Boolean).join(" · ");
   const description = `${property.type} in ${place}, ${location.state}${details ? ` — ${details}` : ""}. View photos, pricing, tenant details and specs on CredXP.`;
   const image = propertyImage(property);
-  const canonical = `/properties/${id}`;
+  const canonical = propertyPath({ ...property, _id: property._id || id });
+  const available = isPropertyAvailable(property);
 
   return {
-    title,
+    title: available ? title : `${title} (No Longer Available)`,
     description,
     alternates: { canonical },
+    // Sold, paused or draft listings stay reachable for old links but leave the index.
+    ...(available ? {} : { robots: { index: false, follow: true } }),
     openGraph: {
       ...defaultOpenGraph(title, description, canonical),
       type: "website",
@@ -281,7 +292,7 @@ export function buildCoworkingMetadata(space: CoworkingSpace, id: string): Metad
   const title = `${space.title} – ${space.operator}, ${space.location.city}`;
   const description = `${space.workspaceType} coworking at ${space.location.city}. ${space.priceLabel}. Explore amenities and book via CredXP.`;
   const image = space.coverImage || space.images?.[0];
-  const canonical = `/coworking/${id}`;
+  const canonical = coworkingPath({ ...space, _id: space._id || id });
 
   return {
     title,
@@ -318,12 +329,8 @@ export function buildOrganizationJsonLd() {
     description: siteConfig.description,
     email: siteConfig.contact.email,
     telephone: siteConfig.contact.phone,
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: "Gurugram",
-      addressRegion: "Haryana",
-      addressCountry: "IN",
-    },
+    address: { "@type": "PostalAddress", ...siteConfig.contact.postalAddress },
+    hasMap: siteConfig.contact.mapsUrl,
     areaServed: [
       { "@type": "City", name: "Gurugram" },
       { "@type": "Place", name: "Delhi NCR" },
@@ -380,7 +387,7 @@ export function buildPropertyBreadcrumbJsonLd(property: Property, id: string) {
   return buildBreadcrumbJsonLd([
     { name: "Home", path: "/" },
     { name: directory === "/lease" ? "Lease" : "Invest", path: directory },
-    { name: property.title, path: `/properties/${id}` },
+    { name: property.title, path: propertyPath({ ...property, _id: property._id || id }) },
   ]);
 }
 
@@ -388,31 +395,71 @@ export function buildCoworkingBreadcrumbJsonLd(space: CoworkingSpace, id: string
   return buildBreadcrumbJsonLd([
     { name: "Home", path: "/" },
     { name: "Coworking", path: "/coworking" },
-    { name: space.title, path: `/coworking/${id}` },
+    { name: space.title, path: coworkingPath({ ...space, _id: space._id || id }) },
   ]);
 }
 
 export function buildRealEstateListingJsonLd(property: Property, id: string) {
   const image = propertyImage(property);
+  const isLease = getListingDirectoryPath(property) === "/lease";
+  const priceUnit = property.financials?.priceUnit;
+  const available = isPropertyAvailable(property);
+  const address = {
+    "@type": "PostalAddress",
+    streetAddress: property.location.address,
+    addressLocality: property.location.city,
+    addressRegion: property.location.state,
+    postalCode: property.location.pincode,
+    addressCountry: "IN",
+  };
+  const extra = [
+    property.financials?.rentalYield
+      ? { "@type": "PropertyValue", name: "Gross rental yield (seller-supplied)", value: property.financials.rentalYield, unitText: "%" }
+      : null,
+    property.financials?.escalation
+      ? { "@type": "PropertyValue", name: "Rent escalation", value: property.financials.escalation }
+      : null,
+    property.specs?.furnishing ? { "@type": "PropertyValue", name: "Furnishing", value: property.specs.furnishing } : null,
+  ].filter(Boolean);
+
   return {
     "@context": "https://schema.org",
     "@type": "RealEstateListing",
     name: property.title,
-    description: `${property.type} in ${property.location.city}, ${property.location.state}`,
-    url: absoluteUrl(`/properties/${id}`),
+    description: (property.description || `${property.type} in ${property.location.city}, ${property.location.state}`).slice(0, 500),
+    url: absoluteUrl(propertyPath({ ...property, _id: property._id || id })),
     image: image ? (image.startsWith("/") ? absoluteUrl(image) : image) : undefined,
+    datePosted: property.createdAt,
+    dateModified: property.updatedAt,
     offers: {
       "@type": "Offer",
       price: property.price,
       priceCurrency: "INR",
+      businessFunction: isLease
+        ? "http://purl.org/goodrelations/v1#LeaseOut"
+        : "http://purl.org/goodrelations/v1#Sell",
+      availability: available ? "https://schema.org/InStock" : "https://schema.org/SoldOut",
+      ...(isLease && (priceUnit === "month" || priceUnit === "year")
+        ? {
+            priceSpecification: {
+              "@type": "UnitPriceSpecification",
+              price: property.price,
+              priceCurrency: "INR",
+              unitText: priceUnit === "year" ? "YEAR" : "MONTH",
+            },
+          }
+        : {}),
+      seller: { "@id": `${siteConfig.url}/#organization` },
     },
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: property.location.address,
-      addressLocality: property.location.city,
-      addressRegion: property.location.state,
-      postalCode: property.location.pincode,
-      addressCountry: "IN",
+    about: {
+      "@type": "Accommodation",
+      name: property.buildingName || property.title,
+      additionalType: property.type,
+      address,
+      ...(property.size
+        ? { floorSize: { "@type": "QuantitativeValue", value: property.size, unitCode: "FTK", unitText: "sq ft" } }
+        : {}),
+      ...(extra.length ? { additionalProperty: extra } : {}),
     },
   };
 }
@@ -424,7 +471,7 @@ export function buildCoworkingJsonLd(space: CoworkingSpace, id: string) {
     "@type": "LocalBusiness",
     name: space.title,
     description: `${space.operator} coworking space in ${space.location.city}`,
-    url: absoluteUrl(`/coworking/${id}`),
+    url: absoluteUrl(coworkingPath({ ...space, _id: space._id || id })),
     image: image ? (image.startsWith("/") ? absoluteUrl(image) : image) : undefined,
     address: {
       "@type": "PostalAddress",
@@ -474,13 +521,11 @@ export const PUBLIC_STATIC_ROUTES = [
   "/",
   "/invest",
   "/lease",
+  "/gurugram",
   "/coworking",
   "/insights",
   "/guides",
   "/about",
   "/contact",
-  "/compare",
   "/privacy-policy",
-  "/list-property",
-  "/list-coworking",
 ] as const;

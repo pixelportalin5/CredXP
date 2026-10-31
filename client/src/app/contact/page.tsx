@@ -74,7 +74,10 @@ export default function ContactPage() {
                     <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-accent-400" />
                     <div>
                       <p className="font-medium text-navy-200">Office</p>
-                      <p>{siteConfig.contact.address}</p>
+                      <address className="not-italic">{siteConfig.contact.address}</address>
+                      <a href={siteConfig.contact.mapsUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-accent-400 hover:underline">
+                        Open in Google Maps
+                      </a>
                     </div>
                   </div>
                 </div>
@@ -85,7 +88,7 @@ export default function ContactPage() {
                 <div className="space-y-3">
                   {[
                     { icon: <Clock className="h-4 w-4" />, text: "Response within 2 hours" },
-                    { icon: <Shield className="h-4 w-4" />, text: "RERA verified properties" },
+                    { icon: <Shield className="h-4 w-4" />, text: "Lease and title documents shared before you decide" },
                     { icon: <Users className="h-4 w-4" />, text: "Dedicated relationship manager" },
                   ].map((item) => (
                     <div key={item.text} className="flex items-center gap-3 text-sm text-navy-300">

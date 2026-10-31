@@ -3,8 +3,9 @@ import { BriefcaseBusiness } from "lucide-react";
 import PropertyDirectoryShell from "@/components/property/PropertyDirectoryShell";
 import { Badge } from "@/components/ui/Badge";
 import type { Metadata } from "next";
-import { fetchPropertyListForSeo } from "@/lib/seo";
-import { filtersFromSearchParams, filtersToApiParams } from "@/utils/propertyFilterParams";
+import { directoryMetadata, fetchDirectoryInitialData } from "@/lib/directoryPage";
+import { fetchAllListingsForSeo } from "@/lib/seo";
+import { optionsFromListings } from "@/config/filters";
 
 export const revalidate = 3600;
 
@@ -20,17 +21,19 @@ export async function generateMetadata({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }): Promise<Metadata> {
-  const params = await searchParams;
-  const hasFilters = Object.keys(params).length > 0;
-  return hasFilters
-    ? { ...PAGE_METADATA, robots: { index: false, follow: true } }
-    : PAGE_METADATA;
+  return directoryMetadata(PAGE_METADATA, "/lease", await searchParams);
 }
 
-export default async function LeasePage() {
-  const initialData = await fetchPropertyListForSeo(
-    filtersToApiParams(filtersFromSearchParams(new URLSearchParams(), "lease"), "lease")
-  );
+export default async function LeasePage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const [{ initialData, initialQuery }, allListings] = await Promise.all([
+    fetchDirectoryInitialData("lease", await searchParams),
+    fetchAllListingsForSeo(),
+  ]);
+  const { cities } = optionsFromListings(allListings);
 
   return (
     <Suspense
@@ -43,6 +46,8 @@ export default async function LeasePage() {
       <PropertyDirectoryShell
         mode="lease"
         initialData={initialData}
+        initialQuery={initialQuery}
+        cityOptions={cities}
         basePath="/lease"
         hero={{
           badge: (

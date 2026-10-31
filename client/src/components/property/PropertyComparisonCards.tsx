@@ -5,6 +5,7 @@ import { X } from "lucide-react";
 import type { Property } from "@/types/property";
 import { buildComparisonRows } from "@/utils/propertyComparisonMetrics";
 import { usePropertyComparison } from "@/hooks/usePropertyComparison";
+import { propertyPath } from "@/utils/listingUrl";
 
 interface PropertyComparisonCardsProps {
   properties: Property[];
@@ -27,7 +28,7 @@ export default function PropertyComparisonCards({ properties }: PropertyComparis
                 Property {propertyIndex + 1}
               </p>
               <Link
-                href={`/properties/${property._id}`}
+                href={propertyPath(property)}
                 className="mt-1 block text-lg font-semibold text-slate-900 transition-colors hover:text-accent-500"
               >
                 {property.title}

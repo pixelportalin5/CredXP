@@ -5,6 +5,7 @@
 
 import type { SelectOption } from "@/types/common";
 
+/** Fallback only. Pages pass cities that actually have listings (see optionsFromListings). */
 export const CITIES: SelectOption[] = [
   { label: "Gurugram", value: "Gurugram" },
   { label: "Delhi", value: "Delhi" },
@@ -100,3 +101,27 @@ export const FURNISHING_OPTIONS: SelectOption[] = [
   { label: "Bare Shell", value: "Bare Shell" },
   { label: "Warm Shell", value: "Warm Shell" },
 ];
+
+/**
+ * Builds city and type options from live listings so filters never offer
+ * choices with no results. Falls back to Gurugram when the API is unavailable.
+ */
+export function optionsFromListings(listings: { type?: string; location?: { city?: string } }[]): {
+  cities: SelectOption[];
+  types: SelectOption[];
+} {
+  const normalizeCity = (city: string) => (/^gurgaon$/i.test(city) ? "Gurugram" : city);
+  const cities = [...new Set(listings.map((item) => normalizeCity((item.location?.city || "").trim())).filter(Boolean))].sort(
+    (a, b) => (a === "Gurugram" ? -1 : b === "Gurugram" ? 1 : a.localeCompare(b))
+  );
+  const types = [...new Set(listings.map((item) => (item.type || "").trim()).filter(Boolean))];
+  return {
+    cities: (cities.length ? cities : ["Gurugram"]).map((city) => ({ label: city, value: city })),
+    types: [
+      { label: "All Types", value: "" },
+      ...(types.length
+        ? PROPERTY_TYPES.filter((option) => option.value && types.includes(option.value))
+        : PROPERTY_TYPES.filter((option) => option.value)),
+    ],
+  };
+}

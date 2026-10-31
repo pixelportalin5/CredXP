@@ -12,6 +12,7 @@ import { useAuth } from "@/components/providers/AuthProvider";
 import { useToast } from "@/components/providers/ToastProvider";
 import coworkingService from "@/services/coworking.service";
 import type { CoworkingSpace } from "@/types/coworking";
+import { coworkingPath } from "@/utils/listingUrl";
 
 export default function ListCoworkingPage() {
   const router = useRouter();
@@ -41,7 +42,7 @@ export default function ListCoworkingPage() {
     try {
       const res = await coworkingService.create(data);
       showToast({ type: "success", title: "Coworking space published", message: "Your listing is now visible publicly." });
-      router.push(`/coworking/${res.data._id}`);
+      router.push(coworkingPath(res.data));
     } catch (error) {
       showToast({ type: "error", title: "Unable to publish", message: error instanceof Error ? error.message : "Please review the form." });
     }

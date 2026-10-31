@@ -172,7 +172,7 @@ export default function Footer() {
                 Privacy Policy
               </Link>
             </p>
-            {siteConfig.legal.rera ? <p>{siteConfig.legal.rera}</p> : null}
+            <p>{siteConfig.contact.address}</p>
           </Container>
         </div>
       </div>

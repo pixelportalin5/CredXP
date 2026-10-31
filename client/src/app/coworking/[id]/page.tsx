@@ -1,20 +1,23 @@
 import CoworkingDetailClient from "./CoworkingDetailClient";
 import JsonLd from "@/components/seo/JsonLd";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import {
   buildCoworkingBreadcrumbJsonLd,
   buildCoworkingJsonLd,
   buildCoworkingMetadata,
   fetchCoworkingForSeo,
-  fetchCoworkingIdsForSitemap,
+  fetchCoworkingForSitemap,
 } from "@/lib/seo";
+import { coworkingPath, listingIdFromParam } from "@/utils/listingUrl";
 
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
-  const ids = await fetchCoworkingIdsForSitemap();
-  return ids.map((id) => ({ id }));
+  const spaces = await fetchCoworkingForSitemap();
+  return spaces.map((space) =>
+    ({ id: coworkingPath({ _id: space.id, title: space.title, location: { city: space.city } }).replace("/coworking/", "") })
+  );
 }
 
 export async function generateMetadata({
@@ -22,7 +25,8 @@ export async function generateMetadata({
 }: {
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
-  const { id } = await params;
+  const { id: param } = await params;
+  const id = listingIdFromParam(param);
   const { data: space } = await fetchCoworkingForSeo(id);
   if (!space) {
     return { title: "Coworking Space Not Found", robots: { index: false, follow: true } };
@@ -35,9 +39,15 @@ export default async function CoworkingDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
+  const { id: param } = await params;
+  const id = listingIdFromParam(param);
   const { data: space, notFound: missing } = await fetchCoworkingForSeo(id);
   if (missing) notFound();
+
+  if (space) {
+    const canonicalPath = coworkingPath({ ...space, _id: space._id || id });
+    if (`/coworking/${decodeURIComponent(param)}` !== canonicalPath) permanentRedirect(canonicalPath);
+  }
 
   return (
     <>

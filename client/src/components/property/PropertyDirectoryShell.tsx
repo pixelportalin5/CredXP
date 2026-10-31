@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef, type ReactNode } from "react";
 import Link from "next/link";
+import type { SelectOption } from "@/types/common";
 import { useRouter, useSearchParams } from "next/navigation";
 import PropertyCard from "@/components/property/PropertyCard";
 import { PropertyCardSkeleton } from "@/components/ui/Skeleton";
@@ -38,15 +39,19 @@ interface PropertyDirectoryShellProps {
   };
   /** Server-fetched first page for the unfiltered view, so crawlers see listings without JS. */
   initialData?: PropertyListResponse | null;
+  /** The query string initialData was fetched for ("" or "page=N"). */
+  initialQuery?: string;
+  /** Cities that have listings; defaults to the static list. */
+  cityOptions?: SelectOption[];
 }
 
-export default function PropertyDirectoryShell({ mode, basePath, hero, initialData = null }: PropertyDirectoryShellProps) {
+export default function PropertyDirectoryShell({ mode, basePath, hero, initialData = null, initialQuery = "", cityOptions }: PropertyDirectoryShellProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const filters = useMemo(() => filtersFromSearchParams(searchParams, mode), [searchParams, mode]);
   const searchQuery = searchParams.get("q") || "";
 
-  const useInitialData = Boolean(initialData) && searchParams.toString() === "";
+  const useInitialData = Boolean(initialData) && searchParams.toString() === initialQuery;
   const [properties, setProperties] = useState<Property[]>(useInitialData ? initialData?.properties || [] : []);
   const [pagination, setPagination] = useState<PaginationType | null>(useInitialData ? initialData?.pagination || null : null);
   const [loading, setLoading] = useState(!useInitialData);
@@ -91,6 +96,11 @@ export default function PropertyDirectoryShell({ mode, basePath, hero, initialDa
 
   const handleFilterChange = (newFilters: PropertyFiltersType) => {
     updateFilters(newFilters);
+  };
+
+  const hrefForPage = (page: number) => {
+    const query = searchParamsFromFilters({ ...filters, page }, searchQuery, mode).toString();
+    return query ? `${basePath}?${query}` : basePath;
   };
 
   const handlePageChange = (page: number) => {
@@ -166,6 +176,7 @@ export default function PropertyDirectoryShell({ mode, basePath, hero, initialDa
       <Container as="section" size="xl" className="py-10 lg:py-14">
         <div className="mb-8 flex items-center justify-between gap-4 xl:hidden">
           <PropertyDirectoryFilters
+            cityOptions={cityOptions}
             mode={mode}
             filters={filters}
             onChange={handleFilterChange}
@@ -179,6 +190,7 @@ export default function PropertyDirectoryShell({ mode, basePath, hero, initialDa
         <div className="grid gap-8 xl:grid-cols-[280px_minmax(0,1fr)]">
           <div className="hidden xl:block" id="property-filters">
             <PropertyDirectoryFilters
+            cityOptions={cityOptions}
               mode={mode}
               filters={filters}
               onChange={handleFilterChange}
@@ -231,7 +243,7 @@ export default function PropertyDirectoryShell({ mode, basePath, hero, initialDa
 
             {!loading && pagination && pagination.totalPages > 1 && (
               <div className="mt-10 rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm">
-                <Pagination pagination={pagination} onPageChange={handlePageChange} />
+                <Pagination pagination={pagination} onPageChange={handlePageChange} hrefForPage={hrefForPage} />
               </div>
             )}
           </div>

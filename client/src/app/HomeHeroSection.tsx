@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
 import { Container } from "@/components/ui/Container";
 import { CITIES, PROPERTY_TYPES, PRICE_RANGES, SIZE_RANGES, YIELD_RANGES } from "@/config/filters";
+import type { SelectOption } from "@/types/common";
 
 const goalCards = [
   {
@@ -42,17 +43,21 @@ const heroBackgrounds: Record<(typeof goalCards)[number]["key"], string> = {
   coworking: "/hero3.jpeg",
 };
 
-const heroPropertyTypes = [
-  ...PROPERTY_TYPES,
-  { label: "Coworking Space", value: "Coworking Space" },
-];
+const COWORKING_TYPE = { label: "Coworking Space", value: "Coworking Space" };
 
 const parseRange = (range: string) => {
   const [min = "", max = ""] = range.split(":");
   return { min, max };
 };
 
-export default function HomeHeroSection() {
+export default function HomeHeroSection({
+  cities = CITIES,
+  propertyTypes = PROPERTY_TYPES,
+}: {
+  cities?: SelectOption[];
+  propertyTypes?: SelectOption[];
+} = {}) {
+  const heroPropertyTypes = [...propertyTypes, COWORKING_TYPE];
   const router = useRouter();
   const [selectedGoal, setSelectedGoal] = useState<(typeof goalCards)[number]["key"]>("invest");
   const [activeTab, setActiveTab] = useState("All Properties");
@@ -214,7 +219,7 @@ export default function HomeHeroSection() {
               <div className="grid flex-1 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
                 <div className="space-y-1">
                   <label className="text-[11px] font-semibold uppercase tracking-wider text-white/80">Location</label>
-                  <Select className="glass-input rounded-xl text-slate-900" options={CITIES} placeholder="Select Location" value={city} onChange={(event) => setCity(event.target.value)} />
+                  <Select className="glass-input rounded-xl text-slate-900" options={cities} placeholder="Select Location" value={city} onChange={(event) => setCity(event.target.value)} />
                 </div>
                 <div className="space-y-1">
                   <label className="text-[11px] font-semibold uppercase tracking-wider text-white/80">Property Type</label>

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import type { CoworkingSpace } from "@/types/coworking";
 import { cn } from "@/utils/cn";
+import { coworkingPath } from "@/utils/listingUrl";
 
 interface CoworkingSpaceCardProps {
   space: CoworkingSpace;
@@ -21,7 +22,7 @@ export default function CoworkingSpaceCard({ space, compact = false, priorityIma
 
   return (
     <Card hover padding="none" className={cn("flex h-full flex-col overflow-hidden bg-white", className)}>
-      <Link href={`/coworking/${space._id}`} className="group block">
+      <Link href={coworkingPath(space)} className="group block">
         <div className={`relative overflow-hidden bg-slate-100 ${compact ? "aspect-[4/3]" : "h-56"}`}>
           <ImageWithSkeleton
             src={coverImage}
@@ -64,7 +65,7 @@ export default function CoworkingSpaceCard({ space, compact = false, priorityIma
           </div>
         )}
         <div className={`mt-auto flex flex-col gap-3 ${compact ? "mt-4" : "mt-5 sm:flex-row"}`}>
-          <Link href={`/coworking/${space._id}`} className="flex-1">
+          <Link href={coworkingPath(space)} className="flex-1">
             <Button variant="primary" size="sm" fullWidth iconRight={<ArrowRight className="h-4 w-4" />}>
               View Details
             </Button>

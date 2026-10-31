@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { listingIdFromParam } from "@/utils/listingUrl";
 import Link from "next/link";
 import { ArrowLeft, Building2, CheckCircle2, Clock, ExternalLink, MapPin, Users, Wifi } from "lucide-react";
 import { Container } from "@/components/ui/Container";
@@ -16,7 +17,8 @@ import { formatPrice, formatDate } from "@/utils/format";
 import type { CoworkingSpace } from "@/types/coworking";
 
 export default function CoworkingDetailClient({ initialSpace = null }: { initialSpace?: CoworkingSpace | null }) {
-  const { id } = useParams<{ id: string }>();
+  const { id: idParam } = useParams<{ id: string }>();
+  const id = listingIdFromParam(idParam);
   // Server-fetched data lets the first HTML response contain the full listing for crawlers.
   const [space, setSpace] = useState<CoworkingSpace | null>(initialSpace);
   const [loading, setLoading] = useState(!initialSpace);

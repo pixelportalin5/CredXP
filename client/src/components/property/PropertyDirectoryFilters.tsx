@@ -1,5 +1,6 @@
 "use client";
 
+import type { SelectOption } from "@/types/common";
 import { useState } from "react";
 import { SlidersHorizontal, X, MapPin } from "lucide-react";
 import { Select } from "@/components/ui/Select";
@@ -23,6 +24,7 @@ interface PropertyDirectoryFiltersProps {
   filters: PropertyFiltersType;
   onChange: (filters: PropertyFiltersType) => void;
   variant?: "desktop" | "mobile";
+  cityOptions?: SelectOption[];
 }
 
 export default function PropertyDirectoryFilters({
@@ -30,6 +32,7 @@ export default function PropertyDirectoryFilters({
   filters,
   onChange,
   variant = "desktop",
+  cityOptions = CITIES,
 }: PropertyDirectoryFiltersProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const isInvest = mode === "invest";
@@ -73,7 +76,7 @@ export default function PropertyDirectoryFilters({
         </div>
         <Select
           label="City"
-          options={CITIES}
+          options={cityOptions}
           value={filters.city || ""}
           onChange={(e) => updateFilter("city", e.target.value)}
           placeholder="All cities"
