@@ -119,12 +119,15 @@ export default function HomeHeroSection() {
       <Container size="xl" className="relative z-10">
         <div className="grid gap-12 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-center">
           <div className="max-w-2xl space-y-4 rounded-[1.5rem] border border-white/12 bg-slate-950/35 p-5 shadow-2xl backdrop-blur-md sm:space-y-6 sm:rounded-[2rem] sm:p-8 lg:space-y-8 lg:p-10 lg:py-12">
-            <h1 className="max-w-[620px] text-[1.85rem] font-extrabold leading-[1.08] tracking-tight text-white sm:text-[2.65rem] lg:text-[4.2rem] lg:leading-[1.02]">
+            <h1 className="text-[11px] font-bold uppercase tracking-widest text-white/80 sm:text-xs">
+              Pre-Leased Commercial Property, Offices &amp; Shops in Gurugram
+            </h1>
+            <p className="max-w-[620px] text-[1.85rem] font-extrabold leading-[1.08] tracking-tight text-white sm:text-[2.65rem] lg:text-[4.2rem] lg:leading-[1.02]">
               Premium Commercial
               <br />
               Real Estate.
               <span className="text-accent-500"> Delivered.</span>
-            </h1>
+            </p>
 
             <p className="max-w-[480px] text-sm leading-relaxed text-white/78 sm:text-lg">
               Pre-leased investments, Grade A office spaces. Flexible workspaces. All in one place.
@@ -165,7 +168,7 @@ export default function HomeHeroSection() {
             <div className="hidden flex-wrap items-center gap-4 pt-2 text-xs font-semibold text-white/82 sm:flex sm:gap-6 sm:pt-4">
               <span className="flex flex-row items-center gap-2.5">
                 <ShieldCheck className="h-6 w-6 text-white/72" />
-                <span className="text-left text-[11px] font-bold leading-tight text-white/82">Pre-Leased<br />Blue-chip Tenants</span>
+                <span className="text-left text-[11px] font-bold leading-tight text-white/82">Pre-Leased<br />Income Assets</span>
               </span>
               <span className="flex flex-row items-center gap-2.5">
                 <MapPin className="h-6 w-6 text-white/72" />
@@ -173,11 +176,11 @@ export default function HomeHeroSection() {
               </span>
               <span className="flex flex-row items-center gap-2.5">
                 <TrendingUp className="h-6 w-6 text-white/72" />
-                <span className="text-left text-[11px] font-bold leading-tight text-white/82">High Rental<br />Yields</span>
+                <span className="text-left text-[11px] font-bold leading-tight text-white/82">Rent &amp; Yield<br />Shown Upfront</span>
               </span>
               <span className="flex flex-row items-center gap-2.5">
                 <Landmark className="h-6 w-6 text-white/72" />
-                <span className="text-left text-[11px] font-bold leading-tight text-white/82">RERA<br />Registered</span>
+                <span className="text-left text-[11px] font-bold leading-tight text-white/82">Expert<br />Advisory</span>
               </span>
             </div>
           </div>

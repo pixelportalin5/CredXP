@@ -150,8 +150,12 @@ function buildPropertySnapshotRows(property) {
   if (Array.isArray(property.amenities) && property.amenities.length > 0) {
     pushField(rows, "amenities", "Amenities", property.amenities.join(", "));
   }
-  if (Array.isArray(property.highlights) && property.highlights.length > 0) {
-    pushField(rows, "highlights", "Highlights", property.highlights.join(" • "));
+  // "Broker: name phone" lines are staff-only and must not reach client proposals.
+  const highlights = Array.isArray(property.highlights)
+    ? property.highlights.filter((item) => !/^\s*broker\s*:/i.test(String(item)))
+    : [];
+  if (highlights.length > 0) {
+    pushField(rows, "highlights", "Highlights", highlights.join(" • "));
   }
 
   return rows;

@@ -33,6 +33,10 @@ export const mainNavLinks: NavLink[] = [
     label: "Insights",
   },
   {
+    href: "/guides",
+    label: "Guides",
+  },
+  {
     href: "/about",
     label: "About Us",
   },
@@ -52,14 +56,13 @@ export const footerLinks = {
   company: [
     { href: "/about", label: "About Us" },
     { href: "/contact", label: "Contact" },
-    { href: "/careers", label: "Careers" },
-    { href: "/partners", label: "Our Partners" },
   ],
   resources: [
-    { href: "/insights", label: "Insights" },
-    { href: "/downloads", label: "Downloads" },
-    { href: "/blog", label: "Blog" },
-    { href: "/market-reports", label: "Market Reports" },
+    // Downloads, Blog, Market Reports, Careers and Partners are placeholder pages;
+    // link them again once they have content.
+    { href: "/guides", label: "Investor Guides" },
+    { href: "/guides/pre-leased-property-due-diligence-checklist", label: "Due Diligence Checklist" },
+    { href: "/insights", label: "Market Insights" },
   ],
   legal: [
     { href: "/support", label: "Support" },

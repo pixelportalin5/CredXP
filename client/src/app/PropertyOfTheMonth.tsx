@@ -115,11 +115,11 @@ const propertyDetails = [
 
 const keyFeatures = [
   "Pre-leased asset with rental income from day one",
-  "Prime SPR Gurgaon location with high growth corridors",
-  "Zero vacancy risk — tenant already locked in",
-  "Strong capital appreciation potential",
-  "True passive income generation",
-  "Hassle-free, fully managed investment",
+  "Located on Gurgaon's Southern Peripheral Road (SPR) corridor",
+  "3-year lock-in on the current lease, as shared by the seller",
+  "Monthly rental income for as long as the lease runs",
+  "Lease, title and tenant documents shared on request",
+  "Independent, lockable unit",
 ];
 
 const revealViewport = { once: true, amount: 0.15 } as const;
@@ -356,8 +356,8 @@ export default function PropertyOfTheMonth() {
             Spaze Corporate Park
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-white/60">
-            A pre-leased, income-generating commercial asset in Gurgaon&apos;s fastest-appreciating
-            corridor — earning from day one.
+            A pre-leased commercial office on Gurgaon&apos;s Southern Peripheral Road (SPR) corridor,
+            with a tenant already paying rent.
           </p>
         </motion.div>
 
@@ -440,7 +440,7 @@ export default function PropertyOfTheMonth() {
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-white sm:text-lg">Smart Investment Calculator</h3>
-                  <p className="text-[11px] text-white/55">Compare your wealth outcome across asset classes</p>
+                  <p className="text-[11px] text-white/55">Illustrative comparison using assumed growth rates</p>
                 </div>
               </div>
 
@@ -542,7 +542,7 @@ export default function PropertyOfTheMonth() {
                       {outcome.dominant && (
                         <span className="absolute -top-3 left-1/2 inline-flex -translate-x-1/2 items-center gap-1 whitespace-nowrap rounded-full bg-yellow-400 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-950 shadow-lg shadow-yellow-400/40">
                           <Crown className="h-3 w-3" />
-                          Clear Winner
+                          Highest in this illustration
                         </span>
                       )}
 
@@ -659,9 +659,9 @@ export default function PropertyOfTheMonth() {
                 })}
               </div>
 
-              <p className="mt-5 text-center text-sm font-extrabold tracking-tight text-white sm:text-base">
-                Enjoy <span className="text-yellow-400">guaranteed rentals</span> plus{" "}
-                <span className="text-yellow-400">capital appreciation</span>.
+              <p className="mt-5 text-center text-xs leading-relaxed text-white/60 sm:text-sm">
+                Illustration only. Growth rates are assumptions, not forecasts, and returns are not guaranteed.
+                Rent depends on the tenant honouring the lease, and property values can fall as well as rise.
               </p>
             </div>
           </div>

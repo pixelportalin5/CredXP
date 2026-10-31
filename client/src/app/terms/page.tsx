@@ -2,7 +2,7 @@ import PlaceholderPage from "@/components/shared/PlaceholderPage";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Terms of Use | CredXP",
+  title: "Terms of Use",
   description: "CredXP terms of use and platform conditions.",
   robots: { index: false, follow: true },
 };

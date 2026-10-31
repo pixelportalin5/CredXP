@@ -168,6 +168,43 @@ export async function fetchCoworkingListForSeo(
   return fetchJson<CoworkingSpace[]>(`${getApiBaseUrl()}/coworking?${toQueryString(params)}`);
 }
 
+export interface ListingCounts {
+  investment: number;
+  lease: number;
+  coworking: number;
+}
+
+/**
+ * Live listing totals from the API. Returns null when any call fails, so
+ * callers can hide stats instead of showing made-up or zero values.
+ */
+export async function fetchListingCountsForSeo(): Promise<ListingCounts | null> {
+  const base = getApiBaseUrl();
+  const total = async (url: string): Promise<number | null> => {
+    try {
+      const response = await fetch(url, { next: { revalidate: DEFAULT_REVALIDATE_SECONDS } });
+      if (!response.ok) return null;
+      const json = (await response.json()) as {
+        pagination?: { totalItems?: number };
+        data?: { pagination?: { totalItems?: number } };
+      };
+      const value = json.data?.pagination?.totalItems ?? json.pagination?.totalItems;
+      return typeof value === "number" ? value : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const [investment, lease, coworking] = await Promise.all([
+    total(`${base}/properties?page=1&limit=1&category=investment`),
+    total(`${base}/properties?page=1&limit=1&category=lease`),
+    total(`${base}/coworking?page=1&limit=1`),
+  ]);
+
+  if (investment === null || lease === null || coworking === null) return null;
+  return { investment, lease, coworking };
+}
+
 export interface SitemapListing {
   id: string;
   updatedAt?: string;
@@ -282,7 +319,25 @@ export function buildOrganizationJsonLd() {
       addressRegion: "Haryana",
       addressCountry: "IN",
     },
-    areaServed: ["Gurugram", "Delhi NCR", "India"],
+    areaServed: [
+      { "@type": "City", name: "Gurugram" },
+      { "@type": "Place", name: "Delhi NCR" },
+    ],
+    contactPoint: {
+      "@type": "ContactPoint",
+      telephone: siteConfig.contact.phone,
+      email: siteConfig.contact.email,
+      contactType: "sales",
+      areaServed: "IN",
+      availableLanguage: ["en"],
+    },
+    knowsAbout: [
+      "Pre-leased commercial property",
+      "Commercial office leasing",
+      "Retail shop investment",
+      "Coworking and managed offices",
+      "Gurugram commercial real estate",
+    ],
     sameAs: Object.values(siteConfig.social),
   };
 }
@@ -372,12 +427,47 @@ export function buildCoworkingJsonLd(space: CoworkingSpace, id: string) {
   };
 }
 
+export function buildGuideJsonLd(guide: {
+  slug: string;
+  title: string;
+  description: string;
+  reviewed: string;
+  faqs: { question: string; answer: string }[];
+}) {
+  const url = absoluteUrl(`/guides/${guide.slug}`);
+  return [
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: guide.title,
+      description: guide.description,
+      url,
+      mainEntityOfPage: url,
+      dateModified: guide.reviewed,
+      inLanguage: "en-IN",
+      author: { "@id": `${siteConfig.url}/#organization` },
+      publisher: { "@id": `${siteConfig.url}/#organization` },
+      image: absoluteUrl(siteConfig.ogImage),
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: guide.faqs.map((faq) => ({
+        "@type": "Question",
+        name: faq.question,
+        acceptedAnswer: { "@type": "Answer", text: faq.answer },
+      })),
+    },
+  ];
+}
+
 export const PUBLIC_STATIC_ROUTES = [
   "/",
   "/invest",
   "/lease",
   "/coworking",
   "/insights",
+  "/guides",
   "/about",
   "/contact",
   "/compare",

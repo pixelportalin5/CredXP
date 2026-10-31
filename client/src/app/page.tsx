@@ -11,7 +11,7 @@ import LeadCaptureBar from "@/components/lead/LeadCaptureBar";
 import HomePageClient from "./HomePageClient";
 import HomeInsightsSection from "@/components/insights/HomeInsightsSection";
 import type { Metadata } from "next";
-import { defaultOpenGraph, fetchCoworkingListForSeo, fetchPropertyListForSeo } from "@/lib/seo";
+import { defaultOpenGraph, fetchCoworkingListForSeo, fetchListingCountsForSeo, fetchPropertyListForSeo } from "@/lib/seo";
 
 export const revalidate = 3600;
 
@@ -19,25 +19,26 @@ export const revalidate = 3600;
 const HOME_FEATURED_QUERY = { page: 1, limit: 20, sort: "newest", category: "investment" };
 const HOME_COWORKING_QUERY = { limit: 4, sort: "featured" };
 
-const HOME_TITLE = "Commercial Real Estate, Pre-Leased Shops & Premium Office Rentals";
+const HOME_TITLE = "Pre-Leased Commercial Property & Office Space in Gurugram";
 const HOME_DESCRIPTION =
-  "Discover pre-leased commercial shops, premium office rentals, SCO investments, and enterprise office leasing with CredXP — India's commercial real estate marketplace.";
+  "Buy pre-leased offices and shops or lease office and retail space in Gurugram and Delhi NCR. See rent, lease terms and gross yield for each listing, then talk to a CredXP advisor.";
 
 export const metadata: Metadata = {
   title: HOME_TITLE,
   description: HOME_DESCRIPTION,
   alternates: { canonical: "/" },
   openGraph: defaultOpenGraph(
-    "CredXP | Pre-Leased Commercial Shops & Premium Office Rentals",
-    "Buy pre-leased commercial shops and lease premium offices across Gurugram, Delhi NCR, and India's top business districts.",
+    "CredXP | Pre-Leased Commercial Property & Office Space in Gurugram",
+    "Buy pre-leased offices and shops or lease commercial space in Gurugram and Delhi NCR, with rent, lease terms and gross yield shown for each listing.",
     "/"
   ),
 };
 
 export default async function HomePage() {
-  const [featured, coworkingSpaces] = await Promise.all([
+  const [featured, coworkingSpaces, listingCounts] = await Promise.all([
     fetchPropertyListForSeo(HOME_FEATURED_QUERY),
     fetchCoworkingListForSeo(HOME_COWORKING_QUERY),
+    fetchListingCountsForSeo(),
   ]);
 
   return (
@@ -46,7 +47,7 @@ export default async function HomePage() {
 
       <PropertyOfTheMonth />
 
-      <HomeStatsSection />
+      <HomeStatsSection counts={listingCounts} />
 
       <HomePageClient
         initialProperties={featured?.properties ?? null}

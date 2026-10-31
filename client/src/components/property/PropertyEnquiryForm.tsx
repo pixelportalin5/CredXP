@@ -9,6 +9,7 @@ import { useAuth } from "@/components/providers/AuthProvider";
 import { useToast } from "@/components/providers/ToastProvider";
 import enquiryService from "@/services/enquiry.service";
 import { siteConfig } from "@/config/site";
+import { trackEvent } from "@/lib/analytics";
 
 /* ============================================================
    PropertyEnquiryForm — Lead Capture for Property Detail
@@ -44,6 +45,10 @@ export default function PropertyEnquiryForm({ propertyTitle, propertyId, coworki
           coworkingSpaceId,
         });
         form.reset();
+        trackEvent("generate_lead", {
+          form: subjectType === "coworking" ? "coworking_enquiry" : "property_enquiry",
+          listing_id: propertyId || coworkingSpaceId,
+        });
         setFormSubmitted(true);
         showToast({ type: "success", title: "Enquiry submitted", message: "The seller team will follow up shortly." });
         window.setTimeout(() => setFormSubmitted(false), 5000);
@@ -53,7 +58,7 @@ export default function PropertyEnquiryForm({ propertyTitle, propertyId, coworki
         setLoading(false);
       }
     },
-    [coworkingSpaceId, propertyId, showToast]
+    [coworkingSpaceId, propertyId, showToast, subjectType]
   );
 
   const fieldId = propertyId || coworkingSpaceId || "lead";

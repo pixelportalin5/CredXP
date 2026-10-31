@@ -6,6 +6,7 @@ import {
   fetchPropertiesForSitemap,
   type SitemapListing,
 } from "@/lib/seo";
+import { guides } from "@/content/guides";
 
 // Static routes are always returned. Listing URLs are appended best-effort:
 // if the API is slow or down, the sitemap still serves the static routes.
@@ -25,6 +26,7 @@ const STATIC_ROUTE_SETTINGS: Partial<
   "/invest": { changeFrequency: "daily", priority: 0.9 },
   "/lease": { changeFrequency: "daily", priority: 0.9 },
   "/coworking": { changeFrequency: "weekly", priority: 0.8 },
+  "/guides": { changeFrequency: "monthly", priority: 0.7 },
   "/privacy-policy": { changeFrequency: "yearly", priority: 0.3 },
 };
 
@@ -69,5 +71,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
   ];
 
-  return [...staticRoutes, ...listingRoutes];
+  const guideRoutes: MetadataRoute.Sitemap = guides.map((guide) => ({
+    url: `${baseUrl}/guides/${guide.slug}`,
+    lastModified: new Date(`${guide.reviewed}T00:00:00Z`),
+    changeFrequency: "monthly" as const,
+    priority: 0.6,
+  }));
+
+  return [...staticRoutes, ...guideRoutes, ...listingRoutes];
 }

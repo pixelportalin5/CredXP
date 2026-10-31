@@ -2,7 +2,7 @@ import PlaceholderPage from "@/components/shared/PlaceholderPage";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | CredXP",
+  title: "Privacy Policy",
   description: "CredXP privacy policy and data handling practices.",
   robots: { index: false, follow: true },
 };

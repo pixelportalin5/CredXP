@@ -1,3 +1,4 @@
+import { publicHighlights } from "@/utils/publicHighlights";
 import { formatPriceCompact, formatPricePerSqft, formatSize, formatYield } from "@/utils/format";
 import type { ProposalAgent, ProposalField } from "@/types/proposal";
 import type { Property } from "@/types/property";
@@ -89,7 +90,8 @@ export function buildPropertySnapshotRows(property: Property): ProposalField[] {
   }
 
   if (property.amenities?.length) pushField(rows, "amenities", "Amenities", property.amenities.join(", "));
-  if (property.highlights?.length) pushField(rows, "highlights", "Highlights", property.highlights.join(" • "));
+  const highlights = publicHighlights(property.highlights);
+  if (highlights.length) pushField(rows, "highlights", "Highlights", highlights.join(" • "));
 
   return rows;
 }

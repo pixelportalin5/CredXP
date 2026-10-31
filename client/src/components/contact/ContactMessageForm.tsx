@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { EnterpriseInput, EnterpriseSelect, EnterpriseTextarea, FormField } from "@/components/forms/EnterpriseForm";
 import { useToast } from "@/components/providers/ToastProvider";
 import contactService from "@/services/contact.service";
+import { trackEvent } from "@/lib/analytics";
 
 const enquiryTypeOptions = [
   { label: "Investment Advisory", value: "Investment Advisory" },
@@ -47,6 +48,7 @@ export default function ContactMessageForm() {
         message: String(formData.get("message") || ""),
       });
       form.reset();
+      trackEvent("generate_lead", { form: "contact", enquiry_type: String(formData.get("enquiryType") || "") });
       showToast({
         type: "success",
         title: "Message sent",

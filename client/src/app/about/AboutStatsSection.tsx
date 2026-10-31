@@ -1,21 +1,14 @@
 "use client";
 
-import AnimatedStatsGrid, { parseStatValue } from "@/components/shared/AnimatedStatsGrid";
+import AnimatedStatsGrid from "@/components/shared/AnimatedStatsGrid";
 import ScrollReveal from "@/components/motion/ScrollReveal";
-import { siteConfig } from "@/config/site";
+import { buildListingStats } from "@/app/HomeStatsSection";
+import type { ListingCounts } from "@/lib/seo";
 
-const stats = siteConfig.stats.map((stat) => {
-  const parsed = parseStatValue(stat.value);
-  return {
-    label: stat.label,
-    value: stat.value,
-    prefix: parsed.prefix,
-    suffix: parsed.suffix,
-    numericValue: parsed.numeric,
-  };
-});
+export default function AboutStatsSection({ counts }: { counts: ListingCounts | null }) {
+  if (!counts || counts.investment + counts.lease + counts.coworking === 0) return null;
 
-export default function AboutStatsSection() {
+  const stats = buildListingStats(counts).map(({ label, numericValue }) => ({ label, numericValue }));
   return (
     <ScrollReveal>
       <AnimatedStatsGrid stats={stats} variant="dark-card" columns={4} />

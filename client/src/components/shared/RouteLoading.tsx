@@ -1,5 +1,7 @@
 /* ============================================================
-   Loading — Root Loading State
+   Loading — shared spinner for signed-in areas.
+   Not used at the app root: a root loading.tsx makes crawlers see
+   "Loading…" in place of public page content.
    ============================================================ */
 
 export default function Loading() {

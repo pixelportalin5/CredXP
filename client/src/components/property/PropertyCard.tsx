@@ -169,7 +169,7 @@ export default function PropertyCard({ property, variant = "default", priorityIm
         ) : null}
 
         <p className="line-clamp-1 text-xs text-slate-500">
-          Tenant: {tenant?.name || "Blue-chip tenant mix"}
+          Tenant: {tenant?.name || "Details on request"}
         </p>
       </div>
     </article>

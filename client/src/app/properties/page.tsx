@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+import { permanentRedirect } from "next/navigation";
 import { resolvePropertiesRedirect } from "@/utils/propertyFilterParams";
 
 export default async function PropertiesPage({
@@ -17,5 +17,5 @@ export default async function PropertiesPage({
     }
   });
 
-  redirect(resolvePropertiesRedirect(urlParams));
+  permanentRedirect(resolvePropertiesRedirect(urlParams));
 }

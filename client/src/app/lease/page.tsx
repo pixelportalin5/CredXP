@@ -9,9 +9,9 @@ import { filtersFromSearchParams, filtersToApiParams } from "@/utils/propertyFil
 export const revalidate = 3600;
 
 const PAGE_METADATA: Metadata = {
-  title: "Premium Office Rentals & Retail Space for Lease",
+  title: "Office Space & Commercial Shops for Rent in Gurugram",
   description:
-    "Find premium office rentals, high-street retail shops, furnished suites, and bare-shell commercial space for lease across India's top business corridors.",
+    "Find office space, furnished suites, bare-shell floors and retail shops for rent in Gurugram and Delhi NCR. Share your space requirement and a CredXP advisor will shortlist options.",
   alternates: { canonical: "/lease" },
 };
 
@@ -50,7 +50,8 @@ export default async function LeasePage() {
               Leasing Directory
             </Badge>
           ),
-          title: "Office and Retail Spaces for Lease",
+          title: "Office Space & Shops for Rent in Gurugram",
+          footnote: { label: "Leasing an office? See what to check first", href: "/guides/leasing-office-space-in-gurugram" },
           description:
             "Furnished offices, bare shell floors, and high-street retail units ready for enterprise occupancy and brand expansion.",
         }}

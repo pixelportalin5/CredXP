@@ -7,7 +7,7 @@ export const siteConfig = {
   name: "CredXP",
   tagline: "Premium Commercial Real Estate. Delivered.",
   description:
-    "CredXP is a commercial real estate platform for pre-leased commercial shops, premium office rentals, SCO investments, and enterprise office leasing across India's top business districts.",
+    "CredXP is a Gurugram-based commercial real estate advisory and marketplace for pre-leased commercial property, office spaces for sale or lease, retail shops and coworking across Delhi NCR.",
   keywords: [
     "commercial real estate services",
     "pre-leased commercial shops",
@@ -37,17 +37,11 @@ export const siteConfig = {
   },
 
   legal: {
-    rera: "RERA No.: HRERA-GRG-RELA-1234–2026",
+    // Owner to supply the real HRERA registration number. Left empty, nothing is shown.
+    rera: "",
     companyName: "CredXP Prop-Tech Pvt. Ltd.",
     cin: "",
   },
-
-  stats: [
-    { value: "50M+", label: "Sq. Ft. Portfolio" },
-    { value: "200+", label: "Assets" },
-    { value: "150+", label: "Blue-Chip Tenants" },
-    { value: "15+", label: "Coworking Partners" },
-  ],
 
   trustPartners: [
     "WeWork",

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { publicHighlights } from "@/utils/publicHighlights";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -159,8 +160,9 @@ export default function PropertyDetailClient({ initialProperty = null }: { initi
   };
 
   const detailTabs = ["Overview", "Details", "Tenant Profile", "Financials", "Documents", "Location"];
-  const keyHighlights = highlights && highlights.length > 0
-    ? highlights
+  const visibleHighlights = publicHighlights(highlights);
+  const keyHighlights = visibleHighlights.length > 0
+    ? visibleHighlights
     : [
         `${formatSize(size)} commercial space`,
         `${occupancy ? `${occupancy}% occupied` : "Occupancy available on request"}`,
@@ -174,8 +176,8 @@ export default function PropertyDetailClient({ initialProperty = null }: { initi
     "Connectivity details available on request",
   ];
   const tenantRows = [
-    { label: "Tenant", value: tenant?.name || "Blue-chip tenant mix" },
-    { label: "Industry", value: tenant?.industry || "Enterprise occupiers" },
+    { label: "Tenant", value: tenant?.name || "Shared on request" },
+    { label: "Industry", value: tenant?.industry || "Shared on request" },
     { label: "Lease Expiry", value: tenant?.leaseExpiry || "—" },
     { label: "Lock-in", value: tenant?.lockInPeriod || "—" },
     { label: "Occupancy", value: occupancy ? `${occupancy}%` : "—" },
@@ -184,7 +186,7 @@ export default function PropertyDetailClient({ initialProperty = null }: { initi
   const financialRows = [
     { label: "Price", value: formatPrice(price) },
     { label: "Price per Sqft", value: formatPricePerSqft(price, size) },
-    { label: "Rental Yield", value: financials?.rentalYield ? formatYield(financials.rentalYield) : "—" },
+    { label: "Gross Rental Yield", value: financials?.rentalYield ? formatYield(financials.rentalYield) : "—" },
     { label: "Cap Rate", value: financials?.capRate ? `${financials.capRate.toFixed(2)}%` : "—" },
     { label: "Security Deposit", value: financials?.securityDeposit ? formatPrice(financials.securityDeposit) : "—" },
     { label: "Escalation", value: financials?.escalation || "—" },

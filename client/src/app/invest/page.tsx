@@ -9,9 +9,9 @@ import { filtersFromSearchParams, filtersToApiParams } from "@/utils/propertyFil
 export const revalidate = 3600;
 
 const PAGE_METADATA: Metadata = {
-  title: "Invest in Pre-Leased Commercial Shops & Offices",
+  title: "Pre-Leased Commercial Property for Sale in Gurugram",
   description:
-    "Browse pre-leased commercial shops, pre-leased offices, and SCO investments with verified tenants, rental yields, and institutional-grade due diligence.",
+    "Browse pre-leased offices, shops and SCO units for sale in Gurugram and Delhi NCR. Compare price, monthly rent, lease terms and gross rental yield, then enquire with a CredXP advisor.",
   alternates: { canonical: "/invest" },
 };
 
@@ -50,9 +50,10 @@ export default async function InvestPage() {
               Investment Directory
             </Badge>
           ),
-          title: "Pre-Leased and Investment-Grade Assets",
+          title: "Pre-Leased Commercial Property for Sale in Gurugram",
           description:
-            "Income-producing offices, retail units, and SCO assets with blue-chip tenants across India's top commercial micromarkets.",
+            "Offices, shops and SCO units that already have a paying tenant. Yields shown are gross, based on figures shared by the seller; ask us for the lease and title documents before you decide.",
+          footnote: { label: "New to pre-leased property? Read the due diligence checklist", href: "/guides/pre-leased-property-due-diligence-checklist" },
         }}
       />
     </Suspense>

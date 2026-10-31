@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef, type ReactNode } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import PropertyCard from "@/components/property/PropertyCard";
 import { PropertyCardSkeleton } from "@/components/ui/Skeleton";
@@ -32,6 +33,8 @@ interface PropertyDirectoryShellProps {
     title: string;
     description: string;
     stats?: { label: string; value: string | number }[];
+    /** Optional link shown under the description, e.g. to a related guide. */
+    footnote?: { label: string; href: string };
   };
   /** Server-fetched first page for the unfiltered view, so crawlers see listings without JS. */
   initialData?: PropertyListResponse | null;
@@ -109,15 +112,12 @@ export default function PropertyDirectoryShell({ mode, basePath, hero, initialDa
           numericValue: typeof totalItems === "number" ? totalItems : undefined,
           value: totalItems != null ? String(totalItems) : "—",
         },
-        { label: "Markets", value: "8+", prefix: "", suffix: "+", numericValue: 8 },
-        {
-          label: mode === "invest" ? "Yields" : "Operators",
-          value: mode === "invest" ? "7%+" : "15+",
-          prefix: "",
-          suffix: mode === "invest" ? "%+" : "+",
-          numericValue: mode === "invest" ? 7 : 15,
-        },
-        { label: "Cities", value: "10+", prefix: "", suffix: "+", numericValue: 10 },
+        // Descriptive facts only; no marketing figures that can't be verified.
+        { label: "Focus", value: "Gurugram & NCR" },
+        mode === "invest"
+          ? { label: "Yield Basis", value: "Gross, per seller" }
+          : { label: "Space Types", value: "Office & Retail" },
+        { label: "Enquire", value: "Call or WhatsApp" },
       ];
 
   return (
@@ -131,6 +131,11 @@ export default function PropertyDirectoryShell({ mode, basePath, hero, initialDa
                 {hero.title}
               </h1>
               <p className="mt-3 max-w-2xl text-white/72">{hero.description}</p>
+              {hero.footnote ? (
+                <Link href={hero.footnote.href} className="mt-3 inline-block text-sm font-medium text-accent-400 hover:underline">
+                  {hero.footnote.label} →
+                </Link>
+              ) : null}
             </div>
 
             <AnimatedStatsGrid stats={stats} variant="dark-card" columns={4} className="lg:min-w-[560px]" />

@@ -51,7 +51,9 @@ export function useCountUp({
     return () => cancelAnimationFrame(frameId);
   }, [end, duration, start, enabled, decimals, prefersReducedMotion]);
 
-  if (!enabled) return start;
+  // Before the animation runs (including server render) show the real value,
+  // so crawlers and no-JS readers never see a 0.
+  if (!enabled) return end;
   if (prefersReducedMotion) return end;
   return value;
 }

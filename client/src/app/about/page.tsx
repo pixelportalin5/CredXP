@@ -9,15 +9,21 @@ import {
   TrendingUp, Globe, Award, Handshake,
 } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
+import { fetchListingCountsForSeo } from "@/lib/seo";
+
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "About CredXP – India's CRE Intelligence Platform",
+  title: "About CredXP – Commercial Real Estate Advisory in Gurugram",
   description:
-    "Learn about CredXP's mission to transform commercial real estate discovery for investors, corporate tenants, and asset managers across India.",
+    "CredXP is a Gurugram-based commercial real estate advisory and marketplace helping investors buy pre-leased property and businesses lease offices and shops across Delhi NCR.",
   alternates: { canonical: "/about" },
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const counts = await fetchListingCountsForSeo();
+
   return (
     <>
       <section className="blue-hero-bg border-b border-white/10 py-16 text-white lg:py-24">
@@ -29,14 +35,41 @@ export default function AboutPage() {
             Transforming Commercial <span className="text-accent-500">Real Estate Discovery</span>
           </h1>
           <p className="mx-auto mt-6 max-w-3xl text-lg leading-relaxed text-white/72">
-            CredXP is India&apos;s premium commercial real estate intelligence platform, connecting investors, occupiers, and advisors with structured property discovery and institutional market data.
+            CredXP is a commercial real estate advisory and property marketplace based in Gurugram, Haryana. We help investors find pre-leased offices and shops, and help businesses find office, retail and coworking space across Gurugram and Delhi NCR.
           </p>
         </Container>
       </section>
 
       <section className="border-b border-slate-200 bg-slate-50 py-14">
         <Container size="md">
-          <AboutStatsSection />
+          <AboutStatsSection counts={counts} />
+        </Container>
+      </section>
+
+      <section className="border-b border-slate-200 bg-white py-14">
+        <Container size="md">
+          <h2 className="text-2xl font-semibold text-slate-900 sm:text-3xl">What CredXP Does</h2>
+          <ul className="mt-6 space-y-3 text-slate-700">
+            <li>
+              <strong>Pre-leased property investment:</strong> we list commercial offices and shops that already have a
+              tenant, along with the rent, lease terms and gross yield the seller has shared.{" "}
+              <Link href="/invest" className="text-accent-500 hover:underline">Browse investment listings</Link>.
+            </li>
+            <li>
+              <strong>Office and retail leasing:</strong> we help businesses find office space and shops to rent in
+              Gurugram.{" "}
+              <Link href="/lease" className="text-accent-500 hover:underline">See spaces for lease</Link>.
+            </li>
+            <li>
+              <strong>Coworking:</strong> we work with flexible-workspace operators to match teams with coworking and
+              managed offices.{" "}
+              <Link href="/coworking" className="text-accent-500 hover:underline">View coworking spaces</Link>.
+            </li>
+            <li>
+              <strong>Investor education:</strong> plain-English guides on yields, leases and due diligence.{" "}
+              <Link href="/guides" className="text-accent-500 hover:underline">Read the guides</Link>.
+            </li>
+          </ul>
         </Container>
       </section>
 
@@ -62,7 +95,7 @@ export default function AboutPage() {
           <div className="mb-10 text-center">
             <h2 className="text-2xl font-semibold text-slate-900 sm:text-3xl">Who We Serve</h2>
             <p className="mt-3 text-slate-600">
-              Trusted by India&apos;s most discerning commercial real estate stakeholders.
+              The people and teams we help find, evaluate and secure commercial space.
             </p>
           </div>
 

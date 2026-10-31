@@ -9,6 +9,7 @@ import {
   fetchPropertyForSeo,
   fetchPropertyIdsForSitemap,
 } from "@/lib/seo";
+import { publicHighlights } from "@/utils/publicHighlights";
 
 export const revalidate = 3600;
 
@@ -36,8 +37,10 @@ export default async function PropertyDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { data: property, notFound: missing } = await fetchPropertyForSeo(id);
+  const { data: fetched, notFound: missing } = await fetchPropertyForSeo(id);
   if (missing) notFound();
+  // Keep staff-only broker lines out of the HTML payload sent to the browser.
+  const property = fetched ? { ...fetched, highlights: publicHighlights(fetched.highlights) } : null;
 
   return (
     <>

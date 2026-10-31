@@ -2,7 +2,7 @@ import type { PropertyType } from "@/types/property";
 import type { ProposalDetailFields, ProposalOverviewFields } from "@/types/proposal";
 
 export const WHO_ARE_WE_COPY =
-  "CredXP is India's premium commercial real estate intelligence platform — delivering pre-leased investments, enterprise office leasing, and institutional-grade property discovery with transparent, investor-first advisory.";
+  "CredXP is a Gurugram-based commercial real estate advisory and marketplace for pre-leased investments, office and retail leasing, and coworking, with transparent, investor-first advice.";
 
 export const TRUST_FOOTER_ITEMS = [
   { label: "Trusted by Investors", sublabel: "Institutional-grade deals" },

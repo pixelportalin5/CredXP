@@ -6,6 +6,7 @@ import Footer from "@/components/layout/Footer";
 import ScrollToTop from "@/components/layout/ScrollToTop";
 import { AppProviders } from "@/components/providers/AppProviders";
 import JsonLd from "@/components/seo/JsonLd";
+import Analytics from "@/components/analytics/Analytics";
 import { buildDefaultMetadata, buildOrganizationJsonLd, buildWebsiteJsonLd } from "@/lib/seo";
 import type { Metadata } from "next";
 
@@ -40,6 +41,7 @@ export default function RootLayout({
           <MainContent>{children}</MainContent>
           <Footer />
         </AppProviders>
+        <Analytics />
       </body>
     </html>
   );
