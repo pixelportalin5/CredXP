@@ -308,7 +308,12 @@ export function buildOrganizationJsonLd() {
     name: siteConfig.name,
     legalName: siteConfig.legal.companyName,
     url: siteConfig.url,
-    logo: `${siteConfig.url}/logos/Credxp.webp`,
+    logo: {
+      "@type": "ImageObject",
+      url: `${siteConfig.url}/logos/credxp-logo-square.png`,
+      width: 512,
+      height: 512,
+    },
     image: `${siteConfig.url}${siteConfig.ogImage}`,
     description: siteConfig.description,
     email: siteConfig.contact.email,
@@ -346,8 +351,12 @@ export function buildWebsiteJsonLd() {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
+    "@id": `${siteConfig.url}/#website`,
+    // Google uses name / alternateName for the site name shown in results.
     name: siteConfig.name,
-    url: getSiteUrl(),
+    alternateName: ["CredXp", "CredXP Prop-Tech"],
+    url: `${siteConfig.url}/`,
+    inLanguage: "en-IN",
     description: siteConfig.description,
     publisher: { "@id": `${siteConfig.url}/#organization` },
   };
