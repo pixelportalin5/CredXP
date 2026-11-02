@@ -1,6 +1,29 @@
 const propertyService = require("../services/propertyService");
 const bulkPropertyService = require("../services/bulkPropertyService");
+const jwt = require("jsonwebtoken");
 const ApiError = require("../utils/ApiError");
+const { resolveAuthUser } = require("../lib/resolveAuthUser");
+
+/** Signed-in user from the Authorization header, or null. Never fails the request. */
+async function viewerFromRequest(req) {
+  const header = req.headers.authorization || "";
+  if (!header.startsWith("Bearer ")) return null;
+  try {
+    const decoded = jwt.verify(header.slice(7), process.env.JWT_SECRET);
+    const user = await resolveAuthUser(decoded.id);
+    return user && user.accountStatus !== "disabled" ? user : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Unpublished drafts are visible only to staff and the listing's own seller. */
+function canViewDraft(property, user) {
+  if (!user) return false;
+  if (["admin", "employee"].includes(user.role)) return true;
+  const ownerId = property.seller ? String(property.seller._id || property.seller) : "";
+  return Boolean(ownerId) && [user._id, user.id].filter(Boolean).map(String).includes(ownerId);
+}
 
 /**
  * @desc   Get all properties (with pagination & filters)
@@ -52,6 +75,10 @@ const getPropertyById = async (req, res, next) => {
     const property = await propertyService.getById(req.params.id);
 
     if (!property) {
+      throw new ApiError(404, "Property not found");
+    }
+
+    if (property.listingStatus === "draft" && !canViewDraft(property, await viewerFromRequest(req))) {
       throw new ApiError(404, "Property not found");
     }
 
