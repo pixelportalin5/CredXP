@@ -186,6 +186,9 @@ model Property {
   views              Int                 @default(0)
   enquiryCount       Int                 @default(0) @map("enquiry_count")
   listingStatus      PropertyListingStatus @default(published) @map("listing_status")
+  /// Zoho CRM record id; set for listings synced from Zoho.
+  zohoId             String?             @unique @map("zoho_id")
+  zohoLastSync       DateTime?           @map("zoho_last_sync")
   createdAt          DateTime            @default(now()) @map("created_at")
   updatedAt          DateTime            @updatedAt @map("updated_at")
 

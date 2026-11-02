@@ -73,6 +73,10 @@ function pick(record, keys) {
 
 function asString(value, fallback = "") {
   if (value === undefined || value === null) return fallback;
+  // Zoho lookup / user fields arrive as { name, id }.
+  if (typeof value === "object" && !Array.isArray(value)) {
+    return value.name ? String(value.name).trim() : fallback;
+  }
   return String(value).trim();
 }
 
@@ -261,11 +265,7 @@ function mapZohoRecordToProperty(rawBody) {
   const securityDepositMonths = asNumber(
     pick(record, ["securityDepositMonths", "Security_Deposit_Months", "financials.securityDepositMonths"])
   );
-  const priceUnitRaw = asString(
-    pick(record, ["priceUnit", "Price_Unit", "financials.priceUnit"]),
-    "total"
-  ).toLowerCase();
-  const priceUnit = ALLOWED_PRICE_UNITS.has(priceUnitRaw) ? priceUnitRaw : "total";
+  const priceUnitRaw = asString(pick(record, ["priceUnit", "Price_Unit", "financials.priceUnit"])).toLowerCase();
 
   const floors = asNumber(pick(record, ["floors", "Floor", "Floor_Number", "specs.floors"]));
   const totalFloors = asNumber(pick(record, ["totalFloors", "Total_Floors", "specs.totalFloors"]));
@@ -318,18 +318,34 @@ function mapZohoRecordToProperty(rawBody) {
     pick(record, ["buildingName", "Building_Name", "Project_Name", "Building"])
   );
 
+  // Lease listings need month/year and sale listings need total, or the
+  // /lease and /invest pages filter them out.
+  const priceUnit = ALLOWED_PRICE_UNITS.has(priceUnitRaw)
+    ? priceUnitRaw
+    : type === "Office Space"
+      ? "month"
+      : "total";
+
   const featured = asBoolean(pick(record, ["featured", "Featured", "Is_Featured"])) ?? false;
-  const isActive = asBoolean(pick(record, ["isActive", "Is_Active", "Active"])) ?? true;
+  const activeFlag = asBoolean(pick(record, ["isActive", "Is_Active", "Active"])) ?? true;
 
   const listingStatusRaw = asString(
-    pick(record, ["listingStatus", "Listing_Status", "Publish_Status"]),
-    "published"
+    pick(record, ["listingStatus", "Listing_Status", "Publish_Status"])
   ).toLowerCase();
-  const listingStatus = ALLOWED_LISTING_STATUS.has(listingStatusRaw)
-    ? listingStatusRaw
-    : asBoolean(pick(record, ["Publish_to_Website", "Publish_To_Website"])) === false
+  const publishToWebsite = asBoolean(
+    pick(record, ["publishToWebsite", "Publish_to_Website", "Publish_To_Website", "publish_to_website"])
+  );
+  // An explicit "Publish to Website" checkbox wins; otherwise use the status
+  // field; listings default to published.
+  const listingStatus =
+    publishToWebsite === false
       ? "draft"
-      : "published";
+      : ALLOWED_LISTING_STATUS.has(listingStatusRaw)
+        ? listingStatusRaw
+        : "published";
+
+  // Unpublished or inactive in Zoho = hidden on the website.
+  const isActive = activeFlag && listingStatus === "published";
 
   const statusRaw = asString(pick(record, ["status", "Status", "Display_Status"]), "Recently Posted");
   const status = ALLOWED_STATUS.has(statusRaw) ? statusRaw : "Recently Posted";

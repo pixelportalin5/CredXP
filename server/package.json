@@ -42,7 +42,8 @@
     "audit:properties": "node scripts/audit-property-listings.js",
     "assign:properties-admin": "node scripts/assign-properties-to-admin.js",
     "validate:property-status": "node scripts/validate-property-status-enum.js",
-    "backfill:june2026-images": "node scripts/backfill-june2026-rent-images.js"
+    "backfill:june2026-images": "node scripts/backfill-june2026-rent-images.js",
+    "zoho:import": "node scripts/zoho-import.js"
   },
   "keywords": [],
   "author": "",

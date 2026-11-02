@@ -30,6 +30,7 @@ import { PageLoader } from "@/components/ui/PageLoader";
 import { AdminSectionSkeleton } from "@/components/ui/Skeleton";
 import { EnterpriseInput } from "@/components/forms/EnterpriseForm";
 import PropertyListingForm from "@/components/property/PropertyListingForm";
+import ZohoSyncPanel from "@/components/admin/ZohoSyncPanel";
 import CoworkingListingForm from "@/components/coworking/CoworkingListingForm";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useToast } from "@/components/providers/ToastProvider";
@@ -759,6 +760,14 @@ export default function AdminDashboardPage() {
 
             {activeSection === "properties" && (
               <div className="space-y-4">
+                {portal === "admin" && (
+                  <ZohoSyncPanel
+                    onImported={() => {
+                      invalidateSection("properties");
+                      fetchSection("properties");
+                    }}
+                  />
+                )}
                 {filteredProperties.map((property) => (
                   <Card key={property._id} padding="md" className="border-slate-200 bg-white shadow-sm">
                     <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
