@@ -12,7 +12,7 @@ export const revalidate = 3600;
 
 const TITLE = "Commercial Property in Gurugram by Location";
 const DESCRIPTION =
-  "Pre-leased offices and shops for sale, and office and retail space for rent, across Gurugram's main commercial areas: DLF Phases, MG Road, Sohna Road, Udyog Vihar and more.";
+  "Pre-leased offices, bank-leased properties and retail/SCO units for sale, and office and retail space for rent, across Gurugram's main commercial areas: DLF Phases, MG Road, Sohna Road, Udyog Vihar and more.";
 
 export const metadata: Metadata = {
   title: TITLE,

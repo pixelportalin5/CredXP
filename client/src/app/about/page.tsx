@@ -17,7 +17,7 @@ export const revalidate = 3600;
 export const metadata: Metadata = {
   title: "About CredXP – Commercial Real Estate Advisory in Gurugram",
   description:
-    "CredXP is a Gurugram-based commercial real estate advisory and marketplace helping investors buy pre-leased property and businesses lease offices and shops across Delhi NCR.",
+    "CredXP is a Gurugram-based commercial real estate advisory and marketplace helping investors buy pre-leased property and businesses lease offices and retail space across Delhi NCR.",
   alternates: { canonical: "/about" },
 };
 
@@ -35,7 +35,7 @@ export default async function AboutPage() {
             Transforming Commercial <span className="text-accent-500">Real Estate Discovery</span>
           </h1>
           <p className="mx-auto mt-6 max-w-3xl text-lg leading-relaxed text-white/72">
-            CredXP is a commercial real estate advisory and property marketplace based in Gurugram, Haryana. We help investors find pre-leased offices and shops, and help businesses find office, retail and coworking space across Gurugram and Delhi NCR.
+            CredXP is a commercial real estate advisory and property marketplace based in Gurugram, Haryana. We help investors find pre-leased offices, bank-leased properties and retail/SCO units, and help businesses find office, retail and coworking space across Gurugram and Delhi NCR.
           </p>
         </Container>
       </section>
@@ -51,12 +51,12 @@ export default async function AboutPage() {
           <h2 className="text-2xl font-semibold text-slate-900 sm:text-3xl">What CredXP Does</h2>
           <ul className="mt-6 space-y-3 text-slate-700">
             <li>
-              <strong>Pre-leased property investment:</strong> we list commercial offices and shops that already have a
+              <strong>Pre-leased property investment:</strong> we list commercial offices, bank-leased properties and retail/SCO units that already have a
               tenant, along with the rent, lease terms and gross yield the seller has shared.{" "}
               <Link href="/invest" className="text-accent-500 hover:underline">Browse investment listings</Link>.
             </li>
             <li>
-              <strong>Office and retail leasing:</strong> we help businesses find office space and shops to rent in
+              <strong>Office and retail leasing:</strong> we help businesses find office space and retail/SCO units to rent in
               Gurugram.{" "}
               <Link href="/lease" className="text-accent-500 hover:underline">See spaces for lease</Link>.
             </li>

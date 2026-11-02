@@ -95,6 +95,8 @@ function normalizePropertyListItem(property) {
           price: doc.financials.price,
           priceUnit: doc.financials.priceUnit,
           rentalYield: doc.financials.rentalYield,
+          monthlyRent: doc.financials.monthlyRent,
+          rentPerSqft: doc.financials.rentPerSqft,
         }
       : undefined,
     tenant: doc.tenant
@@ -108,6 +110,7 @@ function normalizePropertyListItem(property) {
           size: doc.specs.size,
           sizeUnit: doc.specs.sizeUnit,
           furnishing: doc.specs.furnishing,
+          units: doc.specs.units,
         }
       : undefined,
     coverImage,

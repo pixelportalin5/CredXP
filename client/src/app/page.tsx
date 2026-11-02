@@ -22,7 +22,7 @@ const HOME_COWORKING_QUERY = { limit: 4, sort: "featured" };
 
 const HOME_TITLE = "Pre-Leased Commercial Property & Office Space in Gurugram";
 const HOME_DESCRIPTION =
-  "Buy pre-leased offices and shops or lease office and retail space in Gurugram and Delhi NCR. See rent, lease terms and gross yield for each listing, then talk to a CredXP advisor.";
+  "Buy pre-leased offices, bank-leased properties and retail/SCO units, or lease office and retail space in Gurugram and Delhi NCR. See rent, lease terms and gross yield for each listing, then talk to a CredXP advisor.";
 
 export const metadata: Metadata = {
   title: HOME_TITLE,
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
   openGraph: defaultOpenGraph(
     "CredXP | Pre-Leased Commercial Property & Office Space in Gurugram",
-    "Buy pre-leased offices and shops or lease commercial space in Gurugram and Delhi NCR, with rent, lease terms and gross yield shown for each listing.",
+    "Buy pre-leased offices, bank-leased properties and retail/SCO units, or lease commercial space in Gurugram and Delhi NCR, with rent, lease terms and gross yield shown for each listing.",
     "/"
   ),
 };

@@ -371,7 +371,7 @@ export function buildOrganizationJsonLd() {
     knowsAbout: [
       "Pre-leased commercial property",
       "Commercial office leasing",
-      "Retail shop investment",
+      "Pre-leased retail / SCO investment",
       "Coworking and managed offices",
       "Gurugram commercial real estate",
     ],

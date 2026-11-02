@@ -10,7 +10,7 @@ const goalCards = [
   {
     icon: <TrendingUp className="h-10 w-10" />,
     title: "Invest in Pre-Leased",
-    description: "Buy offices and shops that already have a paying tenant.",
+    description: "Buy offices, bank-leased and retail/SCO units that already have a paying tenant.",
     href: "/invest",
     cta: "Explore Investments",
   },
