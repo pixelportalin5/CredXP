@@ -1,5 +1,5 @@
 const { newLegacyMongoId, newUuid } = require("./legacyId");
-const { normalizeListingType } = require("../../utils/listingType");
+const { normalizeListingType, removeShopWording } = require("../../utils/listingType");
 
 const PROPERTY_TYPE_FROM_API = {
   "Pre-Leased Office": "Pre_Leased_Office",
@@ -227,7 +227,7 @@ function propertyDataToPrisma(data, { sellerUuid } = {}) {
   const tenant = data.tenant || {};
 
   return {
-    title: data.title,
+    title: removeShopWording(data.title),
     type: mapEnumFromApi(
       PROPERTY_TYPE_FROM_API,
       data.type && normalizeListingType(data.type, tenant.name, financials.priceUnit)

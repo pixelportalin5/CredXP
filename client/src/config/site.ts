@@ -7,14 +7,14 @@ export const siteConfig = {
   name: "CredXP",
   tagline: "Premium Commercial Real Estate. Delivered.",
   description:
-    "CredXP is a Gurugram-based commercial real estate advisory and marketplace for pre-leased commercial property, office spaces for sale or lease, retail shops and coworking across Delhi NCR.",
+    "CredXP is a Gurugram-based commercial real estate advisory and marketplace for pre-leased commercial property, office spaces for sale or lease, retail/SCO units and coworking across Delhi NCR.",
   keywords: [
     "commercial real estate services",
-    "pre-leased commercial shops",
+    "pre-leased bank properties",
     "premium office rentals",
     "office space for rent",
     "pre-leased office investment",
-    "retail shops for investment",
+    "pre-leased retail SCO for investment",
     "SCO plots",
     "coworking spaces Gurugram",
     "commercial property India",

@@ -39,9 +39,9 @@ export const guides: Guide[] = [
     title: "What Is a Pre-Leased Commercial Property?",
     metaTitle: "What Is Pre-Leased Commercial Property? Benefits & Risks",
     description:
-      "A pre-leased (pre-rented) commercial property is an office, shop or building sold with a tenant already paying rent. Learn how it works, the benefits and the risks to check.",
+      "A pre-leased (pre-rented) commercial property is an office, retail unit or building sold with a tenant already paying rent. Learn how it works, the benefits and the risks to check.",
     summary:
-      "A pre-leased commercial property is an office, shop or commercial building that is sold with a tenant already in place and paying rent. The buyer takes over the existing lease, so rental income can start from the date of purchase instead of after a search for a tenant. The value of the investment depends heavily on the quality of the tenant and the terms of the lease.",
+      "A pre-leased commercial property is an office, retail unit or commercial building that is sold with a tenant already in place and paying rent. The buyer takes over the existing lease, so rental income can start from the date of purchase instead of after a search for a tenant. The value of the investment depends heavily on the quality of the tenant and the terms of the lease.",
     audience: "Investors",
     reviewed: REVIEWED,
     sections: [
@@ -212,7 +212,7 @@ export const guides: Guide[] = [
     title: "Pre-Leased Property Due Diligence Checklist",
     metaTitle: "Pre-Leased Property Due Diligence Checklist (India)",
     description:
-      "A practical checklist for buying a pre-leased office or shop in India: lease, tenant, title, encumbrances, approvals and costs to verify before you pay.",
+      "A practical checklist for buying a pre-leased office or retail unit in India: lease, tenant, title, encumbrances, approvals and costs to verify before you pay.",
     summary:
       "Before buying a pre-leased commercial property, verify four things: the lease (rent, lock-in, escalation, exit terms and registration), the tenant (identity and payment record), the title (clear ownership with no undisclosed loans) and the building's approvals. Have a property lawyer review the documents before you sign or pay a deposit.",
     audience: "Investors",
@@ -481,7 +481,7 @@ export const guides: Guide[] = [
       },
     ],
     related: [
-      { label: "Office space and shops for rent in Gurugram", href: "/lease" },
+      { label: "Office space and retail units for rent in Gurugram", href: "/lease" },
       { label: "Coworking and managed offices", href: "/coworking" },
       { label: "Share your space requirement", href: "/contact" },
     ],

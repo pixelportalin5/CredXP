@@ -30,6 +30,7 @@ const PROPERTY_PRISMA_LIST_SELECT = {
   specSize: true,
   specSizeUnit: true,
   specFurnishing: true,
+  specUnits: true,
   tenantName: true,
   tenantIndustry: true,
   status: true,

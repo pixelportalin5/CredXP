@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: true },
   title: "List a Commercial Property",
   description:
-    "List pre-leased commercial shops, premium offices, and investment-grade assets on CredXP for qualified buyers and tenants.",
+    "List pre-leased offices, bank-leased properties, retail/SCO units and investment-grade assets on CredXP for qualified buyers and tenants.",
   alternates: { canonical: "/list-property" },
 };
 

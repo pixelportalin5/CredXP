@@ -10,9 +10,9 @@ import { optionsFromListings } from "@/config/filters";
 export const revalidate = 3600;
 
 const PAGE_METADATA: Metadata = {
-  title: "Office Space & Commercial Shops for Rent in Gurugram",
+  title: "Office Space & Retail / SCO for Rent in Gurugram",
   description:
-    "Find office space, furnished suites, bare-shell floors and retail shops for rent in Gurugram and Delhi NCR. Share your space requirement and a CredXP advisor will shortlist options.",
+    "Find office space, furnished suites, bare-shell floors and retail/SCO units for rent in Gurugram and Delhi NCR. Share your space requirement and a CredXP advisor will shortlist options.",
   alternates: { canonical: "/lease" },
 };
 
@@ -55,7 +55,7 @@ export default async function LeasePage({
               Leasing Directory
             </Badge>
           ),
-          title: "Office Space & Shops for Rent in Gurugram",
+          title: "Office Space & Retail / SCO for Rent in Gurugram",
           footnote: { label: "Leasing an office? See what to check first", href: "/guides/leasing-office-space-in-gurugram" },
           description:
             "Furnished offices, bare shell floors, and high-street retail units ready for enterprise occupancy and brand expansion.",

@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: { params: Promise<{ area: str
   // Drop ", Gurugram" for long area names so the full title stays under ~65 chars.
   const fullTitle = `Commercial Property in ${area.name}, Gurugram`;
   const title = fullTitle.length <= 56 ? fullTitle : `Commercial Property in ${area.name}`;
-  const description = `${invest.length} pre-leased and investment listings and ${lease.length} offices and shops for rent in ${area.name}, Gurugram. See price, rent, size and gross yield, then enquire with CredXP.`;
+  const description = `${invest.length} pre-leased and investment listings and ${lease.length} offices and retail/SCO units for rent in ${area.name}, Gurugram. See price, rent, size and gross yield, then enquire with CredXP.`;
   const path = `/gurugram/${area.slug}`;
   return {
     title,

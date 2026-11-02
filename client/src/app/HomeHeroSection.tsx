@@ -125,7 +125,7 @@ export default function HomeHeroSection({
         <div className="grid gap-12 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-center">
           <div className="max-w-2xl space-y-4 rounded-[1.5rem] border border-white/12 bg-slate-950/35 p-5 shadow-2xl backdrop-blur-md sm:space-y-6 sm:rounded-[2rem] sm:p-8 lg:space-y-8 lg:p-10 lg:py-12">
             <h1 className="text-[11px] font-bold uppercase tracking-widest text-white/80 sm:text-xs">
-              Pre-Leased Commercial Property, Offices &amp; Shops in Gurugram
+              Pre-Leased Offices, Bank &amp; Retail / SCO Properties in Gurugram
             </h1>
             <p className="max-w-[620px] text-[1.85rem] font-extrabold leading-[1.08] tracking-tight text-white sm:text-[2.65rem] lg:text-[4.2rem] lg:leading-[1.02]">
               Premium Commercial

@@ -97,14 +97,17 @@ export function getDealTerms(property: Property): DealTerms {
   if (!monthlyRent && rentPerSqft && sellableArea) monthlyRent = rentPerSqft * sellableArea;
   if (!rentPerSqft && monthlyRent && sellableArea) rentPerSqft = monthlyRent / sellableArea;
 
+  const roi =
+    positive(financials.rentalYield) ??
+    (monthlyRent && dealValue ? (monthlyRent * 12 * 100) / dealValue : undefined);
+  // No rent given: annual rent = ROI% of the price (₹1 Cr at 12% → ₹12 L a year → ₹1 L a month).
+  if (!monthlyRent && roi && dealValue) monthlyRent = (dealValue * roi) / 100 / 12;
+  if (!rentPerSqft && monthlyRent && sellableArea) rentPerSqft = monthlyRent / sellableArea;
+
   let securityDeposit = positive(financials.securityDeposit);
   let securityDepositMonths = positive(financials.securityDepositMonths);
   if (!securityDeposit && securityDepositMonths && monthlyRent) securityDeposit = securityDepositMonths * monthlyRent;
   if (!securityDepositMonths && securityDeposit && monthlyRent) securityDepositMonths = securityDeposit / monthlyRent;
-
-  const roi =
-    positive(financials.rentalYield) ??
-    (monthlyRent && dealValue ? (monthlyRent * 12 * 100) / dealValue : undefined);
   const dealValuePerSqft = dealValue && sellableArea ? dealValue / sellableArea : undefined;
 
   const rows: DealRow[] = [];

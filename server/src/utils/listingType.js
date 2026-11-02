@@ -18,4 +18,13 @@ function normalizeListingType(type, tenantName, priceUnit) {
   return isBankTenant(tenantName) ? "Bank Rented" : base;
 }
 
-module.exports = { isBankTenant, normalizeListingType };
+/** "Pre-Leased Retail Shop" → "Pre-Leased Retail", "FF Shop" → "FF Retail", "SHOP NO-48" → "Unit No-48". */
+function removeShopWording(text) {
+  if (typeof text !== "string") return text;
+  return text
+    .replace(/\bshop\s+no\b/gi, "Unit No")
+    .replace(/\bretail\s+shops?\b/gi, "Retail")
+    .replace(/\bshops?\b/gi, "Retail");
+}
+
+module.exports = { isBankTenant, normalizeListingType, removeShopWording };

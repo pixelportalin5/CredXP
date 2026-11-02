@@ -16,11 +16,11 @@ export async function GET() {
 
 > ${siteConfig.description}
 
-${siteConfig.name} lists pre-leased commercial offices, shops and SCO units for investment, office and retail space for lease, and partner coworking spaces, mainly in Gurugram and Delhi NCR. Each listing shows price or rent, size, tenant (where pre-leased) and gross rental yield. Contact: ${siteConfig.contact.email}, ${siteConfig.contact.phone}.
+${siteConfig.name} lists pre-leased commercial offices, bank-leased properties and retail/SCO units for investment, office and retail space for lease, and partner coworking spaces, mainly in Gurugram and Delhi NCR. Each listing shows price or rent, size, tenant (where pre-leased) and gross rental yield. Contact: ${siteConfig.contact.email}, ${siteConfig.contact.phone}.
 
 ## Listings
-- [Invest in pre-leased commercial property](${base}/invest): offices, shops and SCO units with existing tenants
-- [Office and retail space for lease](${base}/lease): furnished and bare-shell offices and high-street shops for rent
+- [Invest in pre-leased commercial property](${base}/invest): pre-leased offices, bank-leased properties and retail/SCO units with existing tenants
+- [Office and retail space for lease](${base}/lease): furnished and bare-shell offices and high-street retail/SCO units for rent
 - [Coworking spaces](${base}/coworking): partner coworking and managed offices
 - [Commercial property in Gurugram by location](${base}/gurugram)
 

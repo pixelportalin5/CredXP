@@ -16,6 +16,7 @@ import { getPropertySectionCoverImage } from "@/utils/propertySections";
 import ComparePropertyButton from "@/components/property/ComparePropertyButton";
 import type { Property } from "@/types/property";
 import { propertyPath } from "@/utils/listingUrl";
+import { formatDealAmount, getDealTerms, usesDealSheet } from "@/utils/dealTerms";
 
 interface PropertyCardProps {
   property: Property;
@@ -44,7 +45,23 @@ export default function PropertyCard({ property, variant = "default", priorityIm
 
   const isCompact = variant === "compact" || variant === "default";
   const statusBadge = STATUS_BADGE_MAP[status] || { variant: "info" as const, icon: null };
-  const rentalYield = financials?.rentalYield;
+  const isInvestment = usesDealSheet(property);
+  // Rent and ROI are worked out from whichever figures the listing has (see getDealTerms).
+  const deal = isInvestment ? getDealTerms(property) : null;
+  const roi = deal?.roi ?? financials?.rentalYield;
+  const monthlyRent = deal?.monthlyRent;
+  const area = deal?.sellableArea ?? size;
+  const figures = isInvestment
+    ? [
+        { label: "Price", value: formatPriceCompact(price) },
+        { label: "Rent / month", value: monthlyRent ? formatDealAmount(Math.round(monthlyRent)) : "On request" },
+        { label: "ROI", value: roi ? formatYield(roi) : "On request" },
+        { label: "Area", value: area ? formatSize(area) : "On request" },
+      ]
+    : [
+        { label: "Rent / month", value: formatPriceCompact(price) },
+        { label: "Area", value: formatSize(size) },
+      ];
 
   const handleSaveClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
@@ -127,8 +144,8 @@ export default function PropertyCard({ property, variant = "default", priorityIm
 
         <div className="absolute bottom-3 left-3 right-3 z-10 flex flex-wrap items-end justify-between gap-1.5">
           <Badge variant="default" size="sm">{propertyTypeLabel(type)}</Badge>
-          {rentalYield ? (
-            <Badge variant="success" size="sm">{formatYield(rentalYield)} Yield</Badge>
+          {roi ? (
+            <Badge variant="success" size="sm">{formatYield(roi)} ROI</Badge>
           ) : null}
         </div>
       </div>
@@ -147,21 +164,13 @@ export default function PropertyCard({ property, variant = "default", priorityIm
           </p>
         </div>
 
-        <div className={cn("grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3", isCompact ? "grid-cols-2" : "grid-cols-3")}>
-          <div>
-            <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500">Price</p>
-            <p className="mt-1 text-sm font-semibold text-slate-900">{formatPriceCompact(price)}</p>
-          </div>
-          <div>
-            <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500">Area</p>
-            <p className="mt-1 text-sm font-semibold text-slate-900">{formatSize(size)}</p>
-          </div>
-          {!isCompact && (
-            <div>
-              <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500">Yield</p>
-              <p className="mt-1 text-sm font-semibold text-slate-900">{rentalYield ? formatYield(rentalYield) : "—"}</p>
+        <div className="grid grid-cols-2 gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+          {figures.map((figure) => (
+            <div key={figure.label}>
+              <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500">{figure.label}</p>
+              <p className="mt-1 text-sm font-semibold text-slate-900">{figure.value}</p>
             </div>
-          )}
+          ))}
         </div>
 
         {!isCompact && grade ? (
