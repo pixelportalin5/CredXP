@@ -24,8 +24,8 @@ export const siteConfig = {
 
   contact: {
     email: "sales@credxp.com",
-    phone: "+91 85951 91894",
-    whatsapp: "+918595191894",
+    phone: "+91 76699 88002",
+    whatsapp: "+917669988002",
     address: "Iris Tech Park, Sector 48, Sohna Road, Gurugram, Haryana 122018",
     // Structured address for schema.org and Google Business Profile consistency.
     postalAddress: {
