@@ -1,5 +1,6 @@
 "use client";
 
+import { propertyTypeLabel } from "@/config/filters";
 import { useEffect, useState } from "react";
 import { publicHighlights } from "@/utils/publicHighlights";
 import { useParams } from "next/navigation";
@@ -241,7 +242,7 @@ export default function PropertyDetailClient({ initialProperty = null }: { initi
 
           <div className="flex h-full flex-col">
             <div className="mb-4 flex flex-wrap items-center gap-2">
-              <Badge variant="accent">{type}</Badge>
+              <Badge variant="accent">{propertyTypeLabel(type)}</Badge>
               <Badge variant={STATUS_VARIANT as "warning" | "success"} icon={STATUS_ICON}>
                 {status}
               </Badge>

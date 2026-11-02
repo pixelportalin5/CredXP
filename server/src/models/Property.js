@@ -9,7 +9,7 @@ const propertySchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["Pre-Leased Office", "Office Space", "Retail/SCO", "Coworking", "Coworking Space", "Shop", "Warehouse", "Commercial Land"],
+      enum: ["Pre-Leased Office", "Office Space", "Retail/SCO", "Coworking", "Coworking Space", "Shop", "Warehouse", "Commercial Land", "Bank Rented"],
       required: [true, "Property type is required"],
     },
     seller: {

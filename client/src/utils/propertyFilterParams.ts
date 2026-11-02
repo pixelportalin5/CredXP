@@ -102,9 +102,10 @@ export function getListingDirectoryPath(property: Property): "/invest" | "/lease
 export const FEATURED_TAB_QUERY: Record<string, { mode: PropertyDirectoryMode; type?: string }> = {
   "all-properties": { mode: "invest" },
   "pre-leased-office": { mode: "invest", type: "Pre-Leased Office" },
-  "pre-leased-shop": { mode: "invest", type: "Shop" },
+  "bank-rented": { mode: "invest", type: "Bank Rented" },
+  "pre-leased-retail": { mode: "invest", type: "Retail/SCO" },
   "office-rent": { mode: "lease", type: "Office Space" },
-  "shop-rent": { mode: "lease", type: "Shop" },
+  "retail-rent": { mode: "lease", type: "Retail/SCO" },
 };
 
 export function featuredTabHref(tabKey: string): string {

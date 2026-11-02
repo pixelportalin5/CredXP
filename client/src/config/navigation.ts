@@ -10,8 +10,9 @@ export const mainNavLinks: NavLink[] = [
     href: "/invest",
     label: "Invest",
     children: [
-      { href: "/invest?type=Pre-Leased+Office", label: "Pre-Leased Offices" },
-      { href: "/invest?type=Shop", label: "Pre-Leased Shops" },
+      { href: "/invest?type=Pre-Leased+Office", label: "Pre-Leased Office" },
+      { href: "/invest?type=Bank+Rented", label: "Pre-Leased Bank" },
+      { href: "/invest?type=Retail%2FSCO", label: "Pre-Leased Retail / SCO" },
       { href: "/invest", label: "All Investments" },
     ],
   },
@@ -20,7 +21,7 @@ export const mainNavLinks: NavLink[] = [
     label: "Lease",
     children: [
       { href: "/lease?type=Office+Space", label: "Office Spaces" },
-      { href: "/lease?type=Shop", label: "Retail Shops" },
+      { href: "/lease?type=Retail%2FSCO", label: "Retail / SCO" },
       { href: "/lease", label: "All Lease Listings" },
     ],
   },

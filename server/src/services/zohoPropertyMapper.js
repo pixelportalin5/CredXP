@@ -1,4 +1,5 @@
 const { classifyPropertyType } = require("../utils/classifyPropertyType");
+const { normalizeListingType } = require("../utils/listingType");
 
 const ALLOWED_TYPES = new Set([
   "Pre-Leased Office",
@@ -9,6 +10,7 @@ const ALLOWED_TYPES = new Set([
   "Shop",
   "Warehouse",
   "Commercial Land",
+  "Bank Rented",
 ]);
 
 const ALLOWED_FURNISHING = new Set([
@@ -113,12 +115,13 @@ function mapPropertyType(rawType, title, description) {
   if (ALLOWED_TYPES.has(candidate)) return candidate;
 
   const lower = candidate.toLowerCase();
+  if (lower.includes("bank")) return "Bank Rented";
   if (lower.includes("warehouse")) return "Warehouse";
   if (lower.includes("commercial land") || lower.includes("land")) return "Commercial Land";
   if (lower.includes("cowork")) return "Coworking Space";
   if (lower.includes("retail") || lower.includes("sco")) return "Retail/SCO";
   if (lower.includes("office space") || lower === "office") return "Office Space";
-  if (lower.includes("shop")) return "Shop";
+  if (lower.includes("shop")) return "Retail/SCO";
   if (lower.includes("pre-leased") || lower.includes("pre leased")) return "Pre-Leased Office";
 
   return classifyPropertyType(title, description, candidate) || "Office Space";
@@ -209,9 +212,10 @@ function extractImageUrls(record) {
 const TYPE_OF_PROPERTY = {
   "pre-leased office space for sale": { type: "Pre-Leased Office", lease: false },
   "pre-leased commercial shop for sale": { type: "Retail/SCO", lease: false },
+  "bank rented property for sale": { type: "Bank Rented", lease: false },
   "coworking space": { type: "Coworking Space", lease: true },
   "office space for lease": { type: "Office Space", lease: true },
-  "commercial shop for lease": { type: "Shop", lease: true },
+  "commercial shop for lease": { type: "Retail/SCO", lease: true },
 };
 
 const RETAIL_HINTS = ["ground", "shop", "retail", "sco", "showroom", "road facing", "high street"];
@@ -386,7 +390,7 @@ function mapZohoRecordToProperty(rawBody) {
     pick(record, ["meetingRooms", "Meeting_Rooms", "specs.meetingRooms"])
   );
   const washrooms = asNumber(pick(record, ["washrooms", "Washrooms", "specs.washrooms"]));
-  const units = asNumber(pick(record, ["units", "Units", "No_Of_Units", "Number_Of_Units", "specs.units"]));
+  const units = asNumber(pick(record, ["units", "Units", "No_of_Units", "No_Of_Units", "Number_Of_Units", "specs.units"]));
   const pantry = asBoolean(pick(record, ["pantry", "Pantry", "specs.pantry"]));
   const sizeUnitRaw = asString(pick(record, ["sizeUnit", "Size_Unit", "specs.sizeUnit"]), "sqft").toLowerCase();
   const sizeUnit = ALLOWED_SIZE_UNITS.has(sizeUnitRaw) ? sizeUnitRaw : "sqft";
@@ -466,7 +470,7 @@ function mapZohoRecordToProperty(rawBody) {
 
   const mapped = {
     title,
-    type,
+    type: normalizeListingType(type, tenantName, priceUnit),
     description,
     location: { address, city, state },
     price,

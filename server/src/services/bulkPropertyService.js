@@ -4,6 +4,7 @@ const ExcelJS = require("exceljs");
 const xlsx = require("xlsx");
 const propertyService = require("./propertyService");
 const imageUploadService = require("./imageUploadService");
+const { normalizeListingType } = require("../utils/listingType");
 
 const TEMPLATE_COLUMNS = [
   "title",
@@ -132,7 +133,7 @@ const REQUIRED_COLUMNS = [
 ];
 
 const ENUMS = {
-  type: ["Pre-Leased Office", "Office Space", "Retail/SCO", "Shop", "Coworking Space"],
+  type: ["Pre-Leased Office", "Bank Rented", "Retail/SCO", "Office Space", "Coworking Space"],
   status: ["Recently Posted", "Trending"],
   priceUnit: ["month", "year", "sqft", "total"],
   sizeUnit: ["sqft", "sqm"],
@@ -288,7 +289,8 @@ function rowToProperty(row, imageMap) {
     if (!clean(row[column])) errors.push(`${column} is required`);
   });
 
-  const type = validateEnum("type", row.type, errors);
+  // Old sheets may still say "Shop"; shops are listed as Retail/SCO now.
+  const type = validateEnum("type", /^\s*shop\s*$/i.test(String(row.type || "")) ? "Retail/SCO" : row.type, errors);
   const status = validateEnum("status", row.status, errors);
   const priceUnit = validateEnum("priceUnit", row.priceUnit || "total", errors);
   const sizeUnit = validateEnum("sizeUnit", row.sizeUnit || "sqft", errors);
@@ -315,7 +317,7 @@ function rowToProperty(row, imageMap) {
   return {
     property: {
       title: clean(row.title),
-      type,
+      type: normalizeListingType(type, row.tenantName, priceUnit),
       location: {
         address: clean(row.address),
         city: clean(row.city),
@@ -397,7 +399,7 @@ async function generateTemplate() {
 
   const sampleRow = {
     title: "Pre-Leased Bank Office - Alphathum, Sector 90, Noida",
-    type: "Pre-Leased Office",
+    type: "Bank Rented",
     status: "Recently Posted",
     buildingName: "Alphathum Noida World One",
     description: "",

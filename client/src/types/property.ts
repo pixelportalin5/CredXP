@@ -25,7 +25,8 @@ export type PropertyType =
   | "Coworking Space"
   | "Shop"
   | "Warehouse"
-  | "Commercial Land";
+  | "Commercial Land"
+  | "Bank Rented";
 
 export type PropertyStatus =
   | "Pre-Leased"

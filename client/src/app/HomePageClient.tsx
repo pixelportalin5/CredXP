@@ -38,10 +38,11 @@ export default function HomePageClient({ initialProperties = null, initialCowork
 
   const featuredTabs = [
     { key: "all-properties", label: "All Properties" },
-    { key: "pre-leased-office", label: "Pre-Leased Offices to buy" },
-    { key: "pre-leased-shop", label: "Pre-Leased Shops to buy" },
+    { key: "pre-leased-office", label: "Pre-Leased Office" },
+    { key: "bank-rented", label: "Pre-Leased Bank" },
+    { key: "pre-leased-retail", label: "Pre-Leased Retail / SCO" },
     { key: "office-rent", label: "Office spaces available for rent" },
-    { key: "shop-rent", label: "Shops available for rent" },
+    { key: "retail-rent", label: "Retail / SCO for rent" },
   ];
 
   const featuredCardsPerPage = 4;

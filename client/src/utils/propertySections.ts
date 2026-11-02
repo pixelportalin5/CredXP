@@ -7,7 +7,7 @@ export type PropertySection =
   | "shops-to-rent";
 
 function isOfficeType(type: Property["type"]) {
-  return type === "Office Space" || type === "Pre-Leased Office";
+  return type === "Office Space" || type === "Pre-Leased Office" || type === "Bank Rented";
 }
 
 function isShopType(type: Property["type"]) {
@@ -15,7 +15,7 @@ function isShopType(type: Property["type"]) {
 }
 
 function isPreLeasedBuyType(type: Property["type"]) {
-  return type === "Pre-Leased Office" || type === "Shop" || type === "Retail/SCO";
+  return type === "Pre-Leased Office" || type === "Bank Rented" || type === "Shop" || type === "Retail/SCO";
 }
 
 function isLeaseListing(property: Property) {
