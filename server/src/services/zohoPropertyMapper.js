@@ -73,6 +73,10 @@ function pick(record, keys) {
 
 function asString(value, fallback = "") {
   if (value === undefined || value === null) return fallback;
+  // Zoho lookup / user fields arrive as { name, id }.
+  if (typeof value === "object" && !Array.isArray(value)) {
+    return value.name ? String(value.name).trim() : fallback;
+  }
   return String(value).trim();
 }
 
@@ -128,7 +132,8 @@ function mapFurnishing(value) {
   if (lower.includes("fully")) return "Fully Furnished";
   if (lower.includes("semi")) return "Semi Furnished";
   if (lower.includes("warm")) return "Warm Shell";
-  if (lower.includes("bare")) return "Bare Shell";
+  if (lower.includes("bare") || lower.includes("unfurnished")) return "Bare Shell";
+  if (lower === "furnished") return "Fully Furnished";
   return undefined;
 }
 
@@ -195,12 +200,119 @@ function extractImageUrls(record) {
   return [...new Set(urls)];
 }
 
+/* ------------------------------------------------------------------
+   CredXP's Zoho "Listings" module (API name Properties) uses its own
+   field names. Translate them into the canonical keys picked below;
+   canonical keys come first in every pick list, so these win.
+   ------------------------------------------------------------------ */
+
+const TYPE_OF_PROPERTY = {
+  "pre-leased office space for sale": { type: "Pre-Leased Office", lease: false },
+  "pre-leased commercial shop for sale": { type: "Retail/SCO", lease: false },
+  "coworking space": { type: "Coworking Space", lease: true },
+  "office space for lease": { type: "Office Space", lease: true },
+  "commercial shop for lease": { type: "Shop", lease: true },
+};
+
+const RETAIL_HINTS = ["ground", "shop", "retail", "sco", "showroom", "road facing", "high street"];
+const HIDDEN_STATUSES = { sold: "sold", closed: "sold", canceled: "paused", cancelled: "paused", expired: "paused", hold: "paused" };
+
+function positiveNumber(value) {
+  const num = asNumber(value);
+  return num !== undefined && num > 0 ? num : undefined;
+}
+
+function years(value) {
+  const num = positiveNumber(value);
+  if (num === undefined) return undefined;
+  return `${num} ${num === 1 ? "year" : "years"}`;
+}
+
+function normalizeCity(city) {
+  const value = asString(city);
+  return /^gurgaon$/i.test(value) ? "Gurugram" : value;
+}
+
+function isCredxpZohoLayout(record) {
+  return ["Type_of_Property", "Leased_to_Brand", "Pre_Rented_Rent", "ROI_in", "Listing_Price", "Built_Up_Area"].some(
+    (key) => key in record
+  );
+}
+
+function fromCredxpZohoLayout(record) {
+  if (!isCredxpZohoLayout(record)) return record;
+
+  const tenant = asString(record.Leased_to_Brand);
+  const building = asString(record.Name);
+  const listingType = asString(record.Listing_Type).toLowerCase();
+  const known = TYPE_OF_PROPERTY[asString(record.Type_of_Property).toLowerCase()];
+
+  const preLeasedSignals = Boolean(
+    tenant || positiveNumber(record.Pre_Rented_Rent) || positiveNumber(record.ROI_in) || listingType === "rented"
+  );
+  const isLease = known ? known.lease : listingType === "for lease" && !preLeasedSignals;
+
+  let type = known?.type;
+  if (!type) {
+    if (isLease) type = "Office Space";
+    else {
+      const hints = [record.Floor_s, record.UNIT_NOS, record.Building_Uses, asString(record.Type_of_Property)]
+        .map((v) => asString(v).toLowerCase())
+        .join(" ");
+      type = RETAIL_HINTS.some((hint) => hints.includes(hint)) ? "Retail/SCO" : "Pre-Leased Office";
+    }
+  }
+
+  const listingPrice = positiveNumber(record.Listing_Price);
+  const pricePerSqft = positiveNumber(record.Price_Per_Sqft);
+  const price = isLease
+    ? positiveNumber(record.Rent) ?? positiveNumber(record.Expected_Monthy_Rent)
+    : listingPrice;
+  const size =
+    positiveNumber(record.Built_Up_Area) ??
+    positiveNumber(record.Carpet_Area_Sq_ft) ??
+    (listingPrice && pricePerSqft ? Math.round(listingPrice / pricePerSqft) : undefined);
+
+  const recordStatus = asString(record.Record_Status__s).toLowerCase();
+  const hiddenStatus = HIDDEN_STATUSES[asString(record.Property_Status).toLowerCase()];
+  const listingStatus = recordStatus === "draft" || recordStatus === "trash" ? "draft" : hiddenStatus;
+
+  const translated = {
+    title: building && tenant && !isLease ? `${building} – Pre-Leased to ${tenant}` : building,
+    buildingName: building,
+    type,
+    priceUnit: isLease ? "month" : "total",
+    price,
+    size,
+    tenantName: tenant,
+    rentPerSqft: positiveNumber(record.Pre_Rented_Rent),
+    monthlyRent: isLease ? undefined : positiveNumber(record.Days_on_Market) ?? positiveNumber(record.Rent),
+    rentalYield: positiveNumber(record.ROI_in),
+    securityDeposit: positiveNumber(record.Security_Deposit),
+    escalation: asString(record.Rent_Escalation),
+    leaseTenure: years(record.Lease_Tenure_Years),
+    lockInPeriod: years(record.Lock_in_Period_Years),
+    leaseStart: asString(record.Lease_Start_Date),
+    address: asString(record.Building_Address) || [record.Street, record.Street_2].map((v) => asString(v)).filter(Boolean).join(", "),
+    city: normalizeCity(record.City),
+    state: asString(record.State_Code),
+    reraId: asString(record.MLS_Listing_ID),
+    description: asString(record.Property_Description),
+    listingStatus,
+  };
+
+  const clean = Object.fromEntries(
+    Object.entries(translated).filter(([, value]) => value !== undefined && value !== null && value !== "")
+  );
+  return { ...record, ...clean };
+}
+
 /**
  * Map a Zoho property record into CredXP Property fields (without images uploaded yet).
  * @returns {{ zohoId: string, mapped: object, imageUrls: string[] }}
  */
 function mapZohoRecordToProperty(rawBody) {
-  const record = normalizeZohoPayload(rawBody);
+  const record = fromCredxpZohoLayout(normalizeZohoPayload(rawBody));
 
   const zohoId = asString(
     pick(record, ["id", "Id", "ID", "zohoId", "Zoho_Id", "Record_Id", "record_id"])
@@ -215,7 +327,7 @@ function mapZohoRecordToProperty(rawBody) {
   const title = asString(pick(record, ["title", "Title", "Name", "Property_Name", "Property_Title"]));
   const description = asString(
     pick(record, ["description", "Description", "Property_Description", "Details"]),
-    title ? `${title} — commercial listing synced from Zoho CRM.` : "Commercial listing synced from Zoho CRM."
+    title ? `${title}.` : "Commercial property listing."
   );
 
   const type = mapPropertyType(
@@ -261,11 +373,7 @@ function mapZohoRecordToProperty(rawBody) {
   const securityDepositMonths = asNumber(
     pick(record, ["securityDepositMonths", "Security_Deposit_Months", "financials.securityDepositMonths"])
   );
-  const priceUnitRaw = asString(
-    pick(record, ["priceUnit", "Price_Unit", "financials.priceUnit"]),
-    "total"
-  ).toLowerCase();
-  const priceUnit = ALLOWED_PRICE_UNITS.has(priceUnitRaw) ? priceUnitRaw : "total";
+  const priceUnitRaw = asString(pick(record, ["priceUnit", "Price_Unit", "financials.priceUnit"])).toLowerCase();
 
   const floors = asNumber(pick(record, ["floors", "Floor", "Floor_Number", "specs.floors"]));
   const totalFloors = asNumber(pick(record, ["totalFloors", "Total_Floors", "specs.totalFloors"]));
@@ -318,18 +426,34 @@ function mapZohoRecordToProperty(rawBody) {
     pick(record, ["buildingName", "Building_Name", "Project_Name", "Building"])
   );
 
+  // Lease listings need month/year and sale listings need total, or the
+  // /lease and /invest pages filter them out.
+  const priceUnit = ALLOWED_PRICE_UNITS.has(priceUnitRaw)
+    ? priceUnitRaw
+    : type === "Office Space"
+      ? "month"
+      : "total";
+
   const featured = asBoolean(pick(record, ["featured", "Featured", "Is_Featured"])) ?? false;
-  const isActive = asBoolean(pick(record, ["isActive", "Is_Active", "Active"])) ?? true;
+  const activeFlag = asBoolean(pick(record, ["isActive", "Is_Active", "Active"])) ?? true;
 
   const listingStatusRaw = asString(
-    pick(record, ["listingStatus", "Listing_Status", "Publish_Status"]),
-    "published"
+    pick(record, ["listingStatus", "Listing_Status", "Publish_Status"])
   ).toLowerCase();
-  const listingStatus = ALLOWED_LISTING_STATUS.has(listingStatusRaw)
-    ? listingStatusRaw
-    : asBoolean(pick(record, ["Publish_to_Website", "Publish_To_Website"])) === false
+  const publishToWebsite = asBoolean(
+    pick(record, ["publishToWebsite", "Publish_to_Website", "Publish_To_Website", "publish_to_website"])
+  );
+  // An explicit "Publish to Website" checkbox wins; otherwise use the status
+  // field; listings default to published.
+  const listingStatus =
+    publishToWebsite === false
       ? "draft"
-      : "published";
+      : ALLOWED_LISTING_STATUS.has(listingStatusRaw)
+        ? listingStatusRaw
+        : "published";
+
+  // Unpublished or inactive in Zoho = hidden on the website.
+  const isActive = activeFlag && listingStatus === "published";
 
   const statusRaw = asString(pick(record, ["status", "Status", "Display_Status"]), "Recently Posted");
   const status = ALLOWED_STATUS.has(statusRaw) ? statusRaw : "Recently Posted";
@@ -404,6 +528,7 @@ function mapZohoRecordToProperty(rawBody) {
 }
 
 module.exports = {
+  fromCredxpZohoLayout,
   normalizeZohoPayload,
   extractImageUrls,
   mapZohoRecordToProperty,

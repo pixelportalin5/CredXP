@@ -35,7 +35,34 @@ export type AdminUser = User & {
   accountStatus?: "active" | "disabled";
 };
 
+export interface ZohoImportSummary {
+  trigger: string;
+  startedAt: string;
+  finishedAt?: string;
+  total: number;
+  created: number;
+  updated: number;
+  hidden: number;
+  failed: { zohoId: string; name: string; error: string }[];
+}
+
+export interface ZohoSyncStatus {
+  apiConfigured: boolean;
+  webhookConfigured: boolean;
+  module: string;
+  scheduleMinutes: number | null;
+  importRunning: boolean;
+  lastImport: ZohoImportSummary | null;
+}
+
 const adminService = {
+  getZohoStatus: (): Promise<{ data: ZohoSyncStatus }> =>
+    api.get("/integrations/zoho/status"),
+
+  // Large Zoho modules can take a few minutes (images are copied too).
+  importFromZoho: (): Promise<{ data: ZohoImportSummary }> =>
+    api.post("/integrations/zoho/import", undefined, { timeout: 10 * 60 * 1000 }),
+
   getSummary: (): Promise<{ data: AdminSummary }> =>
     api.get("/admin/summary"),
 

@@ -199,6 +199,19 @@ const propertyService = {
     return property;
   },
 
+  /** Create or update the listing linked to a Zoho CRM record. */
+  async upsertFromZoho(zohoId, data) {
+    const existed = await Property.exists({ zohoId });
+    const payload = data.images ? await applyCoverImage({ ...data }) : { ...data };
+    const property = await Property.findOneAndUpdate(
+      { zohoId },
+      { $set: { ...payload, zohoId, zohoLastSync: new Date() } },
+      { upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true }
+    );
+    invalidatePrefix("properties");
+    return { property, created: !existed };
+  },
+
   async deleteByOwner(id, user) {
     const property = await Property.findById(id);
     if (!property) {

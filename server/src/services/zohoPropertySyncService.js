@@ -1,8 +1,7 @@
-const Property = require("../models/Property");
-const ApiError = require("../utils/ApiError");
-const { mapZohoRecordToProperty } = require("./zohoPropertyMapper");
+const { mapZohoRecordToProperty, normalizeZohoPayload } = require("./zohoPropertyMapper");
 const { uploadBuffer, isCloudinaryUrl } = require("./imageUploadService");
-const { invalidatePrefix } = require("../utils/queryCache");
+const propertyService = require("./propertyService");
+const zohoCrm = require("./zohoCrmClient");
 
 const IMAGE_DOWNLOAD_TIMEOUT_MS = 20000;
 const MAX_IMAGES = 10;
@@ -34,6 +33,8 @@ async function downloadImageToBuffer(url) {
       headers: {
         Accept: "image/*,*/*",
         "User-Agent": "CredXP-Zoho-Sync/1.0",
+        // Files stored in Zoho need the API token to download.
+        ...(await zohoCrm.authHeadersFor(url)),
       },
     });
 
@@ -91,49 +92,120 @@ async function syncImagesFromUrls(imageUrls = []) {
   };
 }
 
+const RECORD_ID_KEYS = ["id", "Id", "ID", "zohoId", "Zoho_Id", "Record_Id", "record_id"];
+
+function recordIdOf(record) {
+  for (const key of RECORD_ID_KEYS) {
+    if (record?.[key]) return String(record[key]).trim();
+  }
+  return "";
+}
+
 /**
- * Upsert a CredXP Property from a Zoho webhook payload.
+ * Create or update the website listing for one Zoho record.
+ * @param {object} rawRecord Zoho record or webhook body.
+ * @param {{ fetchFullRecord?: boolean }} options When the Zoho API is configured,
+ *   fetch the full record by id first, so a webhook that sends only a few fields
+ *   can't blank out the rest.
  */
-async function upsertPropertyFromZoho(rawBody) {
-  const { zohoId, mapped, imageUrls } = mapZohoRecordToProperty(rawBody);
+async function upsertPropertyFromZoho(rawRecord, { fetchFullRecord = false } = {}) {
+  let record = normalizeZohoPayload(rawRecord);
+
+  if (fetchFullRecord && zohoCrm.isConfigured()) {
+    const id = recordIdOf(record);
+    if (id) {
+      const full = await zohoCrm.getRecord(id);
+      if (full) record = { ...record, ...full };
+    }
+  }
+
+  const { zohoId, mapped, imageUrls } = mapZohoRecordToProperty(record);
 
   if (imageUrls.length > 0) {
     const imagePayload = await syncImagesFromUrls(imageUrls);
     if (imagePayload.images.length > 0) {
       mapped.images = imagePayload.images;
       mapped.coverImage = imagePayload.coverImage;
-      if (imagePayload.imagePublicIds.length > 0) {
-        mapped.imagePublicIds = imagePayload.imagePublicIds;
-        mapped.coverImagePublicId = imagePayload.coverImagePublicId;
+      mapped.imagePublicIds = imagePayload.imagePublicIds;
+      mapped.coverImagePublicId = imagePayload.coverImagePublicId;
+    }
+  }
+
+  return propertyService.upsertFromZoho(zohoId, mapped);
+}
+
+let lastImport = null;
+let importRunning = false;
+
+/**
+ * Pull every record from the Zoho property module and upsert each one.
+ * One bad record doesn't stop the rest; failures are listed in the result.
+ */
+async function importAllFromZoho({ trigger = "manual" } = {}) {
+  if (!zohoCrm.isConfigured()) {
+    const err = new Error(
+      "Zoho API is not configured. Set ZOHO_CLIENT_ID, ZOHO_CLIENT_SECRET and ZOHO_REFRESH_TOKEN on the server."
+    );
+    err.statusCode = 503;
+    throw err;
+  }
+  if (importRunning) {
+    const err = new Error("A Zoho import is already running");
+    err.statusCode = 409;
+    throw err;
+  }
+
+  importRunning = true;
+  const startedAt = new Date();
+  const summary = { trigger, startedAt, total: 0, created: 0, updated: 0, hidden: 0, failed: [] };
+
+  try {
+    const records = await zohoCrm.listAllRecords();
+    summary.total = records.length;
+
+    for (const record of records) {
+      try {
+        const { property, created } = await upsertPropertyFromZoho(record);
+        if (created) summary.created += 1;
+        else summary.updated += 1;
+        if (property.listingStatus !== "published" || property.isActive === false) summary.hidden += 1;
+      } catch (error) {
+        summary.failed.push({
+          zohoId: recordIdOf(record),
+          name: record.Name || record.Property_Name || record.title || "",
+          error: error.message,
+        });
       }
     }
+  } finally {
+    importRunning = false;
+    summary.finishedAt = new Date();
+    lastImport = summary;
   }
 
-  mapped.zohoId = zohoId;
-  mapped.zohoLastSync = new Date();
-
-  const property = await Property.findOneAndUpdate(
-    { zohoId },
-    { $set: mapped },
-    {
-      upsert: true,
-      new: true,
-      runValidators: true,
-      setDefaultsOnInsert: true,
-    }
+  console.log(
+    `[Zoho Import] ${trigger}: ${summary.total} records, ${summary.created} created, ` +
+      `${summary.updated} updated, ${summary.failed.length} failed`
   );
+  return summary;
+}
 
-  if (!property) {
-    throw new ApiError(500, "Failed to upsert property from Zoho payload");
-  }
-
-  invalidatePrefix("properties");
-
-  return property;
+function getSyncStatus() {
+  const { module } = zohoCrm.getConfig();
+  return {
+    apiConfigured: zohoCrm.isConfigured(),
+    webhookConfigured: Boolean(process.env.ZOHO_WEBHOOK_SECRET),
+    module,
+    scheduleMinutes: Number(process.env.ZOHO_SYNC_INTERVAL_MINUTES) || null,
+    importRunning,
+    lastImport,
+  };
 }
 
 module.exports = {
   downloadImageToBuffer,
   syncImagesFromUrls,
   upsertPropertyFromZoho,
+  importAllFromZoho,
+  getSyncStatus,
 };
