@@ -1,5 +1,6 @@
 "use client";
 
+import { propertyTypeLabel } from "@/config/filters";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -125,7 +126,7 @@ export default function PropertyCard({ property, variant = "default", priorityIm
         </button>
 
         <div className="absolute bottom-3 left-3 right-3 z-10 flex flex-wrap items-end justify-between gap-1.5">
-          <Badge variant="default" size="sm">{type}</Badge>
+          <Badge variant="default" size="sm">{propertyTypeLabel(type)}</Badge>
           {rentalYield ? (
             <Badge variant="success" size="sm">{formatYield(rentalYield)} Yield</Badge>
           ) : null}

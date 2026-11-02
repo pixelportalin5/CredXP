@@ -12,7 +12,7 @@ export const revalidate = 3600;
 const PAGE_METADATA: Metadata = {
   title: "Pre-Leased Commercial Property for Sale in Gurugram",
   description:
-    "Browse pre-rented offices, bank-rented properties and retail/SCO units for sale in Gurugram and Delhi NCR. Compare price, monthly rent, lease terms and gross rental yield, then enquire with a CredXP advisor.",
+    "Browse pre-leased offices, bank-leased properties and retail/SCO units for sale in Gurugram and Delhi NCR. Compare price, monthly rent, lease terms and gross rental yield, then enquire with a CredXP advisor.",
   alternates: { canonical: "/invest" },
 };
 
@@ -57,7 +57,7 @@ export default async function InvestPage({
           ),
           title: "Pre-Leased Commercial Property for Sale in Gurugram",
           description:
-            "Pre-rented offices, bank-rented properties and retail/SCO units that already have a paying tenant. Yields shown are gross, based on figures shared by the seller; ask us for the lease and title documents before you decide.",
+            "Pre-leased offices, bank-leased properties and retail/SCO units that already have a paying tenant. Yields shown are gross, based on figures shared by the seller; ask us for the lease and title documents before you decide.",
           footnote: { label: "New to pre-leased property? Read the due diligence checklist", href: "/guides/pre-leased-property-due-diligence-checklist" },
         }}
       />

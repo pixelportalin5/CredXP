@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { propertyTypeLabel } from "@/config/filters";
 import type { CoworkingSpace } from "@/types/coworking";
 import type { Property, PropertyListResponse } from "@/types/property";
 import { siteConfig } from "@/config/site";
@@ -285,7 +286,7 @@ export function buildPropertyMetadata(property: Property, id: string): Metadata 
     property.tenant?.name ? `leased to ${property.tenant.name}` : null,
   ].filter(Boolean).join(" · ");
   // Leading with the listing name keeps descriptions unique for near-identical units.
-  const summary = `${property.title}: ${property.type} in ${place}${details ? ` — ${details}` : ""}.`;
+  const summary = `${property.title}: ${propertyTypeLabel(property.type)} in ${place}${details ? ` — ${details}` : ""}.`;
   const withCta = `${summary} View photos, pricing and specs on CredXP.`;
   const description = withCta.length <= MAX_DESCRIPTION ? withCta : truncateAtWord(summary, MAX_DESCRIPTION);
   const image = propertyImage(property);
@@ -450,7 +451,7 @@ export function buildRealEstateListingJsonLd(property: Property, id: string) {
     "@context": "https://schema.org",
     "@type": "RealEstateListing",
     name: property.title,
-    description: (property.description || `${property.type} in ${property.location.city}, ${property.location.state}`).slice(0, 500),
+    description: (property.description || `${propertyTypeLabel(property.type)} in ${property.location.city}, ${property.location.state}`).slice(0, 500),
     url: absoluteUrl(propertyPath({ ...property, _id: property._id || id })),
     image: image ? (image.startsWith("/") ? absoluteUrl(image) : image) : undefined,
     datePosted: property.createdAt,

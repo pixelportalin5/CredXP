@@ -13,7 +13,6 @@ import ScrollReveal from "@/components/motion/ScrollReveal";
 import propertyService from "@/services/property.service";
 import coworkingService from "@/services/coworking.service";
 import { FEATURED_TAB_QUERY, featuredTabHref } from "@/utils/propertyFilterParams";
-import { expandInvestTypes } from "@/config/filters";
 import type { Property } from "@/types/property";
 import type { CoworkingSpace } from "@/types/coworking";
 
@@ -39,11 +38,11 @@ export default function HomePageClient({ initialProperties = null, initialCowork
 
   const featuredTabs = [
     { key: "all-properties", label: "All Properties" },
-    { key: "pre-leased-office", label: "Pre-Rented Office Space" },
-    { key: "bank-rented", label: "Bank Rented Properties" },
-    { key: "pre-leased-retail", label: "Pre-Rented Retail / SCO" },
+    { key: "pre-leased-office", label: "Pre-Leased Office" },
+    { key: "bank-rented", label: "Pre-Leased Bank" },
+    { key: "pre-leased-retail", label: "Pre-Leased Retail / SCO" },
     { key: "office-rent", label: "Office spaces available for rent" },
-    { key: "shop-rent", label: "Shops available for rent" },
+    { key: "retail-rent", label: "Retail / SCO for rent" },
   ];
 
   const featuredCardsPerPage = 4;
@@ -67,9 +66,7 @@ export default function HomePageClient({ initialProperties = null, initialCowork
           limit: 20,
           sort: "newest",
           category: tabQuery.mode === "lease" ? "lease" : "investment",
-          ...(tabQuery.type
-            ? { type: tabQuery.mode === "invest" ? expandInvestTypes([tabQuery.type]).join(",") : tabQuery.type }
-            : {}),
+          ...(tabQuery.type ? { type: tabQuery.type } : {}),
         });
         setAllProperties(allRes.data.properties || []);
         setFeaturedPage(0);

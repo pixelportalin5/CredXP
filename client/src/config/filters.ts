@@ -22,30 +22,22 @@ export const CITIES: SelectOption[] = [
 export const PROPERTY_TYPES: SelectOption[] = [
   { label: "All Types", value: "" },
   { label: "Pre-Leased Office", value: "Pre-Leased Office" },
-  { label: "Bank Rented", value: "Bank Rented" },
+  { label: "Pre-Leased Bank", value: "Bank Rented" },
   { label: "Office Space", value: "Office Space" },
   { label: "Retail / SCO", value: "Retail/SCO" },
-  { label: "Shop", value: "Shop" },
   { label: "Warehouse", value: "Warehouse" },
   { label: "Commercial Land", value: "Commercial Land" },
 ];
 
 export const INVEST_ASSET_TYPES: SelectOption[] = [
-  { label: "Pre-Rented Office Space", value: "Pre-Leased Office" },
-  { label: "Bank Rented Properties", value: "Bank Rented" },
-  { label: "Pre-Rented Retail / SCO", value: "Retail/SCO" },
+  { label: "Pre-Leased Office", value: "Pre-Leased Office" },
+  { label: "Pre-Leased Bank", value: "Bank Rented" },
+  { label: "Pre-Leased Retail / SCO", value: "Retail/SCO" },
 ];
-
-/** Pre-leased shops for sale are listed under Retail / SCO on the invest side. */
-const INVEST_TYPE_ALIASES: Record<string, string[]> = { "Retail/SCO": ["Retail/SCO", "Shop"] };
-
-export function expandInvestTypes(types: string[]): string[] {
-  return [...new Set(types.flatMap((type) => INVEST_TYPE_ALIASES[type] || [type]))];
-}
 
 export const LEASE_SPACE_TYPES: SelectOption[] = [
   { label: "Office Space", value: "Office Space" },
-  { label: "Shop", value: "Shop" },
+  { label: "Retail / SCO", value: "Retail/SCO" },
 ];
 
 export const PROPERTY_CATEGORIES: SelectOption[] = [
@@ -132,4 +124,15 @@ export function optionsFromListings(listings: { type?: string; location?: { city
         : PROPERTY_TYPES.filter((option) => option.value)),
     ],
   };
+}
+
+/** Display name for a listing type (badges, labels). */
+const TYPE_LABELS: Record<string, string> = {
+  "Bank Rented": "Pre-Leased Bank",
+  Shop: "Retail / SCO",
+  "Retail/SCO": "Retail / SCO",
+};
+
+export function propertyTypeLabel(type: string): string {
+  return TYPE_LABELS[type] || type;
 }

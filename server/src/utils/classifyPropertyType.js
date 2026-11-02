@@ -42,7 +42,7 @@ function mapExcelType(value) {
   const normalized = normalizeText(value);
   if (!normalized) return null;
   if (normalized.includes("shop") || normalized.includes("retail") || normalized.includes("sco")) {
-    return "Shop";
+    return "Retail/SCO";
   }
   if (normalized.includes("office") || normalized.includes("pre-leased") || normalized.includes("pre leased")) {
     return "Pre-Leased Office";
@@ -64,16 +64,16 @@ function classifyPropertyType(title, description, excelType) {
   const descriptionIsShop = matchesAny(descriptionText, SHOP_SIGNALS);
   const descriptionIsOffice = matchesAny(descriptionText, OFFICE_SIGNALS);
 
-  if (titleIsShop && !titleIsOffice) return "Shop";
+  if (titleIsShop && !titleIsOffice) return "Retail/SCO";
   if (titleIsOffice && !titleIsShop) return "Pre-Leased Office";
 
-  if (descriptionIsShop && !descriptionIsOffice) return "Shop";
+  if (descriptionIsShop && !descriptionIsOffice) return "Retail/SCO";
   if (descriptionIsOffice && !descriptionIsShop) return "Pre-Leased Office";
 
   if (fromExcel) return fromExcel;
 
   if (matchesAny(combined, SHOP_SIGNALS) && !matchesAny(combined, OFFICE_SIGNALS)) {
-    return "Shop";
+    return "Retail/SCO";
   }
 
   return "Pre-Leased Office";

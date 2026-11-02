@@ -1,5 +1,4 @@
 import type { Property, PropertyFilters } from "@/types/property";
-import { expandInvestTypes } from "@/config/filters";
 
 export type PropertyDirectoryMode = "invest" | "lease";
 
@@ -77,8 +76,7 @@ export function filtersToApiParams(filters: PropertyFilters, mode: PropertyDirec
     sort: filters.sort || "newest",
   };
 
-  const types = filters.types || [];
-  const typeParam = typesToParam(mode === "invest" ? expandInvestTypes(types) : types);
+  const typeParam = typesToParam(filters.types || []);
   if (typeParam) params.type = typeParam;
   if (filters.status) params.status = filters.status;
   if (filters.city) params.city = filters.city;
@@ -107,7 +105,7 @@ export const FEATURED_TAB_QUERY: Record<string, { mode: PropertyDirectoryMode; t
   "bank-rented": { mode: "invest", type: "Bank Rented" },
   "pre-leased-retail": { mode: "invest", type: "Retail/SCO" },
   "office-rent": { mode: "lease", type: "Office Space" },
-  "shop-rent": { mode: "lease", type: "Shop" },
+  "retail-rent": { mode: "lease", type: "Retail/SCO" },
 };
 
 export function featuredTabHref(tabKey: string): string {

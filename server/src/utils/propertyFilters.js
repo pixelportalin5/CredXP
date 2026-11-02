@@ -1,7 +1,7 @@
 const CATEGORY_TYPE_MAP = {
-  "pre-leased": ["Pre-Leased Office", "Bank Rented", "Shop", "Retail/SCO"],
-  investment: ["Pre-Leased Office", "Bank Rented", "Shop", "Retail/SCO"],
-  lease: ["Office Space", "Shop"],
+  "pre-leased": ["Pre-Leased Office", "Bank Rented", "Retail/SCO"],
+  investment: ["Pre-Leased Office", "Bank Rented", "Retail/SCO"],
+  lease: ["Office Space", "Retail/SCO"],
 };
 
 const LISTING_STATUS_VALUES = new Set(["Recently Posted", "Trending"]);

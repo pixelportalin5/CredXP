@@ -1,5 +1,5 @@
 const { classifyPropertyType } = require("../utils/classifyPropertyType");
-const { withBankRentedType } = require("../utils/bankTenant");
+const { normalizeListingType } = require("../utils/listingType");
 
 const ALLOWED_TYPES = new Set([
   "Pre-Leased Office",
@@ -121,7 +121,7 @@ function mapPropertyType(rawType, title, description) {
   if (lower.includes("cowork")) return "Coworking Space";
   if (lower.includes("retail") || lower.includes("sco")) return "Retail/SCO";
   if (lower.includes("office space") || lower === "office") return "Office Space";
-  if (lower.includes("shop")) return "Shop";
+  if (lower.includes("shop")) return "Retail/SCO";
   if (lower.includes("pre-leased") || lower.includes("pre leased")) return "Pre-Leased Office";
 
   return classifyPropertyType(title, description, candidate) || "Office Space";
@@ -215,7 +215,7 @@ const TYPE_OF_PROPERTY = {
   "bank rented property for sale": { type: "Bank Rented", lease: false },
   "coworking space": { type: "Coworking Space", lease: true },
   "office space for lease": { type: "Office Space", lease: true },
-  "commercial shop for lease": { type: "Shop", lease: true },
+  "commercial shop for lease": { type: "Retail/SCO", lease: true },
 };
 
 const RETAIL_HINTS = ["ground", "shop", "retail", "sco", "showroom", "road facing", "high street"];
@@ -470,7 +470,7 @@ function mapZohoRecordToProperty(rawBody) {
 
   const mapped = {
     title,
-    type: withBankRentedType(type, tenantName, priceUnit),
+    type: normalizeListingType(type, tenantName, priceUnit),
     description,
     location: { address, city, state },
     price,
