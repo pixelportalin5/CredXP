@@ -104,6 +104,7 @@ export const FEATURED_TAB_QUERY: Record<string, { mode: PropertyDirectoryMode; t
   "pre-leased-office": { mode: "invest", type: "Pre-Leased Office" },
   "bank-rented": { mode: "invest", type: "Bank Rented" },
   "pre-leased-retail": { mode: "invest", type: "Retail/SCO" },
+  "industrial-land": { mode: "invest", type: "Commercial Land" },
   "office-rent": { mode: "lease", type: "Office Space" },
   "retail-rent": { mode: "lease", type: "Retail/SCO" },
 };

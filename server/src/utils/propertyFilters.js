@@ -1,6 +1,6 @@
 const CATEGORY_TYPE_MAP = {
-  "pre-leased": ["Pre-Leased Office", "Bank Rented", "Retail/SCO"],
-  investment: ["Pre-Leased Office", "Bank Rented", "Retail/SCO"],
+  "pre-leased": ["Pre-Leased Office", "Bank Rented", "Retail/SCO", "Commercial Land", "Warehouse"],
+  investment: ["Pre-Leased Office", "Bank Rented", "Retail/SCO", "Commercial Land", "Warehouse"],
   lease: ["Office Space", "Retail/SCO"],
 };
 

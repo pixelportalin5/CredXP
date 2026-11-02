@@ -219,6 +219,7 @@ export default function PropertyListingForm({
               { label: "Pre-Leased Office", value: "Pre-Leased Office" },
               { label: "Pre-Leased Bank", value: "Bank Rented" },
               { label: "Pre-Leased Retail / SCO", value: "Retail/SCO" },
+              { label: "Industrial & Land", value: "Commercial Land" },
               { label: "Office Space (for lease)", value: "Office Space" },
               { label: "Coworking Space", value: "Coworking Space" },
             ]} />

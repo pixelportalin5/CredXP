@@ -133,7 +133,7 @@ const REQUIRED_COLUMNS = [
 ];
 
 const ENUMS = {
-  type: ["Pre-Leased Office", "Bank Rented", "Retail/SCO", "Office Space", "Coworking Space"],
+  type: ["Pre-Leased Office", "Bank Rented", "Retail/SCO", "Commercial Land", "Warehouse", "Office Space", "Coworking Space"],
   status: ["Recently Posted", "Trending"],
   priceUnit: ["month", "year", "sqft", "total"],
   sizeUnit: ["sqft", "sqm"],

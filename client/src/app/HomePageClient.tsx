@@ -41,6 +41,7 @@ export default function HomePageClient({ initialProperties = null, initialCowork
     { key: "pre-leased-office", label: "Pre-Leased Office" },
     { key: "bank-rented", label: "Pre-Leased Bank" },
     { key: "pre-leased-retail", label: "Pre-Leased Retail / SCO" },
+    { key: "industrial-land", label: "Industrial & Land" },
     { key: "office-rent", label: "Office spaces available for rent" },
     { key: "retail-rent", label: "Retail / SCO for rent" },
   ];

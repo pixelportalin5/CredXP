@@ -1,6 +1,6 @@
 "use client";
 
-import { propertyTypeLabel } from "@/config/filters";
+import { isLandOrIndustrial, propertyTypeLabel } from "@/config/filters";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -51,7 +51,15 @@ export default function PropertyCard({ property, variant = "default", priorityIm
   const roi = deal?.roi ?? financials?.rentalYield;
   const monthlyRent = deal?.monthlyRent;
   const area = deal?.sellableArea ?? size;
-  const figures = isInvestment
+  const ratePerSqft = price && area ? price / area : undefined;
+  const figures = isLandOrIndustrial(type)
+    ? [
+        { label: "Price", value: formatPriceCompact(price) },
+        { label: "Area", value: area ? formatSize(area) : "On request" },
+        { label: "Rate / sqft", value: ratePerSqft ? `₹${Math.round(ratePerSqft).toLocaleString("en-IN")}` : "On request" },
+        { label: "Rate / sq yd", value: ratePerSqft ? `₹${Math.round(ratePerSqft * 9).toLocaleString("en-IN")}` : "On request" },
+      ]
+    : isInvestment
     ? [
         { label: "Price", value: formatPriceCompact(price) },
         { label: "Rent / month", value: monthlyRent ? formatDealAmount(Math.round(monthlyRent)) : "On request" },
