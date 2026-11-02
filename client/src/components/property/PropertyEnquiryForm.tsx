@@ -10,6 +10,7 @@ import { useToast } from "@/components/providers/ToastProvider";
 import enquiryService from "@/services/enquiry.service";
 import { siteConfig } from "@/config/site";
 import { trackEvent } from "@/lib/analytics";
+import { whatsappUrl } from "@/utils/whatsapp";
 
 /* ============================================================
    PropertyEnquiryForm — Lead Capture for Property Detail
@@ -118,7 +119,7 @@ export default function PropertyEnquiryForm({ propertyTitle, propertyId, coworki
           Call Now
         </a>
         <a
-          href={`https://wa.me/${siteConfig.contact.whatsapp}?text=Hi, I'm interested in: ${encodeURIComponent(propertyTitle)}`}
+          href={whatsappUrl(`Hi, I'm interested in: ${propertyTitle}`)}
           target="_blank"
           rel="noopener noreferrer"
           className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-emerald-400/20 bg-emerald-400/10 py-2.5 text-xs font-medium text-emerald-200 transition-colors hover:bg-emerald-400/15"
