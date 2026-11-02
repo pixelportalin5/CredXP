@@ -9,6 +9,7 @@ import {
   Clock, Shield, Users,
 } from "lucide-react";
 import type { Metadata } from "next";
+import { whatsappUrl } from "@/utils/whatsapp";
 
 export const metadata: Metadata = {
   title: "Contact Us – Get Expert CRE Guidance",
@@ -100,7 +101,7 @@ export default function ContactPage() {
               </Card>
 
               <a
-                href={`https://wa.me/${siteConfig.contact.whatsapp}`}
+                href={whatsappUrl()}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block"

@@ -251,19 +251,43 @@ export function isPropertyAvailable(property: Pick<Property, "listingStatus" | "
   return !property.listingStatus || property.listingStatus === "published";
 }
 
+// Root layout appends " | CredXP" (9 chars); keep the whole title within ~65.
+const MAX_PAGE_TITLE = 56;
+const MAX_DESCRIPTION = 160;
+
+function truncateAtWord(text: string, max: number): string {
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max - 1);
+  const lastSpace = cut.lastIndexOf(" ");
+  return `${(lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut).replace(/[\s,–—-]+$/, "")}…`;
+}
+
+function buildPropertyTitle(property: Property): string {
+  const { title: name, type, location } = property;
+  const lowerName = name.toLowerCase();
+  const mentionsCity = [location.city, "gurgaon", "gurugram"].some((city) => city && lowerName.includes(city.toLowerCase()));
+  const suffix = lowerName.includes(type.toLowerCase())
+    ? mentionsCity ? "" : location.city
+    : mentionsCity ? type : `${type} in ${location.city}`;
+  const full = suffix ? `${name} – ${suffix}` : name;
+  if (full.length <= MAX_PAGE_TITLE) return full;
+  return truncateAtWord(name, MAX_PAGE_TITLE);
+}
+
 export function buildPropertyMetadata(property: Property, id: string): Metadata {
   const { location } = property;
   const place = [location.micromarket, location.city].filter(Boolean).join(", ");
-  // Skip the type when the listing name already contains it ("Pre-Leased Office - ...").
-  const nameHasType = property.title.toLowerCase().includes(property.type.toLowerCase());
-  const title = `${property.title} – ${nameHasType ? location.city : `${property.type} in ${location.city}`}`;
+  const title = buildPropertyTitle(property);
   const details = [
     property.size ? formatSize(property.size) : null,
     property.price ? formatPriceCompact(property.price) : null,
     property.financials?.rentalYield ? `${property.financials.rentalYield}% rental yield` : null,
     property.tenant?.name ? `leased to ${property.tenant.name}` : null,
   ].filter(Boolean).join(" · ");
-  const description = `${property.type} in ${place}, ${location.state}${details ? ` — ${details}` : ""}. View photos, pricing, tenant details and specs on CredXP.`;
+  // Leading with the listing name keeps descriptions unique for near-identical units.
+  const summary = `${property.title}: ${property.type} in ${place}${details ? ` — ${details}` : ""}.`;
+  const withCta = `${summary} View photos, pricing and specs on CredXP.`;
+  const description = withCta.length <= MAX_DESCRIPTION ? withCta : truncateAtWord(summary, MAX_DESCRIPTION);
   const image = propertyImage(property);
   const canonical = propertyPath({ ...property, _id: property._id || id });
   const available = isPropertyAvailable(property);

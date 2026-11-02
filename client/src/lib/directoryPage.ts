@@ -25,6 +25,8 @@ export function directoryMetadata(base: Metadata, basePath: string, params: RawS
   return {
     ...base,
     title: `${String(base.title)} – Page ${page}`,
+    // Unique per page so paginated URLs don't share page 1's description.
+    description: `Page ${page} of listings. ${String(base.description ?? "")}`.trim(),
     alternates: { canonical: `${basePath}?page=${page}` },
   };
 }

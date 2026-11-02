@@ -110,7 +110,9 @@ export const FEATURED_TAB_QUERY: Record<string, { mode: PropertyDirectoryMode; t
 export function featuredTabHref(tabKey: string): string {
   const query = FEATURED_TAB_QUERY[tabKey] || { mode: "invest" as const };
   const base = query.mode === "lease" ? "/lease" : "/invest";
-  const params = new URLSearchParams({ page: "1", limit: "6" });
+  // Page 1 and limit 6 are the directory defaults; leaving them out keeps
+  // "View all" pointing at the canonical /invest or /lease URL.
+  const params = new URLSearchParams();
   if (query.type) params.set("type", query.type);
   const qs = params.toString();
   return qs ? `${base}?${qs}` : base;

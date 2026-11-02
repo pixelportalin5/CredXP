@@ -6,7 +6,7 @@ import RippleButton from "@/components/ui/RippleButton";
 import ScrollReveal from "@/components/motion/ScrollReveal";
 import { ArrowRight, MessageCircle } from "lucide-react";
 import Link from "next/link";
-import { siteConfig } from "@/config/site";
+import { whatsappUrl } from "@/utils/whatsapp";
 
 interface LeadCaptureBarProps {
   title?: string;
@@ -45,7 +45,7 @@ export default function LeadCaptureBar({
             </RippleButton>
             <RippleButton>
               <a
-                href={`https://wa.me/${siteConfig.contact.whatsapp}`}
+                href={whatsappUrl()}
                 target="_blank"
                 rel="noopener noreferrer"
               >
