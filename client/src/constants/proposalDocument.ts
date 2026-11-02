@@ -55,6 +55,11 @@ export const KEY_FEATURES_BY_TYPE: Partial<Record<PropertyType, KeyFeature[]>> =
     { title: "Fresh Lease", subtitle: "Multi-year lock-in" },
     { title: "High Returns", subtitle: "Stable cash flow" },
   ],
+  "Bank Rented": [
+    { title: "Bank Tenant", subtitle: "Regulated, low-risk tenant" },
+    { title: "Long Lease", subtitle: "Multi-year lock-in" },
+    { title: "Stable Returns", subtitle: "Predictable rental income" },
+  ],
   "Office Space": [
     { title: "Premium Office", subtitle: "Enterprise-ready space" },
     { title: "Flexible Terms", subtitle: "Lease options available" },

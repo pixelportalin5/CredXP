@@ -36,6 +36,7 @@ enum PropertyListingType {
   Shop
   Warehouse
   Commercial_Land    @map("Commercial Land")
+  Bank_Rented        @map("Bank Rented")
 }
 
 enum PriceUnit {

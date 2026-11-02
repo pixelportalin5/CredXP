@@ -9,6 +9,7 @@ const PROPERTY_TYPE_FROM_API = {
   Shop: "Shop",
   Warehouse: "Warehouse",
   "Commercial Land": "Commercial_Land",
+  "Bank Rented": "Bank_Rented",
 };
 
 const PROPERTY_TYPE_TO_API = Object.fromEntries(

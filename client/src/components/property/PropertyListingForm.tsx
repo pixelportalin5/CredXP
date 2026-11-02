@@ -216,6 +216,9 @@ export default function PropertyListingForm({
           </FormField>
           <FormField label="Property Type">
             <EnterpriseSelect name="type" defaultValue={initialValues.type} required options={[
+              { label: "Pre-Rented Office Space", value: "Pre-Leased Office" },
+              { label: "Bank Rented Property", value: "Bank Rented" },
+              { label: "Pre-Rented Retail / SCO", value: "Retail/SCO" },
               { label: "Office Space", value: "Office Space" },
               { label: "Shop", value: "Shop" },
               { label: "Coworking Space", value: "Coworking Space" },

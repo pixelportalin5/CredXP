@@ -10,8 +10,9 @@ export const mainNavLinks: NavLink[] = [
     href: "/invest",
     label: "Invest",
     children: [
-      { href: "/invest?type=Pre-Leased+Office", label: "Pre-Leased Offices" },
-      { href: "/invest?type=Shop", label: "Pre-Leased Shops" },
+      { href: "/invest?type=Pre-Leased+Office", label: "Pre-Rented Office Space" },
+      { href: "/invest?type=Bank+Rented", label: "Bank Rented Properties" },
+      { href: "/invest?type=Retail%2FSCO", label: "Pre-Rented Retail / SCO" },
       { href: "/invest", label: "All Investments" },
     ],
   },

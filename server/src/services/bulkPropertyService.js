@@ -4,6 +4,7 @@ const ExcelJS = require("exceljs");
 const xlsx = require("xlsx");
 const propertyService = require("./propertyService");
 const imageUploadService = require("./imageUploadService");
+const { withBankRentedType } = require("../utils/bankTenant");
 
 const TEMPLATE_COLUMNS = [
   "title",
@@ -132,7 +133,7 @@ const REQUIRED_COLUMNS = [
 ];
 
 const ENUMS = {
-  type: ["Pre-Leased Office", "Office Space", "Retail/SCO", "Shop", "Coworking Space"],
+  type: ["Pre-Leased Office", "Bank Rented", "Retail/SCO", "Office Space", "Shop", "Coworking Space"],
   status: ["Recently Posted", "Trending"],
   priceUnit: ["month", "year", "sqft", "total"],
   sizeUnit: ["sqft", "sqm"],
@@ -315,7 +316,7 @@ function rowToProperty(row, imageMap) {
   return {
     property: {
       title: clean(row.title),
-      type,
+      type: withBankRentedType(type, row.tenantName, priceUnit),
       location: {
         address: clean(row.address),
         city: clean(row.city),
@@ -397,7 +398,7 @@ async function generateTemplate() {
 
   const sampleRow = {
     title: "Pre-Leased Bank Office - Alphathum, Sector 90, Noida",
-    type: "Pre-Leased Office",
+    type: "Bank Rented",
     status: "Recently Posted",
     buildingName: "Alphathum Noida World One",
     description: "",

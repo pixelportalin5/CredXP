@@ -1,4 +1,5 @@
 import type { Property, PropertyFilters } from "@/types/property";
+import { expandInvestTypes } from "@/config/filters";
 
 export type PropertyDirectoryMode = "invest" | "lease";
 
@@ -76,7 +77,8 @@ export function filtersToApiParams(filters: PropertyFilters, mode: PropertyDirec
     sort: filters.sort || "newest",
   };
 
-  const typeParam = typesToParam(filters.types || []);
+  const types = filters.types || [];
+  const typeParam = typesToParam(mode === "invest" ? expandInvestTypes(types) : types);
   if (typeParam) params.type = typeParam;
   if (filters.status) params.status = filters.status;
   if (filters.city) params.city = filters.city;
@@ -102,7 +104,8 @@ export function getListingDirectoryPath(property: Property): "/invest" | "/lease
 export const FEATURED_TAB_QUERY: Record<string, { mode: PropertyDirectoryMode; type?: string }> = {
   "all-properties": { mode: "invest" },
   "pre-leased-office": { mode: "invest", type: "Pre-Leased Office" },
-  "pre-leased-shop": { mode: "invest", type: "Shop" },
+  "bank-rented": { mode: "invest", type: "Bank Rented" },
+  "pre-leased-retail": { mode: "invest", type: "Retail/SCO" },
   "office-rent": { mode: "lease", type: "Office Space" },
   "shop-rent": { mode: "lease", type: "Shop" },
 };
