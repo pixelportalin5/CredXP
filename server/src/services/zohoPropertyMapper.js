@@ -390,7 +390,7 @@ function mapZohoRecordToProperty(rawBody) {
     pick(record, ["meetingRooms", "Meeting_Rooms", "specs.meetingRooms"])
   );
   const washrooms = asNumber(pick(record, ["washrooms", "Washrooms", "specs.washrooms"]));
-  const units = asNumber(pick(record, ["units", "Units", "No_Of_Units", "Number_Of_Units", "specs.units"]));
+  const units = asNumber(pick(record, ["units", "Units", "No_of_Units", "No_Of_Units", "Number_Of_Units", "specs.units"]));
   const pantry = asBoolean(pick(record, ["pantry", "Pantry", "specs.pantry"]));
   const sizeUnitRaw = asString(pick(record, ["sizeUnit", "Size_Unit", "specs.sizeUnit"]), "sqft").toLowerCase();
   const sizeUnit = ALLOWED_SIZE_UNITS.has(sizeUnitRaw) ? sizeUnitRaw : "sqft";
