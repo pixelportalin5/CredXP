@@ -38,6 +38,9 @@ const propertySchema = new mongoose.Schema(
       rentalYield: { type: Number },
       capRate: { type: Number },
       escalation: { type: String },
+      monthlyRent: { type: Number },
+      rentPerSqft: { type: Number },
+      securityDepositMonths: { type: Number },
     },
     specs: {
       size: { type: Number },
@@ -51,12 +54,16 @@ const propertySchema = new mongoose.Schema(
       meetingRooms: { type: Number },
       pantry: { type: Boolean },
       washrooms: { type: Number },
+      units: { type: Number },
     },
     tenant: {
       name: { type: String },
       industry: { type: String },
       leaseExpiry: { type: String },
       lockInPeriod: { type: String },
+      areaLeased: { type: Number },
+      leaseTenure: { type: String },
+      leaseStart: { type: String },
     },
     amenities: [{ type: String }],
     images: {

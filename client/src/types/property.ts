@@ -49,6 +49,10 @@ export interface PropertyFinancials {
   rentalYield?: number;
   capRate?: number;
   escalation?: string;
+  /** Rent for the offered area, per month. */
+  monthlyRent?: number;
+  rentPerSqft?: number;
+  securityDepositMonths?: number;
 }
 
 export interface PropertySpecs {
@@ -63,6 +67,8 @@ export interface PropertySpecs {
   meetingRooms?: number;
   pantry?: boolean;
   washrooms?: number;
+  /** Number of identical units on offer; size and price are per unit. */
+  units?: number;
 }
 
 export interface PropertyTenant {
@@ -70,6 +76,10 @@ export interface PropertyTenant {
   industry?: string;
   leaseExpiry?: string;
   lockInPeriod?: string;
+  /** Total area the tenant has taken in the building, in sqft. */
+  areaLeased?: number;
+  leaseTenure?: string;
+  leaseStart?: string;
 }
 
 export interface Property {

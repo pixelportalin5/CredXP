@@ -26,8 +26,12 @@ const TEMPLATE_COLUMNS = [
   "rentalYield",
   "capRate",
   "escalation",
+  "monthlyRent",
+  "rentPerSqft",
+  "securityDepositMonths",
   "specSize",
   "sizeUnit",
+  "units",
   "floors",
   "totalFloors",
   "furnishing",
@@ -41,6 +45,9 @@ const TEMPLATE_COLUMNS = [
   "tenantIndustry",
   "leaseExpiry",
   "lockInPeriod",
+  "totalAreaLeased",
+  "leaseTenure",
+  "leaseStartDate",
   "reraId",
   "grade",
   "occupancy",
@@ -75,8 +82,12 @@ const TEMPLATE_COLUMN_WIDTHS = {
   rentalYield: 12,
   capRate: 10,
   escalation: 18,
+  monthlyRent: 14,
+  rentPerSqft: 12,
+  securityDepositMonths: 20,
   specSize: 10,
   sizeUnit: 10,
+  units: 8,
   floors: 8,
   totalFloors: 12,
   furnishing: 20,
@@ -90,6 +101,9 @@ const TEMPLATE_COLUMN_WIDTHS = {
   tenantIndustry: 20,
   leaseExpiry: 14,
   lockInPeriod: 16,
+  totalAreaLeased: 16,
+  leaseTenure: 14,
+  leaseStartDate: 16,
   reraId: 18,
   grade: 8,
   occupancy: 12,
@@ -107,21 +121,18 @@ const REQUIRED_COLUMNS = [
   "title",
   "type",
   "status",
-  "description",
   "address",
   "city",
   "state",
   "price",
   "size",
-  "financialPrice",
-  "specSize",
   "image1",
   "image2",
   "image3",
 ];
 
 const ENUMS = {
-  type: ["Office Space", "Shop", "Coworking Space"],
+  type: ["Pre-Leased Office", "Office Space", "Retail/SCO", "Shop", "Coworking Space"],
   status: ["Recently Posted", "Trending"],
   priceUnit: ["month", "year", "sqft", "total"],
   sizeUnit: ["sqft", "sqm"],
@@ -149,18 +160,55 @@ function optionalString(value) {
   return next || undefined;
 }
 
+const AMOUNT_SUFFIXES = [
+  [/(crores?|cr)$/, 1e7],
+  [/(lakhs?|lacs?|l)$/, 1e5],
+];
+
+/**
+ * Parses numbers the way deal sheets write them: "3,96,060/-", "₹ 105",
+ * "4%", "11.89cr", "48 Lacs", "6 Months".
+ */
+function parseNumber(raw) {
+  let text = clean(raw).toLowerCase().replace(/₹|rs\.?|inr|,|\/-|\/_|%/g, "").trim();
+  let multiplier = 1;
+  for (const [pattern, factor] of AMOUNT_SUFFIXES) {
+    if (pattern.test(text)) {
+      text = text.replace(pattern, "").trim();
+      multiplier = factor;
+      break;
+    }
+  }
+  text = text.replace(/\s*(months?|years?|yrs?|sq\.?\s*ft\.?|sqft|psf)$/, "").trim();
+  if (!text) return NaN;
+  const parsed = Number(text);
+  return Number.isFinite(parsed) ? parsed * multiplier : NaN;
+}
+
 function numberValue(value, label, errors, required = false) {
   const next = clean(value);
   if (!next) {
     if (required) errors.push(`${label} is required`);
     return undefined;
   }
-  const parsed = Number(next);
+  const parsed = parseNumber(next);
   if (Number.isNaN(parsed)) {
     errors.push(`${label} must be a number`);
     return undefined;
   }
   return parsed;
+}
+
+function defaultDescription(row, type) {
+  const place = [clean(row.micromarket) || clean(row.address), clean(row.city)].filter(Boolean).join(", ");
+  const building = clean(row.buildingName);
+  const tenant = clean(row.tenantName);
+  return [
+    `${type}${building ? ` in ${building}` : ""}${place ? `, ${place}` : ""}.`,
+    tenant ? `Leased to ${tenant}.` : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 }
 
 function booleanValue(value, defaultValue = false) {
@@ -253,8 +301,12 @@ function rowToProperty(row, imageMap) {
 
   const price = numberValue(row.price, "price", errors, true);
   const size = numberValue(row.size, "size", errors, true);
-  const financialPrice = numberValue(row.financialPrice, "financialPrice", errors, true);
-  const specSize = numberValue(row.specSize, "specSize", errors, true);
+  const financialPrice = numberValue(row.financialPrice, "financialPrice", errors) ?? price;
+  const specSize = numberValue(row.specSize, "specSize", errors) ?? size;
+  const units = numberValue(row.units, "units", errors);
+  if (units !== undefined && (!Number.isInteger(units) || units < 1)) {
+    errors.push("units must be a whole number of 1 or more");
+  }
 
   if (errors.length > 0) {
     return { errors };
@@ -282,6 +334,9 @@ function rowToProperty(row, imageMap) {
         rentalYield: numberValue(row.rentalYield, "rentalYield", errors),
         capRate: numberValue(row.capRate, "capRate", errors),
         escalation: optionalString(row.escalation),
+        monthlyRent: numberValue(row.monthlyRent, "monthlyRent", errors),
+        rentPerSqft: numberValue(row.rentPerSqft, "rentPerSqft", errors),
+        securityDepositMonths: numberValue(row.securityDepositMonths, "securityDepositMonths", errors),
       },
       specs: {
         size: specSize,
@@ -295,12 +350,16 @@ function rowToProperty(row, imageMap) {
         meetingRooms: numberValue(row.meetingRooms, "meetingRooms", errors),
         pantry: booleanValue(row.pantry),
         washrooms: numberValue(row.washrooms, "washrooms", errors),
+        units,
       },
       tenant: {
         name: optionalString(row.tenantName),
         industry: optionalString(row.tenantIndustry),
         leaseExpiry: optionalString(row.leaseExpiry),
         lockInPeriod: optionalString(row.lockInPeriod),
+        areaLeased: numberValue(row.totalAreaLeased, "totalAreaLeased", errors),
+        leaseTenure: optionalString(row.leaseTenure),
+        leaseStart: optionalString(row.leaseStartDate),
       },
       amenities: splitList(row.amenities),
       images: imageUrlsFromRow(image1, image2, image3),
@@ -312,7 +371,7 @@ function rowToProperty(row, imageMap) {
       reraId: optionalString(row.reraId),
       buildingName: optionalString(row.buildingName),
       highlights: splitList(row.highlights),
-      description: clean(row.description),
+      description: clean(row.description) || defaultDescription(row, type),
       isActive: booleanValue(row.isActive, true),
       featured: booleanValue(row.featured),
       listingStatus,
@@ -337,46 +396,53 @@ async function generateTemplate() {
   workbook.created = new Date();
 
   const sampleRow = {
-    title: "Sample Office Space",
-    type: "Office Space",
+    title: "Pre-Leased Bank Office - Alphathum, Sector 90, Noida",
+    type: "Pre-Leased Office",
     status: "Recently Posted",
-    buildingName: "CredXP Tower",
-    description: "Premium commercial office listing description.",
-    address: "Plot 1, Business District",
-    city: "Gurugram",
-    state: "Haryana",
-    pincode: "122001",
-    micromarket: "Golf Course Road",
-    landmark: "Near Metro Station",
-    price: 25000000,
-    size: 5000,
-    financialPrice: 25000000,
+    buildingName: "Alphathum Noida World One",
+    description: "",
+    address: "Alphathum, Sector 90, Noida Expressway",
+    city: "Noida",
+    state: "Uttar Pradesh",
+    pincode: "201305",
+    micromarket: "Sector 90, Noida Expressway",
+    landmark: "",
+    price: "11.89cr",
+    size: 3772,
+    financialPrice: "",
     priceUnit: "total",
-    securityDeposit: 0,
-    maintenanceCharges: 0,
-    rentalYield: 8,
-    capRate: 7,
-    escalation: "5% yearly",
-    specSize: 5000,
+    securityDeposit: "23,76,360",
+    maintenanceCharges: "",
+    rentalYield: "",
+    capRate: "",
+    escalation: "15% after every 3 years",
+    monthlyRent: "3,96,060",
+    rentPerSqft: 105,
+    securityDepositMonths: 6,
+    specSize: "",
     sizeUnit: "sqft",
-    floors: 5,
-    totalFloors: 12,
-    furnishing: "Fully Furnished",
-    parking: 4,
-    cabins: 5,
-    workstations: 80,
-    meetingRooms: 3,
-    pantry: "yes",
-    washrooms: 4,
-    tenantName: "Sample Tenant",
-    tenantIndustry: "Technology",
-    leaseExpiry: "2030-12-31",
-    lockInPeriod: "36 months",
-    reraId: "RERA-123",
-    grade: "A",
-    occupancy: 95,
-    amenities: "Power Backup, Lift, Security",
-    highlights: "Metro Connected, Grade A Asset",
+    units: 1,
+    floors: "",
+    totalFloors: "",
+    furnishing: "",
+    parking: "",
+    cabins: "",
+    workstations: "",
+    meetingRooms: "",
+    pantry: "",
+    washrooms: "",
+    tenantName: "DCB Bank",
+    tenantIndustry: "Banking",
+    leaseExpiry: "",
+    lockInPeriod: "3 years",
+    totalAreaLeased: 3772,
+    leaseTenure: "6 years",
+    leaseStartDate: "Aug 2026",
+    reraId: "",
+    grade: "",
+    occupancy: "",
+    amenities: "",
+    highlights: "",
     isActive: "yes",
     featured: "no",
     listingStatus: "published",
@@ -418,6 +484,17 @@ async function generateTemplate() {
     ["Upload this Excel file together with a ZIP containing all referenced image files."],
     ["image1, image2, and image3 must exactly match filenames inside the ZIP."],
     ["Comma-separated fields: amenities, highlights."],
+    [""],
+    ["Pre-leased deals (shown on the listing page as a deal sheet):"],
+    ["  size = sellable / offered area per unit (sqft). units = number of identical units on offer (e.g. 2 for '458 sqft x 2 units')."],
+    ["  price = deal value per unit. You can type 11.89cr, 48 Lacs or 48,00,000."],
+    ["  totalAreaLeased = total area taken by the tenant in the building (sqft)."],
+    ["  monthlyRent = rent for the offered area, e.g. 3,96,060. Or leave it blank and fill rentPerSqft (e.g. 50.50) instead."],
+    ["  securityDeposit = amount, or leave it blank and fill securityDepositMonths (e.g. 6)."],
+    ["  rentalYield (ROI %) is optional: if blank it is worked out from rent and price."],
+    ["  leaseTenure, lockInPeriod, escalation, leaseStartDate are text, e.g. '9 years', '3 years', '15% after every 3 years', 'Aug 2026'."],
+    ["  description is optional: if blank, one is written from building, location and tenant."],
+    [""],
     [`type: ${ENUMS.type.join(", ")}`],
     [`status: ${ENUMS.status.join(", ")}`],
     [`priceUnit: ${ENUMS.priceUnit.join(", ")}`],

@@ -25,6 +25,8 @@ const PROPERTY_PRISMA_LIST_SELECT = {
   financialPrice: true,
   financialPriceUnit: true,
   financialRentalYield: true,
+  financialMonthlyRent: true,
+  financialRentPerSqft: true,
   specSize: true,
   specSizeUnit: true,
   specFurnishing: true,
@@ -175,6 +177,39 @@ const propertyService = {
 
     invalidatePrefix("properties");
     return toApiProperty(updated);
+  },
+
+  /**
+   * Create or update the listing linked to a Zoho CRM record.
+   * Fields Zoho doesn't send (views, enquiries, seller, images when none
+   * were synced) are kept from the existing listing.
+   */
+  async upsertFromZoho(zohoId, data) {
+    const existing = await prisma.property.findUnique({ where: { zohoId } });
+    const syncFields = { zohoId, zohoLastSync: new Date() };
+
+    if (existing) {
+      const merged = { ...toApiProperty(existing), ...data };
+      const payload = data.images ? await applyCoverImage(merged) : merged;
+      const updated = await prisma.property.update({
+        where: { id: existing.id },
+        data: { ...propertyDataToPrisma(payload, { sellerUuid: existing.sellerId }), ...syncFields },
+      });
+      invalidatePrefix("properties");
+      return { property: toApiProperty(updated), created: false };
+    }
+
+    const payload = await applyCoverImage({ ...data });
+    const created = await prisma.property.create({
+      data: {
+        id: newUuid(),
+        legacyMongoId: newLegacyMongoId(),
+        ...propertyDataToPrisma(payload),
+        ...syncFields,
+      },
+    });
+    invalidatePrefix("properties");
+    return { property: toApiProperty(created), created: true };
   },
 
   async deleteByOwner(id, user) {
