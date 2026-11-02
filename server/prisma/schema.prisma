@@ -147,6 +147,9 @@ model Property {
   financialRentalYield   Float?          @map("financial_rental_yield")
   financialCapRate       Float?          @map("financial_cap_rate")
   financialEscalation    String?         @map("financial_escalation")
+  financialMonthlyRent   Float?          @map("financial_monthly_rent")
+  financialRentPerSqft   Float?          @map("financial_rent_per_sqft")
+  financialSecurityDepositMonths Float?  @map("financial_security_deposit_months")
   specSize           Float?              @map("spec_size")
   specSizeUnit       SizeUnit?           @map("spec_size_unit")
   specFloors         Int?                @map("spec_floors")
@@ -158,10 +161,14 @@ model Property {
   specMeetingRooms   Int?                @map("spec_meeting_rooms")
   specPantry         Boolean?            @map("spec_pantry")
   specWashrooms      Int?                @map("spec_washrooms")
+  specUnits          Int?                @map("spec_units")
   tenantName         String?             @map("tenant_name")
   tenantIndustry     String?             @map("tenant_industry")
   tenantLeaseExpiry  String?             @map("tenant_lease_expiry")
   tenantLockInPeriod String?             @map("tenant_lock_in_period")
+  tenantAreaLeased   Float?              @map("tenant_area_leased")
+  tenantLeaseTenure  String?             @map("tenant_lease_tenure")
+  tenantLeaseStart   String?             @map("tenant_lease_start")
   amenities          String[]
   highlights         String[]
   images             String[]

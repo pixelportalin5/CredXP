@@ -25,6 +25,8 @@ const PROPERTY_PRISMA_LIST_SELECT = {
   financialPrice: true,
   financialPriceUnit: true,
   financialRentalYield: true,
+  financialMonthlyRent: true,
+  financialRentPerSqft: true,
   specSize: true,
   specSizeUnit: true,
   specFurnishing: true,

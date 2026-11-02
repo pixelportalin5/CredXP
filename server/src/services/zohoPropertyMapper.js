@@ -252,6 +252,15 @@ function mapZohoRecordToProperty(rawBody) {
   const escalation = asString(
     pick(record, ["escalation", "Escalation", "financials.escalation"])
   );
+  const monthlyRent = asNumber(
+    pick(record, ["monthlyRent", "Monthly_Rent", "Rent", "financials.monthlyRent"])
+  );
+  const rentPerSqft = asNumber(
+    pick(record, ["rentPerSqft", "Rent_Per_Sqft", "Rent_Per_Sq_Ft", "financials.rentPerSqft"])
+  );
+  const securityDepositMonths = asNumber(
+    pick(record, ["securityDepositMonths", "Security_Deposit_Months", "financials.securityDepositMonths"])
+  );
   const priceUnitRaw = asString(
     pick(record, ["priceUnit", "Price_Unit", "financials.priceUnit"]),
     "total"
@@ -269,6 +278,7 @@ function mapZohoRecordToProperty(rawBody) {
     pick(record, ["meetingRooms", "Meeting_Rooms", "specs.meetingRooms"])
   );
   const washrooms = asNumber(pick(record, ["washrooms", "Washrooms", "specs.washrooms"]));
+  const units = asNumber(pick(record, ["units", "Units", "No_Of_Units", "Number_Of_Units", "specs.units"]));
   const pantry = asBoolean(pick(record, ["pantry", "Pantry", "specs.pantry"]));
   const sizeUnitRaw = asString(pick(record, ["sizeUnit", "Size_Unit", "specs.sizeUnit"]), "sqft").toLowerCase();
   const sizeUnit = ALLOWED_SIZE_UNITS.has(sizeUnitRaw) ? sizeUnitRaw : "sqft";
@@ -285,6 +295,16 @@ function mapZohoRecordToProperty(rawBody) {
   );
   const lockInPeriod = asString(
     pick(record, ["lockInPeriod", "Lock_In_Period", "Lock_In", "tenant.lockInPeriod"])
+  );
+
+  const areaLeased = asNumber(
+    pick(record, ["areaLeased", "Total_Area_Leased", "Area_Leased", "Total_Area_Taken", "tenant.areaLeased"])
+  );
+  const leaseTenure = asString(
+    pick(record, ["leaseTenure", "Lease_Tenure", "Lease_Period", "tenant.leaseTenure"])
+  );
+  const leaseStart = asString(
+    pick(record, ["leaseStart", "Lease_Start_Date", "Lease_Start", "tenant.leaseStart"])
   );
 
   const amenities = asStringArray(pick(record, ["amenities", "Amenities"]));
@@ -335,6 +355,9 @@ function mapZohoRecordToProperty(rawBody) {
       ...(rentalYield !== undefined ? { rentalYield } : {}),
       ...(capRate !== undefined ? { capRate } : {}),
       ...(escalation ? { escalation } : {}),
+      ...(monthlyRent !== undefined ? { monthlyRent } : {}),
+      ...(rentPerSqft !== undefined ? { rentPerSqft } : {}),
+      ...(securityDepositMonths !== undefined ? { securityDepositMonths } : {}),
     },
     specs: {
       size,
@@ -348,12 +371,16 @@ function mapZohoRecordToProperty(rawBody) {
       ...(meetingRooms !== undefined ? { meetingRooms } : {}),
       ...(pantry !== undefined ? { pantry } : {}),
       ...(washrooms !== undefined ? { washrooms } : {}),
+      ...(units !== undefined ? { units } : {}),
     },
     tenant: {
       ...(tenantName ? { name: tenantName } : {}),
       ...(tenantIndustry ? { industry: tenantIndustry } : {}),
       ...(leaseExpiry ? { leaseExpiry } : {}),
       ...(lockInPeriod ? { lockInPeriod } : {}),
+      ...(areaLeased !== undefined ? { areaLeased } : {}),
+      ...(leaseTenure ? { leaseTenure } : {}),
+      ...(leaseStart ? { leaseStart } : {}),
     },
     amenities,
     highlights,

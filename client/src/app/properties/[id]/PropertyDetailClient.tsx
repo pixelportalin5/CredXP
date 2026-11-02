@@ -3,11 +3,13 @@
 import { useEffect, useState } from "react";
 import { publicHighlights } from "@/utils/publicHighlights";
 import { useParams } from "next/navigation";
-import { listingIdFromParam } from "@/utils/listingUrl";
+import { listingIdFromParam, propertyPath } from "@/utils/listingUrl";
+import { dealWhatsAppText, formatDealAmount, getDealTerms, usesDealSheet, whatsappShareUrl } from "@/utils/dealTerms";
+import { siteConfig } from "@/config/site";
 import Link from "next/link";
 import {
   ArrowLeft, MapPin, Building2, CheckCircle2, TrendingUp,
-  Clock, FileText, Heart, Download,
+  Clock, FileText, Heart, Download, Copy, MessageCircle,
 } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Card } from "@/components/ui/Card";
@@ -205,6 +207,20 @@ export default function PropertyDetailClient({ initialProperty = null }: { initi
   ];
 
   const listingsPath = getListingDirectoryPath(property);
+  const dealSheet = usesDealSheet(property);
+  const deal = dealSheet ? getDealTerms(property) : null;
+  const dealText = dealSheet
+    ? dealWhatsAppText(property, `${siteConfig.url.replace(/\/$/, "")}${propertyPath(property)}`)
+    : "";
+
+  const handleCopyDeal = async () => {
+    try {
+      await navigator.clipboard.writeText(dealText);
+      showToast({ type: "success", title: "Deal details copied" });
+    } catch {
+      showToast({ type: "error", title: "Copy failed", message: "Please select and copy the details manually." });
+    }
+  };
 
   return (
     <Container as="section" size="xl" className="py-10 lg:py-14">
@@ -236,12 +252,47 @@ export default function PropertyDetailClient({ initialProperty = null }: { initi
             <h1 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
               {property.buildingName || title}
             </h1>
-            <p className="mt-2 text-lg font-semibold text-slate-800">{title}</p>
+            {property.buildingName && property.buildingName !== title && (
+              <p className="mt-2 text-lg font-semibold text-slate-800">{title}</p>
+            )}
             <p className="mt-3 flex items-start gap-2 text-sm leading-6 text-slate-600">
               <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-accent-500" />
               <span>{location.address}, {location.city}, {location.state}</span>
             </p>
 
+            {deal ? (
+              <>
+                <div className="mt-7 grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                      Deal Value{deal.units > 1 ? " (per unit)" : ""}
+                    </p>
+                    <p className="mt-2 text-3xl font-semibold text-slate-950">
+                      {deal.dealValue ? formatDealAmount(deal.dealValue) : "—"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">ROI</p>
+                    <p className="mt-2 text-2xl font-semibold text-slate-950">
+                      {deal.rows.find((row) => row.key === "roi")?.value ?? "—"}
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Tenant</p>
+                    <p className="mt-1 text-lg font-semibold text-slate-900">{tenant?.name || "—"}</p>
+                  </div>
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Monthly Rent</p>
+                    <p className="mt-1 text-lg font-semibold text-slate-900">
+                      {deal.rows.find((row) => row.key === "monthlyRent")?.value ?? "—"}
+                    </p>
+                  </div>
+                </div>
+              </>
+            ) : (
+            <>
             <div className="mt-7 grid grid-cols-2 gap-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Price</p>
@@ -265,6 +316,8 @@ export default function PropertyDetailClient({ initialProperty = null }: { initi
                 <p className="mt-1 text-lg font-semibold text-slate-900">{formatPricePerSqft(price, size)}</p>
               </div>
             </div>
+            </>
+            )}
 
             <div className="mt-auto pt-7">
               {isStaff(user?.role) ? (
@@ -304,6 +357,7 @@ export default function PropertyDetailClient({ initialProperty = null }: { initi
           </div>
         </div>
 
+        {!deal && (
         <div className="mt-8 overflow-x-auto border-t border-slate-200 pt-5">
           <div className="flex min-w-max gap-8">
             {detailTabs.map((tab, index) => (
@@ -318,8 +372,58 @@ export default function PropertyDetailClient({ initialProperty = null }: { initi
             ))}
           </div>
         </div>
+        )}
       </Card>
 
+      {deal && (
+        <div id="property-deal-details" className="mb-8 scroll-mt-28">
+        <Card padding="lg" className="shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent-500">Pre Rented Asset</p>
+              <h2 className="mt-1 text-xl font-semibold text-slate-900">Deal Details</h2>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <a
+                href={whatsappShareUrl(dealText)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700"
+              >
+                <MessageCircle className="h-4 w-4" />
+                Share on WhatsApp
+              </a>
+              <button
+                type="button"
+                onClick={handleCopyDeal}
+                className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+              >
+                <Copy className="h-4 w-4" />
+                Copy
+              </button>
+            </div>
+          </div>
+
+          {deal.rows.length > 0 ? (
+            <dl className="mt-6 grid gap-x-10 sm:grid-cols-2">
+              {deal.rows.map((row) => (
+                <div key={row.key} className="flex justify-between gap-4 border-b border-slate-200 py-3.5 text-sm">
+                  <dt className="text-slate-500">{row.label}</dt>
+                  <dd className="text-right">
+                    <span className="font-semibold text-slate-900">{row.value}</span>
+                    {row.note && <span className="block text-xs text-slate-500">{row.note}</span>}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          ) : (
+            <p className="mt-6 text-sm text-slate-600">Deal details are shared on request.</p>
+          )}
+        </Card>
+        </div>
+      )}
+
+      {!deal && (
       <div id="property-overview" className="grid gap-8 lg:grid-cols-2">
         <Card padding="lg" className="shadow-sm">
           <h2 className="text-lg font-semibold text-slate-900">Key Highlights</h2>
@@ -427,7 +531,9 @@ export default function PropertyDetailClient({ initialProperty = null }: { initi
         </div>
       </div>
 
-      <section id="property-enquiry-form" className="scroll-mt-28 pt-10">
+      )}
+
+      <section id="property-enquiry-form" className={deal ? "scroll-mt-28" : "scroll-mt-28 pt-10"}>
         <PropertyEnquiryForm propertyTitle={title} propertyId={_id} />
       </section>
     </Container>
