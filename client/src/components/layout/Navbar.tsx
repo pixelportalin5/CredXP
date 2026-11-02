@@ -4,13 +4,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
-import { UserCircle, LogOut, KeyRound, History, ShieldCheck, ChevronDown, Menu, X } from "lucide-react";
+import { UserCircle, LogOut, KeyRound, History, ShieldCheck, ChevronDown, Menu, X, Phone } from "lucide-react";
 import { mainNavLinks } from "@/config/navigation";
+import { siteConfig } from "@/config/site";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { shouldUseUnoptimizedImage } from "@/utils/imageUrl";
 import { cn } from "@/utils/cn";
 import { isStaff } from "@/utils/roles";
 import { getDashboardPathForRole } from "@/utils/staffPortal";
+
+const phoneHref = `tel:${siteConfig.contact.phone.replace(/[^\d+]/g, "")}`;
 
 const menuItemClass =
   "flex w-full items-center gap-2.5 px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 hover:text-slate-900";
@@ -88,7 +91,7 @@ export default function Navbar() {
   return (
     <header className="pointer-events-none fixed top-4 inset-x-4 z-[var(--z-sticky)] mx-auto max-w-[1600px]">
       <nav className="glass-nav-light pointer-events-auto relative rounded-2xl">
-        <div className="flex h-20 items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="flex h-20 items-center justify-between gap-2 px-3 sm:px-6 lg:px-8">
           <Link href="/" className="flex shrink-0 items-center" id="nav-logo">
             <Image
               src="/logos/Credxp.webp"
@@ -96,7 +99,7 @@ export default function Navbar() {
               width={260}
               height={74}
               priority
-              className="h-12 w-auto object-contain sm:h-14"
+              className="h-9 w-auto object-contain sm:h-14"
             />
           </Link>
 
@@ -119,7 +122,19 @@ export default function Navbar() {
             ))}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+            <a
+              href={phoneHref}
+              aria-label={`Call CredXP on ${siteConfig.contact.phone}`}
+              className="group inline-flex h-10 items-center gap-2 rounded-full border-2 border-accent-500 bg-accent-500/10 px-3 text-sm font-bold text-accent-600 shadow-sm transition-all hover:-translate-y-0.5 hover:bg-accent-500 hover:text-white sm:h-11 sm:px-4 sm:text-[15px]"
+            >
+              <span className="relative inline-flex h-4 w-4 items-center justify-center">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-500/40 group-hover:hidden" aria-hidden />
+                <Phone className="relative h-4 w-4" />
+              </span>
+              <span className="hidden whitespace-nowrap sm:inline lg:hidden xl:inline">{siteConfig.contact.phone}</span>
+            </a>
+
             <button
               type="button"
               className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-700 transition-colors hover:bg-slate-50 lg:hidden"
@@ -208,7 +223,7 @@ export default function Navbar() {
             ) : (
               <Link
                 href="/login"
-                className="inline-flex rounded-full bg-accent-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-accent-500/25 transition-all hover:-translate-y-0.5 hover:bg-accent-400 hover:shadow-accent-500/35 sm:px-6 sm:text-[15px]"
+                className="inline-flex rounded-full bg-accent-500 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-accent-500/25 transition-all hover:-translate-y-0.5 hover:bg-accent-400 hover:shadow-accent-500/35 sm:px-6 sm:text-[15px]"
               >
                 Login
               </Link>
@@ -258,7 +273,15 @@ export default function Navbar() {
                 </Link>
               ))}
 
-              <div className="mt-4 border-t border-slate-200 pt-4">
+              <div className="mt-4 space-y-3 border-t border-slate-200 pt-4">
+                <a
+                  href={phoneHref}
+                  className="nav-drawer-link inline-flex w-full items-center justify-center gap-2 rounded-xl border-2 border-accent-500 bg-accent-500/10 px-4 py-3 text-sm font-bold text-accent-600"
+                  style={{ animationDelay: `${mobileLinks.length * 60}ms` }}
+                >
+                  <Phone className="h-4 w-4" />
+                  Call {siteConfig.contact.phone}
+                </a>
                 {user ? (
                   <>
                     <Link
