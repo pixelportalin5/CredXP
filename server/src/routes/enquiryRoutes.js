@@ -1,4 +1,5 @@
 const express = require("express");
+const { spamGuard } = require("../middleware/spamGuard");
 const {
   createEnquiry,
   getSellerEnquiries,
@@ -12,7 +13,7 @@ const { validateEnquiry } = require("../middleware/validateRequest");
 
 const router = express.Router();
 
-router.post("/", optionalAuth, validateEnquiry, createEnquiry);
+router.post("/", spamGuard, optionalAuth, validateEnquiry, createEnquiry);
 router.get("/seller", protect, authorizeSeller, getSellerEnquiries);
 router.patch("/seller/:enquiryId/close", protect, authorizeSeller, closeSellerEnquiry);
 router.get("/me", protect, getMyEnquiries);

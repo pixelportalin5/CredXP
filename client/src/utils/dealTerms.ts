@@ -167,37 +167,51 @@ export function getDealTerms(property: Property): DealTerms {
   };
 }
 
-const WHATSAPP_EMOJI: Record<DealRowKey, string> = {
-  building: "🏢",
-  location: "📍",
-  tenant: "🏦",
-  areaLeased: "🗺️",
-  sellableArea: "🔐",
-  monthlyRent: "💰",
-  leaseTenure: "📊",
-  lockIn: "🗾",
-  escalation: "📈",
-  leaseStart: "🎊",
-  securityDeposit: "🛅",
-  roi: "✅",
-  dealValue: "💵",
+/*
+ * WhatsApp share text. No emoji: wa.me share links garble them into "?"
+ * boxes on WhatsApp Web / desktop. Plain text, ₹ and • come through fine.
+ */
+const WHATSAPP_HEADLINE: Record<string, string> = {
+  "Bank Rented": "PRE-LEASED BANK PROPERTY FOR SALE",
+  "Pre-Leased Office": "PRE-LEASED OFFICE SPACE FOR SALE",
+  "Retail/SCO": "PRE-LEASED RETAIL / SCO FOR SALE",
+  "Commercial Land": "INDUSTRIAL LAND FOR SALE",
+  Warehouse: "INDUSTRIAL / WAREHOUSE PROPERTY FOR SALE",
 };
 
-/** Blank line after these rows, matching the broker message layout. */
-const GROUP_ENDS = new Set<DealRowKey>(["tenant"]);
+const SUMMARY_ROWS: DealRowKey[] = ["dealValue", "monthlyRent", "roi", "sellableArea", "areaLeased"];
+const LEASE_ROWS: DealRowKey[] = ["leaseTenure", "lockIn", "escalation", "leaseStart", "securityDeposit"];
 
-/** The deal in the team's WhatsApp format, ending with the listing link. */
-export function dealWhatsAppText(property: Property, pageUrl: string): string {
+export interface WhatsAppContact {
+  phone?: string;
+  website?: string;
+}
+
+/** The deal as a clean WhatsApp message, ending with the listing link. */
+export function dealWhatsAppText(property: Property, pageUrl: string, contact: WhatsAppContact = {}): string {
   const { rows } = getDealTerms(property);
-  const lines = ["*🏦Pre Rented Asset*", ""];
+  const byKey = new Map(rows.map((row) => [row.key, row]));
+  const bullet = (row: DealRow) => `• ${row.label}: ${row.value}${row.note ? ` (${row.note})` : ""}`;
+  const section = (heading: string, keys: DealRowKey[]) => {
+    const items = keys.map((key) => byKey.get(key)).filter((row): row is DealRow => Boolean(row));
+    return items.length ? [`*${heading}*`, ...items.map(bullet), ""] : [];
+  };
 
-  for (const row of rows) {
-    lines.push(`*${WHATSAPP_EMOJI[row.key]}${row.label} - ${row.value}*`);
-    if (row.note) lines.push(`*( ${row.note} )*`);
-    if (GROUP_ENDS.has(row.key)) lines.push("");
-  }
+  const headline = WHATSAPP_HEADLINE[property.type] || "PRE-LEASED COMMERCIAL PROPERTY FOR SALE";
+  const name = property.buildingName || property.title;
+  const location = byKey.get("location")?.value;
+  const tenant = byKey.get("tenant")?.value;
 
-  lines.push("", pageUrl);
+  const lines = [`*${headline}*`, "", `*${name}*`];
+  if (location) lines.push(location);
+  lines.push("");
+  if (tenant) lines.push(`*Tenant:* ${tenant}`, "");
+  lines.push(...section("Investment Summary", SUMMARY_ROWS));
+  lines.push(...section("Lease Terms", LEASE_ROWS));
+  lines.push("*Photos & full details:*", pageUrl);
+
+  const footer = ["CredXP", contact.phone, contact.website].filter(Boolean).join(" | ");
+  lines.push("", `_${footer}_`);
   return lines.join("\n");
 }
 

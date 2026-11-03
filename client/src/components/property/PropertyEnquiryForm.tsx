@@ -11,6 +11,7 @@ import enquiryService from "@/services/enquiry.service";
 import { siteConfig } from "@/config/site";
 import { trackEvent } from "@/lib/analytics";
 import { whatsappUrl } from "@/utils/whatsapp";
+import { HoneypotField, useFormGuard } from "@/hooks/useFormGuard";
 
 /* ============================================================
    PropertyEnquiryForm — Lead Capture for Property Detail
@@ -26,6 +27,7 @@ interface PropertyEnquiryFormProps {
 export default function PropertyEnquiryForm({ propertyTitle, propertyId, coworkingSpaceId, subjectType = "property" }: PropertyEnquiryFormProps) {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { guardFields, restart } = useFormGuard();
   const { user } = useAuth();
   const { showToast } = useToast();
 
@@ -44,8 +46,10 @@ export default function PropertyEnquiryForm({ propertyTitle, propertyId, coworki
           message: String(formData.get("message") || ""),
           propertyId,
           coworkingSpaceId,
+          ...guardFields(formData),
         });
         form.reset();
+        restart();
         trackEvent("generate_lead", {
           form: subjectType === "coworking" ? "coworking_enquiry" : "property_enquiry",
           listing_id: propertyId || coworkingSpaceId,
@@ -59,6 +63,7 @@ export default function PropertyEnquiryForm({ propertyTitle, propertyId, coworki
         setLoading(false);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [coworkingSpaceId, propertyId, showToast, subjectType]
   );
 
@@ -82,7 +87,8 @@ export default function PropertyEnquiryForm({ propertyTitle, propertyId, coworki
           </p>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="relative space-y-4">
+          <HoneypotField />
           <FormField label="Your Name" tone="dark">
             <EnterpriseInput tone="dark" type="text" name="customerName" placeholder="Your Name" required defaultValue={user?.name || ""} id={`enquiry-name-${fieldId}`} />
           </FormField>

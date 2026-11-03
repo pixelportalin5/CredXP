@@ -211,7 +211,10 @@ export default function PropertyDetailClient({ initialProperty = null }: { initi
   const dealSheet = usesDealSheet(property);
   const deal = dealSheet ? getDealTerms(property) : null;
   const dealText = dealSheet
-    ? dealWhatsAppText(property, `${siteConfig.url.replace(/\/$/, "")}${propertyPath(property)}`)
+    ? dealWhatsAppText(property, `${siteConfig.url.replace(/\/$/, "")}${propertyPath(property)}`, {
+        phone: siteConfig.contact.phone,
+        website: siteConfig.url.replace(/^https?:\/\//, ""),
+      })
     : "";
 
   const handleCopyDeal = async () => {
