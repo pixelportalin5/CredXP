@@ -95,7 +95,7 @@ const authService = {
         updates.avatar = value;
         if (avatarPublicId !== undefined) {
           updates.avatarPublicId = String(avatarPublicId || "");
-        } else if (value.includes("res.cloudinary.com/")) {
+        } else if (require("./imageUploadService").isCloudinaryUrl(value)) {
           const { extractPublicIdFromUrl } = require("./imageUploadService");
           const derived = extractPublicIdFromUrl(value);
           if (derived) updates.avatarPublicId = derived;

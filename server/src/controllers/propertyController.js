@@ -1,4 +1,5 @@
 const propertyService = require("../services/propertyService");
+const { notifyListingSubmitted } = require("../services/inquiryEmailService");
 const bulkPropertyService = require("../services/bulkPropertyService");
 const jwt = require("jsonwebtoken");
 const ApiError = require("../utils/ApiError");
@@ -95,6 +96,12 @@ const getPropertyById = async (req, res, next) => {
 const createProperty = async (req, res, next) => {
   try {
     const property = await propertyService.create(req.body, req.user);
+    if (req.user?.role === "seller") {
+      const { findUser } = require("../lib/prisma/resolveEntity");
+      findUser(req.user._id)
+        .catch(() => null)
+        .then((seller) => notifyListingSubmitted(property, seller || req.user));
+    }
     res.status(201).json({ success: true, data: property });
   } catch (error) {
     next(error);

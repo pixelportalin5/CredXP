@@ -21,7 +21,14 @@ function isBase64DataUrl(value) {
 }
 
 function isCloudinaryUrl(value) {
-  return typeof value === "string" && value.includes("res.cloudinary.com/");
+  // Exact host match: other companies' Cloudinary hosts (e.g. jll-global-gdim-res.cloudinary.com)
+  // also contain "res.cloudinary.com/" but are not our storage and must be copied over.
+  if (typeof value !== "string") return false;
+  try {
+    return new URL(value).hostname === "res.cloudinary.com";
+  } catch {
+    return false;
+  }
 }
 
 function isSafeListImageUrl(value) {
