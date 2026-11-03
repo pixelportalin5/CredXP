@@ -257,6 +257,13 @@ function fromCredxpZohoLayout(record) {
   const isLease = known ? known.lease : listingType === "for lease" && !preLeasedSignals;
 
   let type = known?.type;
+  // Zoho "Property Type = Land" (or industrial wording) → Industrial & Land.
+  const useText = [record.Property_Type, record.Type_of_Property, record.Building_Uses]
+    .map((v) => asString(v).toLowerCase())
+    .join(" ");
+  if (!type && /\b(land|industrial|warehouse)\b/.test(useText)) {
+    type = useText.includes("warehouse") ? "Warehouse" : "Commercial Land";
+  }
   if (!type) {
     if (isLease) type = "Office Space";
     else {
@@ -275,6 +282,7 @@ function fromCredxpZohoLayout(record) {
   const size =
     positiveNumber(record.Built_Up_Area) ??
     positiveNumber(record.Carpet_Area_Sq_ft) ??
+    positiveNumber(record.Plot_Area) ??
     (listingPrice && pricePerSqft ? Math.round(listingPrice / pricePerSqft) : undefined);
 
   const recordStatus = asString(record.Record_Status__s).toLowerCase();

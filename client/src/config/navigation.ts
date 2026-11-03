@@ -13,6 +13,7 @@ export const mainNavLinks: NavLink[] = [
       { href: "/invest?type=Pre-Leased+Office", label: "Pre-Leased Office" },
       { href: "/invest?type=Bank+Rented", label: "Pre-Leased Bank" },
       { href: "/invest?type=Retail%2FSCO", label: "Pre-Leased Retail / SCO" },
+      { href: "/invest?type=Commercial+Land", label: "Industrial & Land" },
       { href: "/invest", label: "All Investments" },
     ],
   },

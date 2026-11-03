@@ -26,13 +26,14 @@ export const PROPERTY_TYPES: SelectOption[] = [
   { label: "Office Space", value: "Office Space" },
   { label: "Retail / SCO", value: "Retail/SCO" },
   { label: "Warehouse", value: "Warehouse" },
-  { label: "Commercial Land", value: "Commercial Land" },
+  { label: "Industrial & Land", value: "Commercial Land" },
 ];
 
 export const INVEST_ASSET_TYPES: SelectOption[] = [
   { label: "Pre-Leased Office", value: "Pre-Leased Office" },
   { label: "Pre-Leased Bank", value: "Bank Rented" },
   { label: "Pre-Leased Retail / SCO", value: "Retail/SCO" },
+  { label: "Industrial & Land", value: "Commercial Land" },
 ];
 
 export const LEASE_SPACE_TYPES: SelectOption[] = [
@@ -131,7 +132,14 @@ const TYPE_LABELS: Record<string, string> = {
   "Bank Rented": "Pre-Leased Bank",
   Shop: "Retail / SCO",
   "Retail/SCO": "Retail / SCO",
+  "Commercial Land": "Industrial & Land",
+  Warehouse: "Industrial & Land",
 };
+
+/** Land and industrial assets: shown by price and area, not rent / ROI. */
+export function isLandOrIndustrial(type: string): boolean {
+  return type === "Commercial Land" || type === "Warehouse";
+}
 
 export function propertyTypeLabel(type: string): string {
   return TYPE_LABELS[type] || type;
