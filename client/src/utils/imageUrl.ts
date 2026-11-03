@@ -3,7 +3,12 @@ export function isDataImageUrl(src: string | null | undefined): boolean {
 }
 
 export function isCloudinaryUrl(src: string | null | undefined): boolean {
-  return typeof src === "string" && src.includes("res.cloudinary.com/");
+  if (typeof src !== "string") return false;
+  try {
+    return new URL(src).hostname === "res.cloudinary.com";
+  } catch {
+    return false;
+  }
 }
 
 const LIST_IMAGE_TRANSFORM = "c_fill,w_720,h_720,q_auto,f_auto";

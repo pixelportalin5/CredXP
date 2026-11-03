@@ -1,8 +1,10 @@
 const enquiryService = require("../services/enquiryService");
+const { notifyEnquiry } = require("../services/inquiryEmailService");
 
 const createEnquiry = async (req, res, next) => {
   try {
     const enquiry = await enquiryService.create(req.body, req.user);
+    notifyEnquiry(enquiry, req.body);
     res.status(201).json({ success: true, data: enquiry });
   } catch (error) {
     next(error);

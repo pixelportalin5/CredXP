@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, type FormEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Mail, Phone, ArrowRight } from "lucide-react";
@@ -7,6 +8,7 @@ import { siteConfig } from "@/config/site";
 import { footerLinks } from "@/config/navigation";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
+import contactService from "@/services/contact.service";
 import { InstagramIcon, LinkedInIcon, XIcon, FacebookIcon } from "@/components/layout/SocialIcons";
 
 const socialLinks = [
@@ -18,6 +20,21 @@ const socialLinks = [
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterState, setNewsletterState] = useState<"idle" | "sending" | "done" | "error">("idle");
+
+  const handleNewsletter = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!newsletterEmail.trim() || newsletterState === "sending") return;
+    setNewsletterState("sending");
+    try {
+      await contactService.subscribeNewsletter(newsletterEmail.trim());
+      setNewsletterEmail("");
+      setNewsletterState("done");
+    } catch {
+      setNewsletterState("error");
+    }
+  };
 
   return (
     <footer className="mt-auto">
@@ -32,16 +49,35 @@ export default function Footer() {
               Stay updated with the latest CRE insights and opportunities.
             </p>
           </div>
-          <form className="flex w-full max-w-sm gap-2 sm:w-auto" onSubmit={(e) => e.preventDefault()}>
+          <form className="flex w-full max-w-sm flex-wrap gap-2 sm:w-auto" onSubmit={(e) => void handleNewsletter(e)}>
             <input
               type="email"
+              required
+              value={newsletterEmail}
+              onChange={(e) => {
+                setNewsletterEmail(e.target.value);
+                if (newsletterState !== "sending") setNewsletterState("idle");
+              }}
+              aria-label="Email address"
               placeholder="Enter your email"
               className="flex-1 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-accent-500/50 focus:ring-1 focus:ring-accent-500/15"
               id="footer-newsletter-email"
             />
-            <Button variant="primary" size="sm" iconRight={<ArrowRight className="h-3.5 w-3.5" />}>
-              Subscribe
+            <Button
+              type="submit"
+              variant="primary"
+              size="sm"
+              disabled={newsletterState === "sending"}
+              iconRight={<ArrowRight className="h-3.5 w-3.5" />}
+            >
+              {newsletterState === "sending" ? "Sending…" : "Subscribe"}
             </Button>
+            {newsletterState === "done" && (
+              <p className="w-full text-xs text-emerald-700" role="status">Thanks! You&apos;re subscribed.</p>
+            )}
+            {newsletterState === "error" && (
+              <p className="w-full text-xs text-red-600" role="status">Couldn&apos;t subscribe. Please try again.</p>
+            )}
           </form>
         </Container>
       </div>
