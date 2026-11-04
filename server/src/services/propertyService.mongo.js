@@ -116,6 +116,7 @@ const propertyService = {
         { buildingName: searchRegex },
         { "location.city": searchRegex },
         { "location.micromarket": searchRegex },
+        { "location.address": searchRegex },
         { "tenant.name": searchRegex },
       ];
     }

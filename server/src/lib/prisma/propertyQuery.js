@@ -92,6 +92,7 @@ function buildPropertyWhere(filters = {}) {
       { buildingName: { contains: q, mode: "insensitive" } },
       { locationCity: { contains: q, mode: "insensitive" } },
       { locationMicromarket: { contains: q, mode: "insensitive" } },
+      { locationAddress: { contains: q, mode: "insensitive" } },
       { tenantName: { contains: q, mode: "insensitive" } },
     ];
   }

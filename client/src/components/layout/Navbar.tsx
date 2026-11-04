@@ -6,10 +6,12 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { UserCircle, LogOut, KeyRound, History, ShieldCheck, ChevronDown, Menu, X, Phone } from "lucide-react";
 import { mainNavLinks } from "@/config/navigation";
+import HeaderSearch from "@/components/layout/HeaderSearch";
 import { siteConfig } from "@/config/site";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { shouldUseUnoptimizedImage } from "@/utils/imageUrl";
 import { cn } from "@/utils/cn";
+import type { NavLink } from "@/types/common";
 import { isStaff } from "@/utils/roles";
 import { getDashboardPathForRole } from "@/utils/staffPortal";
 
@@ -78,7 +80,7 @@ export default function Navbar() {
         ]
       : [];
 
-  const mobileLinks = [...mainNavLinks, ...sellerLinks];
+  const mobileLinks: NavLink[] = [...mainNavLinks, ...sellerLinks];
 
   const linkClass = (href: string) =>
     cn(
@@ -99,19 +101,54 @@ export default function Navbar() {
               width={260}
               height={74}
               priority
-              className="h-9 w-auto object-contain sm:h-14"
+              className="h-7 w-auto object-contain min-[400px]:h-9 sm:h-14"
             />
           </Link>
 
           <div className="hidden flex-1 items-center justify-center gap-8 lg:flex xl:gap-10">
-            {mainNavLinks.map((link) => (
-              <Link key={link.href + link.label} href={link.href} className={linkClass(link.href)}>
-                {link.label}
-                {isActive(link.href) && (
-                  <span className="absolute -bottom-1 left-1/2 h-0.5 w-5 -translate-x-1/2 rounded-full bg-accent-500" />
-                )}
-              </Link>
-            ))}
+            {mainNavLinks.map((link) =>
+              link.children?.length ? (
+                <div key={link.href + link.label} className="group/menu relative">
+                  <Link href={link.href} className={cn(linkClass(link.href), "inline-flex items-center gap-1")} aria-haspopup="true">
+                    {link.label}
+                    <ChevronDown className="h-3.5 w-3.5 transition-transform duration-200 group-hover/menu:rotate-180 group-focus-within/menu:rotate-180" />
+                    {isActive(link.href) && (
+                      <span className="absolute -bottom-1 left-1/2 h-0.5 w-5 -translate-x-1/2 rounded-full bg-accent-500" />
+                    )}
+                  </Link>
+                  {/* pt-3 bridges the gap so the menu stays open while the pointer moves down */}
+                  <div className="invisible absolute left-1/2 top-full z-20 w-64 -translate-x-1/2 translate-y-1 pt-3 opacity-0 transition-all duration-200 group-hover/menu:visible group-hover/menu:translate-y-0 group-hover/menu:opacity-100 group-focus-within/menu:visible group-focus-within/menu:translate-y-0 group-focus-within/menu:opacity-100">
+                    <div className="rounded-2xl border border-slate-200 bg-white p-2 shadow-xl">
+                      {link.children.map((child) => {
+                        const isAll = child.label.startsWith("All ");
+                        return (
+                          <Link
+                            key={child.href + child.label}
+                            href={child.href}
+                            className={cn(
+                              "flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors",
+                              isAll
+                                ? "mt-1 border-t border-slate-100 text-accent-600 hover:bg-accent-500/5"
+                                : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                            )}
+                          >
+                            {child.label}
+                            {isAll && <span aria-hidden>→</span>}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <Link key={link.href + link.label} href={link.href} className={linkClass(link.href)}>
+                  {link.label}
+                  {isActive(link.href) && (
+                    <span className="absolute -bottom-1 left-1/2 h-0.5 w-5 -translate-x-1/2 rounded-full bg-accent-500" />
+                  )}
+                </Link>
+              )
+            )}
             {sellerLinks.map((link) => (
               <Link key={link.href} href={link.href} className={linkClass(link.href)}>
                 {link.label}
@@ -122,7 +159,8 @@ export default function Navbar() {
             ))}
           </div>
 
-          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+          <div className="flex shrink-0 items-center gap-1 min-[400px]:gap-1.5 sm:gap-2">
+            <HeaderSearch />
             <a
               href={phoneHref}
               aria-label={`Call CredXP on ${siteConfig.contact.phone}`}
@@ -257,20 +295,36 @@ export default function Navbar() {
 
             <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-4 py-5">
               {mobileLinks.map((link, index) => (
-                <Link
-                  key={link.href + link.label}
-                  href={link.href}
-                  onClick={() => setDrawerOpen(false)}
-                  className={cn(
-                    "nav-drawer-link rounded-xl px-4 py-3 text-base font-semibold transition-colors",
-                    isActive(link.href)
-                      ? "bg-accent-500/10 text-accent-600"
-                      : "text-slate-800 hover:bg-slate-50"
-                  )}
-                  style={{ animationDelay: `${index * 60}ms` }}
-                >
-                  {link.label}
-                </Link>
+                <div key={link.href + link.label} className="nav-drawer-link" style={{ animationDelay: `${index * 60}ms` }}>
+                  <Link
+                    href={link.href}
+                    onClick={() => setDrawerOpen(false)}
+                    className={cn(
+                      "block rounded-xl px-4 py-3 text-base font-semibold transition-colors",
+                      isActive(link.href)
+                        ? "bg-accent-500/10 text-accent-600"
+                        : "text-slate-800 hover:bg-slate-50"
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                  {link.children?.length ? (
+                    <div className="mb-1 ml-4 border-l border-slate-200 pl-2">
+                      {link.children
+                        .filter((child) => !child.label.startsWith("All "))
+                        .map((child) => (
+                          <Link
+                            key={child.href + child.label}
+                            href={child.href}
+                            onClick={() => setDrawerOpen(false)}
+                            className="block rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                          >
+                            {child.label}
+                          </Link>
+                        ))}
+                    </div>
+                  ) : null}
+                </div>
               ))}
 
               <div className="mt-4 space-y-3 border-t border-slate-200 pt-4">
