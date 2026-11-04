@@ -1,4 +1,5 @@
 const express = require("express");
+const { spamGuard } = require("../middleware/spamGuard");
 const { createContactMessage, subscribeNewsletter } = require("../controllers/contactController");
 const { validateContactMessage } = require("../middleware/validateRequest");
 
@@ -24,7 +25,7 @@ function limitNewsletter(req, res, next) {
   return next();
 }
 
-router.post("/", validateContactMessage, createContactMessage);
-router.post("/newsletter", limitNewsletter, subscribeNewsletter);
+router.post("/", spamGuard, validateContactMessage, createContactMessage);
+router.post("/newsletter", limitNewsletter, spamGuard, subscribeNewsletter);
 
 module.exports = router;

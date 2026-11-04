@@ -7,6 +7,7 @@ import { EnterpriseInput, EnterpriseSelect, EnterpriseTextarea, FormField } from
 import { useToast } from "@/components/providers/ToastProvider";
 import contactService from "@/services/contact.service";
 import { trackEvent } from "@/lib/analytics";
+import { HoneypotField, useFormGuard } from "@/hooks/useFormGuard";
 
 const enquiryTypeOptions = [
   { label: "Investment Advisory", value: "Investment Advisory" },
@@ -19,6 +20,7 @@ const enquiryTypeOptions = [
 export default function ContactMessageForm() {
   const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
+  const { guardFields, restart } = useFormGuard();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -46,8 +48,10 @@ export default function ContactMessageForm() {
         company: String(formData.get("company") || ""),
         enquiryType: String(formData.get("enquiryType") || ""),
         message: String(formData.get("message") || ""),
+        ...guardFields(formData),
       });
       form.reset();
+      restart();
       trackEvent("generate_lead", { form: "contact", enquiry_type: String(formData.get("enquiryType") || "") });
       showToast({
         type: "success",
@@ -66,7 +70,8 @@ export default function ContactMessageForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="relative space-y-5">
+      <HoneypotField />
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <FormField label="Full Name" tone="dark">
           <EnterpriseInput tone="dark" name="fullName" placeholder="Enter your full name here" required id="contact-name" />
