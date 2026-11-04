@@ -18,6 +18,7 @@ import AuthMethodTabs, {
   type AuthMethod,
 } from "@/components/auth/AuthMethodTabs";
 import WhatsAppOtpForm from "@/components/auth/WhatsAppOtpForm";
+import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -28,6 +29,7 @@ export default function RegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
   const [method, setMethod] = useState<AuthMethod>("whatsapp");
+  const [googleRole, setGoogleRole] = useState<"buyer" | "seller">("buyer");
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -98,6 +100,41 @@ export default function RegisterPage() {
             commercial listings.
           </p>
         </div>
+        {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && (
+          <div className="mb-4 flex justify-center gap-2 text-sm" role="radiogroup" aria-label="I want to">
+            {(
+              [
+                ["buyer", "I want to buy / invest"],
+                ["seller", "I want to sell / list"],
+              ] as const
+            ).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                role="radio"
+                aria-checked={googleRole === value}
+                onClick={() => setGoogleRole(value)}
+                className={`rounded-full border px-3 py-1.5 font-medium transition-colors ${
+                  googleRole === value ? "border-accent-500 bg-accent-100 text-accent-600" : "border-slate-200 text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
+        <GoogleSignInButton
+          context="signup"
+          role={googleRole}
+          onSignedIn={(user, isNew) => {
+            showToast({
+              type: "success",
+              title: isNew ? "Account created" : "Welcome back",
+              message: isNew ? "Welcome to CredXP." : "This Google account already has a CredXP account, so you're signed in.",
+            });
+            router.push(user.role === "seller" ? (isNew ? "/list-property" : "/seller/dashboard") : "/user/dashboard");
+          }}
+        />
         <AuthMethodTabs value={method} onChange={setMethod} />
         {method === "whatsapp" ? (
           <WhatsAppOtpForm

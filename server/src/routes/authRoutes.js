@@ -1,5 +1,5 @@
 const express = require("express");
-const { register, login, me, updateMe, updatePassword, sendOtp, verifyOtp, completeOtpSignup } = require("../controllers/authController");
+const { register, login, me, updateMe, updatePassword, googleSignIn, sendOtp, verifyOtp, completeOtpSignup } = require("../controllers/authController");
 const { protect } = require("../middleware/authMiddleware");
 const { validateAuth } = require("../middleware/validateRequest");
 
@@ -24,6 +24,7 @@ function limitOtpSends(req, res, next) {
 
 router.post("/register", validateAuth("register"), register);
 router.post("/login", validateAuth("login"), login);
+router.post("/google", googleSignIn);
 router.post("/otp/send", limitOtpSends, sendOtp);
 router.post("/otp/verify", verifyOtp);
 router.post("/otp/register", completeOtpSignup);

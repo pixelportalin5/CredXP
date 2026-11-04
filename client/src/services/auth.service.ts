@@ -21,6 +21,9 @@ const authService = {
     password: string;
   }): Promise<{ data: AuthResponse }> => api.post("/auth/login", data),
 
+  googleSignIn: (data: { credential: string; role?: "buyer" | "seller" }): Promise<{ data: AuthResponse & { isNew?: boolean } }> =>
+    api.post("/auth/google", data),
+
   sendOtp: (phone: string): Promise<{ data: { phone: string; expiresInSeconds: number; resendAfterSeconds: number } }> =>
     api.post("/auth/otp/send", { phone }),
 
