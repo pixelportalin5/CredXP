@@ -52,6 +52,17 @@ const updatePassword = async (req, res, next) => {
   }
 };
 
+const googleSignIn = async (req, res, next) => {
+  try {
+    if (getDbProvider() !== "postgres") throw new ApiError(501, "Google sign-in needs the Postgres database");
+    const googleAuthService = require("../services/googleAuthService");
+    const { credential, role } = req.body || {};
+    res.json({ success: true, data: await googleAuthService.signIn(credential, { role }) });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const sendOtp = async (req, res, next) => {
   try {
     res.json({ success: true, data: await otpService().sendCode(req.body?.phone) });
@@ -78,6 +89,7 @@ const completeOtpSignup = async (req, res, next) => {
 };
 
 module.exports = {
+  googleSignIn,
   sendOtp,
   verifyOtp,
   completeOtpSignup,

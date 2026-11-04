@@ -109,6 +109,8 @@ model User {
   phone          String?
   /// Mobile number proven by WhatsApp OTP, as 91XXXXXXXXXX. Used for OTP login.
   phoneVerified  String?       @unique @map("phone_verified")
+  /// Google account id ("sub") for Continue with Google.
+  googleId       String?       @unique @map("google_id")
   avatar         String?
   avatarPublicId String?       @default("") @map("avatar_public_id")
   role           UserRole      @default(buyer)

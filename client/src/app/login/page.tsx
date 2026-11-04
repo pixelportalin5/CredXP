@@ -15,6 +15,7 @@ import AuthMethodTabs, {
   type AuthMethod,
 } from "@/components/auth/AuthMethodTabs";
 import WhatsAppOtpForm from "@/components/auth/WhatsAppOtpForm";
+import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
 import type { User } from "@/types/auth";
 
 function LoginContent() {
@@ -77,6 +78,16 @@ function LoginContent() {
             Manage saved properties, enquiries, listings, and account activity.
           </p>
         </div>
+        <GoogleSignInButton
+          onSignedIn={(user, isNew) => {
+            if (isNew) {
+              showToast({ type: "success", title: "Account created", message: "Welcome to CredXP." });
+              router.push(searchParams.get("next") || "/user/dashboard");
+            } else {
+              goToDashboard(user);
+            }
+          }}
+        />
         <AuthMethodTabs value={method} onChange={setMethod} />
         {method === "whatsapp" ? (
           <WhatsAppOtpForm
