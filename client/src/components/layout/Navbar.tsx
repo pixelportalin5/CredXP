@@ -223,9 +223,10 @@ export default function Navbar() {
             ) : (
               <Link
                 href="/login"
-                className="inline-flex rounded-full bg-accent-500 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-accent-500/25 transition-all hover:-translate-y-0.5 hover:bg-accent-400 hover:shadow-accent-500/35 sm:px-6 sm:text-[15px]"
+                className="inline-flex whitespace-nowrap rounded-full bg-accent-500 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-accent-500/25 transition-all hover:-translate-y-0.5 hover:bg-accent-400 hover:shadow-accent-500/35 sm:px-6 sm:text-[15px]"
               >
-                Login
+                <span className="sm:hidden">Login</span>
+                <span className="hidden sm:inline">Login / Register</span>
               </Link>
             )}
           </div>
@@ -311,7 +312,7 @@ export default function Navbar() {
                     className="nav-drawer-link inline-flex w-full items-center justify-center rounded-xl bg-accent-500 px-4 py-3 text-sm font-bold text-white"
                     style={{ animationDelay: `${mobileLinks.length * 60}ms` }}
                   >
-                    Login
+                    Login / Register
                   </Link>
                 )}
               </div>
