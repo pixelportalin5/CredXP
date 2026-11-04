@@ -107,6 +107,8 @@ model User {
   email          String        @unique
   password       String
   phone          String?
+  /// Mobile number proven by WhatsApp OTP, as 91XXXXXXXXXX. Used for OTP login.
+  phoneVerified  String?       @unique @map("phone_verified")
   avatar         String?
   avatarPublicId String?       @default("") @map("avatar_public_id")
   role           UserRole      @default(buyer)
@@ -365,4 +367,18 @@ model MigrationCheckpoint {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("migration_checkpoints")
+}
+
+/// One-time login codes sent on WhatsApp. Only a hash of the code is stored.
+model OtpCode {
+  id        String    @id @default(uuid()) @db.Uuid
+  phone     String
+  codeHash  String    @map("code_hash")
+  attempts  Int       @default(0)
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@index([phone, createdAt(sort: Desc)])
+  @@map("otp_codes")
 }

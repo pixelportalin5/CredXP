@@ -12,6 +12,8 @@ interface AuthContextValue {
   login: (email: string, password: string) => Promise<User>;
   register: (data: { name: string; email: string; password: string; phone?: string; role?: "buyer" | "seller" }) => Promise<User>;
   refreshUser: () => Promise<User>;
+  /** Store a session returned by another sign-in method (e.g. WhatsApp OTP). */
+  startSession: (token: string, user: User) => void;
   logout: () => void;
 }
 
@@ -87,8 +89,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [router]);
 
   const value = useMemo(
-    () => ({ user, token, loading, login, register, refreshUser, logout }),
-    [user, token, loading, login, register, refreshUser, logout]
+    () => ({ user, token, loading, login, register, refreshUser, startSession: persistSession, logout }),
+    [user, token, loading, login, register, refreshUser, persistSession, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

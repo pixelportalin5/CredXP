@@ -1,4 +1,11 @@
 const authService = require("../services/authService");
+const { getDbProvider } = require("../lib/dbProvider");
+const ApiError = require("../utils/ApiError");
+
+function otpService() {
+  if (getDbProvider() !== "postgres") throw new ApiError(501, "Mobile login needs the Postgres database");
+  return require("../services/otpAuthService");
+}
 
 const register = async (req, res, next) => {
   try {
@@ -45,7 +52,35 @@ const updatePassword = async (req, res, next) => {
   }
 };
 
+const sendOtp = async (req, res, next) => {
+  try {
+    res.json({ success: true, data: await otpService().sendCode(req.body?.phone) });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const verifyOtp = async (req, res, next) => {
+  try {
+    res.json({ success: true, data: await otpService().verifyCode(req.body?.phone, req.body?.code) });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const completeOtpSignup = async (req, res, next) => {
+  try {
+    const { signupToken, name, email, role } = req.body || {};
+    res.status(201).json({ success: true, data: await otpService().completeSignup(signupToken, { name, email, role }) });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
+  sendOtp,
+  verifyOtp,
+  completeOtpSignup,
   register,
   login,
   me,
